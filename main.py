@@ -32,16 +32,44 @@ PENDING_PATH = HISTORY_DIR / "pending_email.txt"
 
 CONTROL_TAB = "Control"
 CONTROL_CELL = "B2"
-UPDATES_TAB = "Weekly Updates"
-UPDATES_HEADERS = (
-    "Date",
-    "Account",
-    "Workstream",
-    "Task Name / Description",
+TASKS_TAB = "Tasks"
+CHANGE_LOG_TAB = "Log de Cambios"
+TASKS_HEADERS = (
+    "Titulo de Tarea",
+    "Mes",
+    "Fecha",
+    "Propiedad",
     "Status",
-    "Notes / Blockers",
+    "Owner",
+    "Reporter",
+    "LOEE (hs)",
+    "Categoria",
+    "Deadline Estimado",
+    "Link Jira",
+    "Referencias/Links y Comentarios",
 )
-VALID_ACCOUNTS = {"WWS", "TCP", "Both"}
+CHANGE_LOG_HEADERS = (
+    "Fecha",
+    "Titulo de Tarea",
+    "Status Anterior",
+    "Status Nuevo",
+)
+ACCOUNT_ALIASES = {
+    "wws": "WWS",
+    "tcp": "TCP",
+    "both": "Both",
+    "ambas": "Both",
+    "ambos": "Both",
+}
+STATUS_ALIASES = {
+    "done": "DONE",
+    "en progreso": "IN PROGRESS",
+    "in progress": "IN PROGRESS",
+    "bloqueado": "BLOCKER",
+    "bloqueada": "BLOCKER",
+    "blocked": "BLOCKER",
+    "blocker": "BLOCKER",
+}
 GEMINI_MODEL = "gemini-2.0-flash"
 GEMINI_ATTEMPTS = 3
 GEMINI_RETRY_SECONDS = 5
@@ -85,6 +113,10 @@ Output rules:
    and GA4.
 9. Do not invent facts, dates, owners, metrics, causes, or outcomes. Put the
    exact tag [CONFIRMAR] inline whenever input is ambiguous or incomplete.
+   A source value equal to [CONFIRMAR] is explicitly missing and must remain
+   visible in the relevant work bullet. For a missing workstream, use the
+   header **Unclassified workstream [CONFIRMAR]**. For a missing account,
+   include `Account [CONFIRMAR]` in the bullet instead of guessing WWS or TCP.
 10. Compare with the prior EOW. An ongoing prior task must be described as
     continuing, not as a fresh item. Use the continuing-next-week status when
     the supplied evidence supports it.
@@ -149,6 +181,8 @@ def parse_sheet_date(value: Any) -> date:
     text = str(value).strip()
     formats = (
         "%Y-%m-%d",
+        "%m/%d/%Y %H:%M:%S",
+        "%d/%m/%Y %H:%M:%S",
         "%m/%d/%Y",
         "%d/%m/%Y",
         "%m/%d/%y",
@@ -166,69 +200,132 @@ def parse_sheet_date(value: Any) -> date:
         raise ValueError(f"Unsupported sheet date: {text!r}") from exc
 
 
+def normalized_key(value: Any) -> str:
+    return " ".join(str(value).split()).casefold()
+
+
+def require_headers(
+    tab_name: str, actual: list[str], expected: tuple[str, ...]
+) -> None:
+    if tuple(actual) != expected:
+        raise RuntimeError(
+            f"{tab_name} header row must exactly equal: " + " | ".join(expected)
+        )
+
+
+def rows_as_dicts(
+    values: list[list[str]], headers: tuple[str, ...]
+) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    for raw_row in values[1:]:
+        row = list(raw_row[: len(headers)])
+        row.extend([""] * (len(headers) - len(row)))
+        rows.append(
+            dict(zip(headers, (str(value).strip() for value in row)))
+        )
+    return rows
+
+
 def weekly_updates(
     book: gspread.Spreadsheet, week_ending: date
 ) -> list[dict[str, str]]:
-    worksheet = book.worksheet(UPDATES_TAB)
-    values = worksheet.get_all_values()
-    if not values:
-        raise RuntimeError(f"Sheet tab {UPDATES_TAB!r} is empty.")
+    task_values = book.worksheet(TASKS_TAB).get_all_values()
+    log_values = book.worksheet(CHANGE_LOG_TAB).get_all_values()
+    if not task_values:
+        raise RuntimeError(f"Sheet tab {TASKS_TAB!r} is empty.")
+    if not log_values:
+        raise RuntimeError(f"Sheet tab {CHANGE_LOG_TAB!r} is empty.")
+    require_headers(TASKS_TAB, task_values[0], TASKS_HEADERS)
+    require_headers(CHANGE_LOG_TAB, log_values[0], CHANGE_LOG_HEADERS)
 
-    actual_headers = tuple(values[0])
-    if actual_headers != UPDATES_HEADERS:
+    tasks_by_title: dict[str, dict[str, str]] = {}
+    duplicate_titles: set[str] = set()
+    for task in rows_as_dicts(task_values, TASKS_HEADERS):
+        key = normalized_key(task["Titulo de Tarea"])
+        if not key:
+            continue
+        if key in tasks_by_title:
+            duplicate_titles.add(task["Titulo de Tarea"])
+        tasks_by_title[key] = task
+    if duplicate_titles:
         raise RuntimeError(
-            f"{UPDATES_TAB}!A1:F1 must exactly equal: "
-            + " | ".join(UPDATES_HEADERS)
+            "Tasks contains duplicate titles: "
+            + ", ".join(sorted(duplicate_titles))
         )
 
     period_start = week_ending - timedelta(days=6)
-    selected: list[dict[str, str]] = []
-    for row_number, raw_row in enumerate(values[1:], start=2):
-        row = list(raw_row[: len(UPDATES_HEADERS)])
-        row.extend([""] * (len(UPDATES_HEADERS) - len(row)))
-        cells = dict(zip(UPDATES_HEADERS, (str(value).strip() for value in row)))
-
-        task = cells["Task Name / Description"]
-        if not task:
+    latest_events: dict[str, tuple[datetime, dict[str, str]]] = {}
+    ignored_invalid_statuses = 0
+    for row_number, event in enumerate(
+        rows_as_dicts(log_values, CHANGE_LOG_HEADERS), start=2
+    ):
+        title = event["Titulo de Tarea"]
+        if not title:
             continue
         try:
-            row_date = parse_sheet_date(cells["Date"])
+            event_date = parse_sheet_date(event["Fecha"])
         except ValueError as exc:
             raise RuntimeError(
-                f"Invalid date on {UPDATES_TAB}! row {row_number}."
+                f"Invalid date on {CHANGE_LOG_TAB}! row {row_number}."
             ) from exc
+        if not period_start <= event_date <= week_ending:
+            continue
 
-        account = cells["Account"]
-        if account not in VALID_ACCOUNTS:
-            raise RuntimeError(
-                f"Invalid Account on {UPDATES_TAB}! row {row_number}: "
-                f"{account!r}. Expected WWS, TCP, or Both."
-            )
-        if not cells["Workstream"]:
-            raise RuntimeError(
-                f"Missing Workstream on {UPDATES_TAB}! row {row_number}."
-            )
-        if not cells["Status"]:
-            raise RuntimeError(
-                f"Missing Status on {UPDATES_TAB}! row {row_number}."
+        normalized_status = STATUS_ALIASES.get(
+            normalized_key(event["Status Nuevo"])
+        )
+        if not normalized_status:
+            ignored_invalid_statuses += 1
+            continue
+
+        key = normalized_key(title)
+        timestamp = datetime.combine(event_date, datetime.min.time())
+        try:
+            timestamp = datetime.strptime(event["Fecha"], "%m/%d/%Y %H:%M:%S")
+        except ValueError:
+            pass
+        previous = latest_events.get(key)
+        if previous is None or timestamp >= previous[0]:
+            latest_events[key] = (
+                timestamp,
+                {**event, "status": normalized_status},
             )
 
-        if period_start <= row_date <= week_ending:
-            selected.append(
-                {
-                    "date": row_date.isoformat(),
-                    "account": account,
-                    "workstream": cells["Workstream"],
-                    "task_name_description": task,
-                    "status": cells["Status"],
-                    "notes_blockers": cells["Notes / Blockers"],
-                }
-            )
+    if ignored_invalid_statuses:
+        LOGGER.warning(
+            "Ignored %s change-log rows whose new value was not a valid status.",
+            ignored_invalid_statuses,
+        )
+
+    selected: list[dict[str, str]] = []
+    for key, (timestamp, event) in sorted(
+        latest_events.items(), key=lambda item: item[1][0]
+    ):
+        task = tasks_by_title.get(key, {})
+        account = ACCOUNT_ALIASES.get(
+            normalized_key(task.get("Propiedad", "")), "[CONFIRMAR]"
+        )
+        workstream = task.get("Categoria", "") or "[CONFIRMAR]"
+        selected.append(
+            {
+                "changed_at": timestamp.isoformat(),
+                "account": account,
+                "workstream": workstream,
+                "task_name_description": event["Titulo de Tarea"],
+                "status_before": event["Status Anterior"] or "[CONFIRMAR]",
+                "status": event["status"],
+                "notes_blockers": (
+                    task.get("Referencias/Links y Comentarios", "")
+                    or "[CONFIRMAR]"
+                ),
+                "task_matched_in_master": "yes" if task else "no",
+            }
+        )
 
     if not selected:
         raise RuntimeError(
-            f"No updates found from {period_start.isoformat()} "
-            f"through {week_ending.isoformat()}."
+            f"No valid status changes found in {CHANGE_LOG_TAB!r} from "
+            f"{period_start.isoformat()} through {week_ending.isoformat()}."
         )
     return selected
 

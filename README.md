@@ -22,19 +22,26 @@ generation is skipped.
 The spreadsheet must contain:
 
 1. Tab `Control`, with checkbox `APPR_EOW_FOR_MAIL` in cell `B2`.
-2. Tab `Weekly Updates` with this header row:
+2. Tab `Tasks`, the deduplicated task master, with these exact headers:
 
-| Date | Account | Workstream | Task Name / Description | Status | Notes / Blockers |
-| --- | --- | --- | --- | --- | --- |
-| 2026-08-24 | WWS | Reporting and Other Issues | Example task | IN PROGRESS | Waiting for access |
+`Titulo de Tarea`, `Mes`, `Fecha`, `Propiedad`, `Status`, `Owner`, `Reporter`,
+`LOEE (hs)`, `Categoria`, `Deadline Estimado`, `Link Jira`,
+`Referencias/Links y Comentarios`.
 
-The default weekly window is Saturday through the Friday named in the report.
-Thursday rows are available immediately; Friday rows can only appear if the
-pipeline is regenerated before delivery. Accepted date formats include
-`YYYY-MM-DD`, `MM/DD/YYYY`, and `DD/MM/YYYY`.
+3. Tab `Log de Cambios`, populated by `apps-script/Code.gs`, with:
 
-The six headers and their A-F order are fixed. `Account` accepts only `WWS`,
-`TCP`, or `Both`.
+`Fecha`, `Titulo de Tarea`, `Status Anterior`, `Status Nuevo`.
+
+The weekly window is Saturday through the Friday named in the report. The
+reader takes status changes from `Log de Cambios`, keeps the latest event for
+each task, and joins it to `Tasks` by normalized task title.
+
+Recognized account values in `Propiedad` are `WWS`, `TCP`, `Both`, `Ambas`, and
+`Ambos`. Missing accounts or `Categoria` values are sent to Gemini as
+`[CONFIRMAR]`; they are never guessed. Recognized status values are `Done`,
+`En progreso`, `In progress`, `Bloqueado`, `Bloqueada`, `Blocked`, and
+`Blocker`. Rows whose new value is not a status are ignored and logged as a
+warning.
 
 ## Permission setup
 
@@ -125,14 +132,24 @@ In the GitHub repository:
 secret. It receives `contents: write` only so the workflow can commit files in
 `history/`.
 
-Optional configuration belongs under **Settings > Secrets and variables >
-Actions > Variables**. Variables are appropriate for non-secret tab names,
-column names, and model IDs.
+The Sheet tab names, headers, and Gemini model are fixed in code so accidental
+repository-variable changes cannot point the automation at the wrong data.
 
-### 5. Optional Apps Script webhook
+### 5. Apps Script status log and optional checkbox webhook
 
-The scheduled Thursday run does not require Apps Script. Add this only when
-checking `Control!B2` should launch generation immediately.
+The `onEdit` function in `apps-script/Code.gs` is required: it appends every
+change in the `Tasks` column named `Status` to `Log de Cambios`. It resolves
+the columns by header name rather than a fixed letter.
+
+1. In the Sheet, open **Extensions > Apps Script**.
+2. Replace the old `Code.gs` contents with the complete contents of
+   `apps-script/Code.gs`.
+3. Click **Save**. The `onEdit` function starts logging status changes without
+   a separate trigger.
+
+The scheduled Thursday run needs no GitHub token in Apps Script. Complete the
+steps below only when checking `Control!B2` should launch generation
+immediately instead of waiting for the schedule.
 
 #### Create a least-privilege GitHub token
 
@@ -146,15 +163,15 @@ checking `Control!B2` should launch generation immediately.
 A classic PAT also works with `repo`, but grants broader access and is not
 preferred.
 
-#### Store properties and install the trigger
+#### Store properties and install the checkbox trigger
 
-1. In the Sheet, open **Extensions > Apps Script**.
-2. Open **Project Settings > Script Properties**.
-3. Add:
+1. Open **Project Settings > Script Properties**.
+2. Add:
    - `GH_TOKEN`
    - `GH_OWNER`
    - `GH_REPO`
-4. Put the following function in the bound script:
+3. The `dispatchEowOnEdit` function is already included in
+   `apps-script/Code.gs`.
 
 ```javascript
 function dispatchEowOnEdit(e) {
@@ -197,11 +214,11 @@ function dispatchEowOnEdit(e) {
 }
 ```
 
-5. Click **Triggers** (clock icon) > **Add Trigger**.
-6. Function: `dispatchEowOnEdit`.
-7. Event source: **From spreadsheet**.
-8. Event type: **On edit**.
-9. Authorize spreadsheet access and external requests to `api.github.com`.
+4. Click **Triggers** (clock icon) > **Add Trigger**.
+5. Function: `dispatchEowOnEdit`.
+6. Event source: **From spreadsheet**.
+7. Event type: **On edit**.
+8. Authorize spreadsheet access and external requests to `api.github.com`.
 
 Use an installable trigger. A simple `onEdit` trigger cannot reliably make the
 authorized external request. Keep the PAT in Script Properties, never in a
@@ -212,11 +229,12 @@ Sheet cell or source code.
 ## First-run checklist
 
 1. Confirm the Sheet is shared with the service-account `client_email`.
-2. Confirm `Weekly Updates` uses the configured headers.
+2. Confirm `Tasks` and `Log de Cambios` use the exact configured headers.
 3. Leave `Control!B2` as `FALSE`.
 4. In GitHub, open **Actions > EOW automation > Run workflow** and choose
    `generate`. It should finish without Gemini or history changes.
-5. Add a current-week test row and set `B2` to `TRUE`.
+5. Change one real task's `Status`, confirm a new `Log de Cambios` row, and
+   set `B2` to `TRUE`.
 6. Manually run `generate`.
 7. Review `history/last_eow.md` and `history/pending_email.txt`.
 8. Set `EMAIL_TO` to an internal test recipient.
