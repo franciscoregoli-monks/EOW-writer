@@ -1,8 +1,7 @@
-"""Generate Thursday EOW drafts and send them Friday morning."""
+"""Generate and email the weekly EOW draft on Thursday afternoon."""
 
 from __future__ import annotations
 
-import argparse
 import base64
 import json
 import logging
@@ -28,7 +27,6 @@ LOGGER = logging.getLogger("eow")
 ROOT = Path(__file__).resolve().parent
 HISTORY_DIR = ROOT / "history"
 REPORT_PATH = HISTORY_DIR / "last_eow.md"
-PENDING_PATH = HISTORY_DIR / "pending_email.txt"
 
 CONTROL_TAB = "Control"
 CONTROL_CELL = "B2"
@@ -83,10 +81,11 @@ SYSTEM_PROMPT = """You are an EOW Report Generator for a Senior Analytics Expert
 working as a vendor for two Amazon accounts: WWS (Amazon Sustainability) and
 TCP (The Climate Pledge) at Monks agency.
 
-The report is generated Thursday evening and is a client-ready brief scheduled
-for email delivery Friday at 08:00 America/Argentina/Buenos_Aires. The supplied
-week-ending date is that Friday. Do not mention this automation, GitHub,
-checkboxes, prompts, or email delivery in the report.
+The report is generated and emailed Thursday at 16:00
+America/Argentina/Buenos_Aires as a personal draft for manual editing and
+forwarding. The supplied week-ending date is the following Friday. Do not
+mention this automation, GitHub, checkboxes, prompts, or email delivery in the
+report.
 
 Output rules:
 1. Write in English only.
@@ -399,41 +398,25 @@ def atomic_write(path: Path, content: str) -> None:
     temporary.replace(path)
 
 
-def generate_phase() -> None:
+def generate_and_email() -> None:
     book = spreadsheet()
-    if not checkbox_is_checked(book):
-        LOGGER.info("Control!B2 is FALSE; generation halted without side effects.")
-        return
-
-    if PENDING_PATH.exists():
-        LOGGER.info("A validated report is already pending email; generation skipped.")
-        return
-
     week_ending = week_ending_for()
     updates = weekly_updates(book, week_ending)
     report = generate_report(week_ending, updates, read_previous_report())
     atomic_write(REPORT_PATH, report)
-    atomic_write(PENDING_PATH, week_ending.isoformat() + "\n")
-    LOGGER.info("Validated EOW generated for %s.", week_ending.isoformat())
+    send_email(report, week_ending.isoformat())
 
-
-def load_pending_report() -> tuple[str, str] | None:
-    if not PENDING_PATH.exists():
-        return None
-    if not REPORT_PATH.exists():
-        raise RuntimeError("pending_email.txt exists but last_eow.md is missing.")
-
-    week_ending = PENDING_PATH.read_text(encoding="utf-8").strip()
-    try:
-        date.fromisoformat(week_ending)
-    except ValueError as exc:
-        raise RuntimeError(
-            "pending_email.txt must contain an ISO week-ending date."
-        ) from exc
-    report = REPORT_PATH.read_text(encoding="utf-8")
-    validate_report(report).raise_for_errors()
-    return week_ending, report
-
+    if checkbox_is_checked(book):
+        try:
+            book.worksheet(CONTROL_TAB).update_acell(CONTROL_CELL, False)
+        except Exception:
+            LOGGER.exception(
+                "Draft was emailed, but Control!B2 could not be reset."
+            )
+    LOGGER.info(
+        "Validated EOW generated and emailed for %s.",
+        week_ending.isoformat(),
+    )
 
 def send_email(report: str, week_ending: str) -> None:
     sender = required_env("EMAIL_USER")
@@ -458,38 +441,13 @@ def send_email(report: str, week_ending: str) -> None:
         server.sendmail(sender, recipients, message.as_string())
 
 
-def send_phase() -> None:
-    loaded = load_pending_report()
-    if loaded is None:
-        LOGGER.info("No validated report is pending; email skipped.")
-        return
-
-    week_ending, report = loaded
-    send_email(report, week_ending)
-    PENDING_PATH.unlink()
-
-    book = spreadsheet()
-    book.worksheet(CONTROL_TAB).update_acell(CONTROL_CELL, False)
-    LOGGER.info("EOW sent and Control!B2 reset to FALSE.")
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", choices=("generate", "send-email"), required=True)
-    return parser.parse_args()
-
-
 def main() -> int:
     logging.basicConfig(
         level=os.getenv("LOG_LEVEL", "INFO"),
         format="%(asctime)s %(levelname)s %(message)s",
     )
     try:
-        mode = parse_args().mode
-        if mode == "generate":
-            generate_phase()
-        else:
-            send_phase()
+        generate_and_email()
         return 0
     except Exception:
         LOGGER.exception("EOW pipeline failed.")

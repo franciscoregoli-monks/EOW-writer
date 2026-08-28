@@ -4,18 +4,21 @@ Python and GitHub Actions pipeline for WWS / TCP weekly Analytics briefs.
 
 ## Schedule and lifecycle
 
-- Thursday 20:00 ART (`23:00 UTC`): read `Control!B2`, extract the current
-  weekly rows, compare them with `history/last_eow.md`, generate with Gemini,
-  validate, and commit the draft plus a pending-mail marker.
-- Friday 08:00 ART (`11:00 UTC`): send the already validated draft through
-  Gmail SMTP, record it as sent, remove the marker, and set `Control!B2` to
-  `FALSE`.
-- A Google Apps Script can also dispatch `trigger_eow_generation`. It starts
-  the Thursday generation phase immediately; it does not send row data.
+- Thursday 16:00 ART (`19:00 UTC`): read the current status changes, compare
+  them with `history/last_eow.md`, generate with Gemini, validate, save the
+  report, and email the draft to the personal address in `EMAIL_TO`.
+- The recipient edits the email and forwards it to the internal team manually.
+  The automation ends after the personal draft is delivered.
+- A Google Apps Script can dispatch `trigger_eow_generation` when
+  `Control!B2` is checked. This runs the same generate-and-email flow
+  immediately instead of waiting for Thursday.
+- A manual **Run workflow** in GitHub Actions also runs the complete flow and
+  sends a real email.
 
-If `Control!B2` is `FALSE`, generation exits successfully before calling
-Gemini or modifying history. If a draft is already pending, duplicate
-generation is skipped.
+The scheduled and manual workflows do not require `Control!B2` to be checked.
+After successful delivery, the script resets B2 to `FALSE` if it was checked.
+If no valid status changes exist for the week, the job fails visibly and does
+not send an empty email.
 
 ## Expected Google Sheet
 
@@ -64,8 +67,8 @@ This identity is used by GitHub Actions. It is not your personal Google user.
 13. Copy `client_email` from the JSON and share the Sheet with that address as
     **Editor**.
 
-Why Editor: Thursday requires reading the log tab and `Control!B2`; Friday
-requires writing `FALSE` to `Control!B2`. Do not grant Workspace admin or
+Why Editor: the workflow reads `Tasks` and `Log de Cambios`, then resets
+`Control!B2` after successful delivery. Do not grant Workspace admin or
 domain-wide delegation.
 
 Encode the JSON on macOS without printing it:
@@ -103,7 +106,7 @@ places in the request. The API key has no Sheet or Drive permission.
 4. Create an app password named `EOW GitHub Actions`.
 5. Add the mailbox address to GitHub as `EMAIL_USER`.
 6. Add the 16-character app password to GitHub as `EMAIL_PASSWORD`.
-7. Add recipients, comma-separated, as `EMAIL_TO`.
+7. Add your personal review mailbox as `EMAIL_TO`.
 
 Use an App Password, not the normal account password. No Gmail API role is
 needed. If App Passwords is unavailable, a Google Workspace administrator must
@@ -147,9 +150,9 @@ the columns by header name rather than a fixed letter.
 3. Click **Save**. The `onEdit` function starts logging status changes without
    a separate trigger.
 
-The scheduled Thursday run needs no GitHub token in Apps Script. Complete the
-steps below only when checking `Control!B2` should launch generation
-immediately instead of waiting for the schedule.
+The scheduled Thursday run and the manual GitHub button need no GitHub token
+in Apps Script. Complete the steps below only when checking `Control!B2`
+should generate and email the personal draft immediately.
 
 #### Create a least-privilege GitHub token
 
@@ -230,18 +233,14 @@ Sheet cell or source code.
 
 1. Confirm the Sheet is shared with the service-account `client_email`.
 2. Confirm `Tasks` and `Log de Cambios` use the exact configured headers.
-3. Leave `Control!B2` as `FALSE`.
-4. In GitHub, open **Actions > EOW automation > Run workflow** and choose
-   `generate`. It should finish without Gemini or history changes.
-5. Change one real task's `Status`, confirm a new `Log de Cambios` row, and
-   set `B2` to `TRUE`.
-6. Manually run `generate`.
-7. Review `history/last_eow.md` and `history/pending_email.txt`.
-8. Set `EMAIL_TO` to an internal test recipient.
-9. Manually run `send-email`.
-10. Verify the email, `Control!B2 = FALSE`, and removal of the pending marker.
+3. Set `EMAIL_TO` to your personal review mailbox.
+4. Change one real task's `Status` and confirm a new `Log de Cambios` row.
+5. In GitHub, open **Actions > EOW automation > Run workflow**.
+6. Verify the run succeeds, `history/last_eow.md` is updated, and the same
+   draft arrives in your personal inbox.
+7. Edit and forward the received email manually to the internal team.
 
-Only after this test should external recipients remain in `EMAIL_TO`.
+The manual test sends a real email. There is no separate Friday dispatch.
 
 ## Local commands
 
@@ -251,8 +250,7 @@ Use Python 3.10 or newer:
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-python main.py --mode generate
-python main.py --mode send-email
+python main.py
 ```
 
 For local runs, export the same environment variables used by GitHub. Do not
@@ -260,15 +258,15 @@ store real secrets in tracked files.
 
 ## Failure behavior
 
-- Invalid or missing Sheet data: no Gemini output is persisted and `B2`
-  remains `TRUE`.
-- Gemini or regex validation failure after three attempts: no mail and no
-  pending marker.
-- Friday with no pending marker: exits without resending the prior report.
-- SMTP failure: pending marker and `B2=TRUE` remain for retry.
-- SMTP succeeds but B2 reset fails: the pending marker has already been deleted,
-  so the workflow fails visibly and B2 must be reset manually.
+- Invalid or missing Sheet data: no Gemini call and no email.
+- No valid status changes for the week: the job fails rather than emailing an
+  empty report.
+- Gemini or regex validation failure after three attempts: no email and no
+  committed report.
+- SMTP failure: the job fails and the generated file is not committed.
+- SMTP succeeds but B2 reset fails: delivery remains successful and the error
+  is logged; B2 can be reset manually.
 
 SMTP does not provide an idempotency key. A runner termination in the very
-small interval after SMTP accepts the message and before sent state is written
-can cause a duplicate on retry.
+small interval after SMTP accepts the message and before the job completes can
+cause a duplicate on retry.
