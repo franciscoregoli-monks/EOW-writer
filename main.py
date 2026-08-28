@@ -102,7 +102,9 @@ Output rules:
    work separate.
 5. Every work bullet must use exactly:
    - description - STATUS -
-   Do not include an [Analytics] prefix or any other team prefix.
+   Start with the description itself. Do not open a bullet with a bracketed
+   team tag such as [Analytics]. The word Analytics remains fine inside normal
+   wording, including tool names such as Adobe Analytics.
 6. STATUS must be exactly one of:
    DONE
    IN PROGRESS

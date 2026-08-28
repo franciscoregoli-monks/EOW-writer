@@ -15,6 +15,7 @@ STATUS_RE = (
     r"(?:DONE|IN PROGRESS|BLOCKER|IN PROGRESS, continues next week)"
 )
 BULLET_RE = re.compile(rf"^- .+ - {STATUS_RE} -$")
+BULLET_PREFIX_RE = re.compile(r"^- \[(?!CONFIRMAR\])[^]]+\]\s")
 CONFIRM_SECTION_RE = re.compile(
     r"^\*\*Needs confirmation\*\*[ \t]*$", re.MULTILINE
 )
@@ -45,9 +46,6 @@ def validate_report(report: str) -> ValidationResult:
 
     if "—" in normalized or "–" in normalized:
         errors.append("Only short hyphens are allowed; en/em dashes were found.")
-
-    if "[Analytics]" in normalized:
-        errors.append("The obsolete [Analytics] prefix is not allowed.")
 
     if not HEADER_RE.search(normalized):
         errors.append(
@@ -94,6 +92,11 @@ def validate_report(report: str) -> ValidationResult:
 
         if line.startswith("-"):
             bullet_count += 1
+            if BULLET_PREFIX_RE.match(line):
+                errors.append(
+                    f"Bullet on line {line_number} starts with a bracketed "
+                    "prefix; begin with the description instead."
+                )
             if not BULLET_RE.fullmatch(line):
                 errors.append(
                     f"Invalid bullet syntax or status on line {line_number}: {line}"
