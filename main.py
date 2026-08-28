@@ -70,7 +70,7 @@ STATUS_ALIASES = {
     "blocked": "BLOCKER",
     "blocker": "BLOCKER",
 }
-GEMINI_MODEL = "gemini-2.0-flash"
+GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_ATTEMPTS = 3
 GEMINI_RETRY_SECONDS = 5
 

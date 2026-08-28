@@ -87,7 +87,7 @@ Never commit the JSON.
    restrictions.
 5. Add it to GitHub as `GEMINI_API_KEY`.
 
-The configured model is `gemini-2.0-flash`. A generation run calls it up to
+The configured model is `gemini-3.6-flash`. A generation run calls it up to
 three times, retrying when the API errors or when `validator.py` rejects the
 output. There is no fallback to a different model.
 
