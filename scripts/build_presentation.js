@@ -337,12 +337,12 @@ function card(slide, x, y, w, h, titleValue, body, opts = {}) {
   header(slide, "04 · La fuente de verdad", "Tres pestañas. Tres responsabilidades claras.",
     "El diseño se adaptó al tracker existente; no obliga a mantener una cuarta tabla semanal.");
 
-  card(slide, 0.65, 2.0, 3.55, 3.75, "Tasks", "Maestro deduplicado\n\n• Título de tarea\n• Account / Propiedad\n• Status\n• Categoria\n• Comentarios", {
-    label: "Source", labelFill: C.mint, titleSize: 22, bodySize: 11.5,
+  card(slide, 0.65, 2.0, 3.55, 3.75, "Tasks", "Headers exactos\n\nTitulo de Tarea · Mes · Fecha\nPropiedad · Status · Owner\nReporter · LOEE (hs) · Categoria\nDeadline Estimado · Link Jira\nReferencias/Links y Comentarios", {
+    label: "Source", labelFill: C.mint, titleSize: 22, bodySize: 9.2,
   });
   arrow(slide, 4.28, 3.65, 4.74, 3.65, C.teal, 2);
-  card(slide, 4.82, 2.0, 3.55, 3.75, "Log de Cambios", "Registro append-only\n\n• Fecha y hora\n• Título\n• Estado anterior\n• Estado nuevo", {
-    label: "Events", labelFill: C.cloud, titleSize: 22, bodySize: 11.5,
+  card(slide, 4.82, 2.0, 3.55, 3.75, "Log de Cambios", "Headers exactos · append-only\n\nFecha\nTitulo de Tarea\nStatus Anterior\nStatus Nuevo", {
+    label: "Events", labelFill: C.cloud, titleSize: 22, bodySize: 10.5,
   });
   arrow(slide, 8.45, 3.65, 8.91, 3.65, C.teal, 2);
   card(slide, 8.98, 2.0, 3.55, 3.75, "Control", "Trigger opcional\n\nB2 = TRUE solicita un draft inmediato.\n\nEl cron de las 16:00 no depende del checkbox.", {
