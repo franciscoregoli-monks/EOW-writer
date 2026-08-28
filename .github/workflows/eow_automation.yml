@@ -6,7 +6,7 @@ on:
     - cron: "0 19 * * 4"
   repository_dispatch:
     types: [trigger_eow_generation]
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 permissions:
   contents: write
