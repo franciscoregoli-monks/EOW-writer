@@ -2,6 +2,26 @@
 
 Python and GitHub Actions pipeline for WWS / TCP weekly Analytics briefs.
 
+## Project documentation
+
+- [Technical and operational documentation](docs/amazon-eow-reporter-technical.md)
+- [Presentation deck](presentations/amazon-eow-reporter-workflow.pptx)
+- [Presentation PDF](presentations/amazon-eow-reporter-workflow.pdf)
+- [Visual slide overview](presentations/amazon-eow-reporter-contact-sheet.png)
+
+Regenerate the technical document, including current source appendices:
+
+```bash
+python3 scripts/build_technical_documentation.py
+```
+
+Regenerate the deck after installing the presentation tool locally:
+
+```bash
+npm install --no-save --no-package-lock pptxgenjs
+node scripts/build_presentation.js
+```
+
 ## Schedule and lifecycle
 
 - Thursday 16:00 ART (`19:00 UTC`): read the current status changes, compare
