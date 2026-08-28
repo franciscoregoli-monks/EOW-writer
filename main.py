@@ -101,7 +101,7 @@ Output rules:
    source row whose Account is `Both`, use `WWS / TCP:`. Keep account-specific
    work separate.
 5. Every work bullet must use exactly:
-   - [Analytics] description - STATUS -
+   - description - STATUS -
 6. STATUS must be exactly one of:
    DONE
    IN PROGRESS

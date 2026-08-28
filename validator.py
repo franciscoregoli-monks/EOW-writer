@@ -14,7 +14,7 @@ ACCOUNT_HEADER_RE = re.compile(r"^(WWS|TCP|WWS / TCP):$")
 STATUS_RE = (
     r"(?:DONE|IN PROGRESS|BLOCKER|IN PROGRESS, continues next week)"
 )
-BULLET_RE = re.compile(rf"^- \[Analytics\] .+ - {STATUS_RE} -$")
+BULLET_RE = re.compile(rf"^- .+ - {STATUS_RE} -$")
 CONFIRM_SECTION_RE = re.compile(
     r"^\*\*Needs confirmation\*\*[ \t]*$", re.MULTILINE
 )
@@ -110,7 +110,7 @@ def validate_report(report: str) -> ValidationResult:
     if workstream_count == 0:
         errors.append("At least one bold workstream section is required.")
     if bullet_count == 0:
-        errors.append("At least one [Analytics] work bullet is required.")
+        errors.append("At least one work bullet is required.")
 
     body_confirmations = body.count("[CONFIRMAR]")
     confirmation_confirmations = confirmation_text.count("[CONFIRMAR]")
