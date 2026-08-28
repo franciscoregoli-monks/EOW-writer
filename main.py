@@ -102,6 +102,7 @@ Output rules:
    work separate.
 5. Every work bullet must use exactly:
    - description - STATUS -
+   Do not include an [Analytics] prefix or any other team prefix.
 6. STATUS must be exactly one of:
    DONE
    IN PROGRESS

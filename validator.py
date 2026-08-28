@@ -46,6 +46,9 @@ def validate_report(report: str) -> ValidationResult:
     if "—" in normalized or "–" in normalized:
         errors.append("Only short hyphens are allowed; en/em dashes were found.")
 
+    if "[Analytics]" in normalized:
+        errors.append("The obsolete [Analytics] prefix is not allowed.")
+
     if not HEADER_RE.search(normalized):
         errors.append(
             "Missing exact '# EOW Report - Week Ending YYYY-MM-DD' header."
