@@ -6,6 +6,9 @@
 sistema existe, cómo evolucionó, qué está vigente y cómo continuarlo sin
 reconstruir las conversaciones originales.
 
+**Prioridad confirmada al cierre:** operar y mantener el EOW; la presentación
+no es un entregable necesario ni debe bloquear el proyecto.
+
 > Esta es una síntesis de decisiones y evidencia, no una transcripción del chat.
 > Los valores de credenciales, identificadores privados y datos del tracker se
 > omiten deliberadamente.
@@ -47,6 +50,8 @@ comunicación interna. No existe envío automático final al equipo.
 - Adivinar datos ausentes.
 - Considerar `Backlog` o `To do` como avances del EOW.
 - Crear o editar Google Docs/Slides como parte del pipeline.
+- Seguir invirtiendo en slides; el material existente queda sólo como referencia
+  histórica.
 - Reemplazar la revisión editorial humana.
 
 ## 3. Resultado que se buscó
@@ -328,6 +333,43 @@ agente. Como el repositorio era público al documentar este punto, la inyección
 de secretos en agentes públicos debe evaluarse con especial cuidado; hacer el
 repositorio privado es la opción más segura.
 
+La sesión usada para cerrar esta memoria tenía salida a internet, pero no
+recibía ninguna de las variables requeridas por `main.py`. Por eso podía
+inspeccionar código, commits y runs de GitHub, pero no leer el Sheet, llamar a
+Gemini ni enviar un correo desde la VM.
+
+### Matriz de acceso para una futura persona o agente
+
+| Necesidad | Credencial o acción | Dónde se configura |
+| --- | --- | --- |
+| Leer el tracker y resetear B2 | `GCP_SA_KEY_BASE64` + Sheet compartido con el Service Account | GitHub Actions; Cloud Agents sólo si se desea ejecución desde Cursor |
+| Seleccionar el tracker | `SPREADSHEET_ID` | mismo entorno que ejecuta `main.py` |
+| Generar el texto | `GEMINI_API_KEY` | mismo entorno que ejecuta `main.py` |
+| Entregar el draft | `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_TO` | mismo entorno que ejecuta `main.py` |
+| Ver código, PR y runs | acceso de lectura al repositorio | GitHub/Cursor |
+| Disparar desde B2 | `GH_OWNER`, `GH_REPO`, `GH_TOKEN` | Script Properties de Apps Script |
+| Crear archivos nativos en Drive | consentimiento OAuth del usuario o carpeta compartida con un Service Account | Google; no se hereda desde GitHub Secrets |
+
+No hace falta dar acceso personal a Google Drive para operar el pipeline. El
+Service Account compartido sólo con el Sheet es suficiente y reduce el alcance
+de permisos. Un agente tampoco puede “adquirir” esos permisos por sí mismo:
+el consentimiento de Google y la carga inicial de secretos siempre requieren
+una acción del dueño.
+
+### Cómo dar capacidad de ejecución a un nuevo agente sin revelar secretos
+
+1. Preferir un repositorio privado antes de habilitar credenciales en agentes.
+2. Copiar los seis secretos por sus nombres exactos al gestor de secretos del
+   entorno de Cloud Agents; nunca pegarlos en el chat.
+3. Abrir una sesión nueva, porque una VM ya iniciada no recibe retroactivamente
+   variables que no tenía al arrancar.
+4. Pedir primero una comprobación que sólo indique presencia de variables, sin
+   imprimir valores.
+5. Ejecutar `python main.py` sabiendo que no es un dry run: puede escribir
+   `history/last_eow.md`, resetear B2 y enviar un correo real.
+6. Revocar o retirar los secretos del entorno cuando ya no se necesite esa
+   capacidad.
+
 ## 13. Comportamiento ante fallos
 
 | Fallo | Comportamiento |
@@ -420,8 +462,38 @@ Preguntas que una persona nueva debería poder responder después de leer:
 6. Considerar historial por fecha en vez de sobrescribir un único archivo.
 7. Revisar periódicamente disponibilidad del modelo y expiración de tokens/App
    Passwords.
+8. No dedicar trabajo adicional a la presentación salvo que vuelva a existir
+   una necesidad concreta.
 
-## 18. Criterio para mantener esta memoria
+## 18. Cápsula de continuidad
+
+Si esta memoria es lo único que recibe una nueva persona, puede retomar con
+este orden:
+
+1. Confirmar que la PR sigue abierta y revisar cambios posteriores a la fecha
+   de corte.
+2. Verificar en el Sheet que `onEdit` esté generando filas reales.
+3. Verificar que los seis secretos existan en GitHub Actions sin exponer sus
+   valores.
+4. Usar **Run workflow** una sola vez y controlar tanto el run como la casilla
+   personal.
+5. Si falla, clasificar primero el error como datos, Gemini/validación, SMTP o
+   permisos; las tablas de las secciones 13 y 15 indican el siguiente paso.
+6. Si funciona, revisar y reenviar el draft manualmente. Ese paso humano es el
+   producto final, no una tarea pendiente de automatización.
+
+Estado conocido al corte:
+
+- [PR #1](https://github.com/franciscoregoli-monks/EOW-writer/pull/1) abierta,
+  lista para revisión, con base `main`.
+- Evidencia histórica validada contra GitHub: fallos del modelo retirado en
+  `b7f4027` y primera ejecución exitosa con Gemini 3.6 Flash en `6ef85d8`.
+- Los cambios posteriores que unifican generación y correo deben validarse
+  explícitamente con una ejecución manual final.
+- No había checks de PR configurados ni suite de tests versionada.
+- Las slides existen, pero dejaron de ser una prioridad del proyecto.
+
+## 19. Criterio para mantener esta memoria
 
 Actualizar este archivo cuando cambie cualquiera de estos elementos:
 
