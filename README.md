@@ -7,6 +7,8 @@ Python and GitHub Actions pipeline for WWS / TCP weekly Analytics briefs.
 - [Project memory and development handoff](docs/project-memory.md)
 - [Technical and operational documentation](docs/amazon-eow-reporter-technical.md)
 - [Presentation deck](presentations/amazon-eow-reporter-workflow.pptx)
+- [Standalone pipeline slide](presentations/amazon-eow-reporter-pipeline.pptx)
+- [Pipeline in copy-paste formats](presentations/pipeline-copy-paste.md)
 - [Presentation PDF](presentations/amazon-eow-reporter-workflow.pdf)
 - [Visual slide overview](presentations/amazon-eow-reporter-contact-sheet.png)
 
