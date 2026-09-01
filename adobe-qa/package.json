@@ -1,0 +1,17 @@
+{
+  "name": "adobe-qa",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MVP QA runner: measurement plan vs Adobe data layer and Launch beacons",
+  "scripts": {
+    "qa": "node src/run.mjs",
+    "qa:tcp": "node src/run.mjs --plan examples/tcp-utm.plan.json"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "puppeteer-core": "^23.11.1"
+  }
+}
