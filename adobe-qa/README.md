@@ -1,5 +1,9 @@
 # Adobe QA MVP
 
+Internal runner: measurement plan vs `adobeDataLayer` and Launch `/b/ss/` beacons.
+
+**Next agent:** read [`HANDOFF.md`](HANDOFF.md) first.
+
 Compares a measurement plan (source of truth) against:
 
 1. What the page pushes to the data layer (`adobeDataLayer` by default)
