@@ -53,6 +53,7 @@ test("PPTX parser pairs spec/push slides and keeps sequence cases visible", asyn
       slide([
         "Energy Spotlight - Analytics",
         "Scroll",
+        "Every time the user reaches 25% scroll rate",
         "Event 15= Scroll Reach 25%",
         "eVar1: Domain <website domain>",
       ])
@@ -92,6 +93,7 @@ test("PPTX parser pairs spec/push slides and keeps sequence cases visible", asyn
 
   assert.equal(plan.cases[1].interactionType, "scroll");
   assert.equal(plan.cases[1].planEvent.id, "event15");
+  assert.equal(plan.cases[1].milestone, "25");
   assert.equal(plan.cases[2].interactionType, "video");
   assert.equal(plan.cases[2].planEvent.id, null);
 });

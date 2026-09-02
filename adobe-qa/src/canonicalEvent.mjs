@@ -33,7 +33,9 @@ function interactionEventId(testCase) {
   if (type === "link") return "event2";
   if (type === "cta" || type === "download") return "event1";
   if (type === "video") {
-    const name = normalizeEventName(testCase.planEvent?.name);
+    const name = normalizeEventName(
+      `${testCase.planEvent?.name || ""} ${testCase.milestone || ""}`
+    );
     if (name.includes("complete")) return "event14";
     if (name.includes("25")) return "event15";
     if (name.includes("50")) return "event16";
@@ -41,7 +43,9 @@ function interactionEventId(testCase) {
     return "event13";
   }
   if (type === "scroll") {
-    const name = normalizeEventName(testCase.planEvent?.name);
+    const name = normalizeEventName(
+      `${testCase.planEvent?.name || ""} ${testCase.milestone || ""}`
+    );
     if (name.includes("100")) return "event8";
     if (name.includes("75")) return "event7";
     if (name.includes("50")) return "event6";

@@ -118,7 +118,7 @@ export function toCanonicalText(report) {
   ];
   if (report.planStats) {
     lines.push(
-      `Sheet Orders: ${report.planStats.totalItems} | Pushes matched: ${report.planStats.matched} | Unmatched: ${report.planStats.unmatched}`
+      `Plan cases: ${report.planStats.totalItems} | Pushes matched: ${report.planStats.matched} | Unmatched: ${report.planStats.unmatched}`
     );
   }
   lines.push("");

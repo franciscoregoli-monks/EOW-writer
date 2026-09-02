@@ -18,6 +18,10 @@ test("domHint containers resolve to the intended clickable descendant", async ()
         <button aria-label="Download Report">Download</button>
       </section>
       <a href="https://example.com/destination">External story</a>
+      <button aria-label="Popular Downloads">Popular Downloads</button>
+      <section data-component="c40-dashboard">
+        <a class="dashboard-cta" data-download href="/report.pdf">1.14</a>
+      </section>
     `);
     const resolved = await resolveTarget(page, {
       domHints: ['[data-component="HomeCtaCard"]'],
@@ -41,6 +45,23 @@ test("domHint containers resolve to the intended clickable descendant", async ()
     assert.equal(hrefResolved.match.source, "secondaryLocators");
     assert.equal(hrefResolved.match.confidence, "high");
     await hrefResolved.element.dispose();
+
+    const downloadResolved = await resolveTarget(page, {
+      target: {
+        component: "C40",
+        label: "Download",
+        mediaType: "download",
+        controlType: "cta",
+      },
+    });
+    assert.ok(downloadResolved);
+    assert.equal(
+      await downloadResolved.element.evaluate((element) =>
+        element.getAttribute("href")
+      ),
+      "/report.pdf"
+    );
+    await downloadResolved.element.dispose();
   } finally {
     await browser.close();
   }

@@ -98,3 +98,18 @@ test("flags a missing Adobe event ID while resolving video from SDR context", ()
     )
   );
 });
+
+test("uses scroll milestone context when the plan mislabeled 100% as video complete", () => {
+  const result = resolveCanonicalEvent(
+    {
+      id: "scroll-100",
+      interactionType: "scroll",
+      milestone: "100",
+      planEvent: { id: "event14", name: "Video complete" },
+    },
+    sdr,
+    suite
+  );
+  assert.equal(result.eventId, "event8");
+  assert.equal(isPlanDefect(result), true);
+});

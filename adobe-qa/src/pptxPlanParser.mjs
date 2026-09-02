@@ -127,6 +127,10 @@ function parseSequenceSpec(lines, slide) {
   const match = lines[eventIndex].match(isScroll ? SCROLL_EVENT : VIDEO_EVENT);
   const eventId = isScroll ? `event${Number(match[1])}` : null;
   const eventName = isScroll ? match[2].trim() : match[1].trim();
+  const milestone = isScroll
+    ? lines.join(" ").match(/reaches\s+(\d+)%/i)?.[1] || null
+    : eventName.match(/(\d+)%/)?.[1] ||
+      (/start/i.test(eventName) ? "start" : /complete/i.test(eventName) ? "complete" : null);
   return {
     slide,
     pageFamily: lines[0] || null,
@@ -134,6 +138,7 @@ function parseSequenceSpec(lines, slide) {
     feature: eventName,
     eventName,
     eventId,
+    milestone,
     interactionType: isScroll ? "scroll" : "video",
     ...parseFields(lines.slice(eventIndex + 1), true),
   };
@@ -264,6 +269,7 @@ export async function loadPptxPlan({ filePath, url }) {
       action:
         spec.interactionType === "scroll" ? "scroll" : "click",
       interactionType: spec.interactionType,
+      milestone: spec.milestone || null,
       planEvent: { id: spec.eventId, name: spec.eventName },
       expected: { eVars: spec.eVars, props: spec.props },
       removedFields: spec.removedFields,

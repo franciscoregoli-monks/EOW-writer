@@ -182,6 +182,9 @@ export async function resolveTarget(page, testCase) {
         } else if (expected && actual.startsWith(expected)) {
           score += 2;
           reasons.push("componentPrefix");
+        } else {
+          score -= 4;
+          reasons.push("componentMismatch");
         }
       }
       if (wanted.pageSection && norm(section) === norm(wanted.pageSection)) {
