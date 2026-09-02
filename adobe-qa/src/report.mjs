@@ -63,36 +63,60 @@ export function buildCanonicalReport(
   reportSuite,
   pageFindings = []
 ) {
-  const cases = plan.cases.map((testCase, index) => ({
-    id: testCase.id,
-    name: testCase.name || testCase.id,
-    url: testCase.url,
-    action: testCase.action || "click",
-    interactionType: testCase.interactionType || null,
-    status: evaluations[index].status,
-    qaResult: evaluations[index].qaResult,
-    canonicalEvent: evaluations[index].canonical.eventId,
-    canonicalName: evaluations[index].canonical.event?.canonicalName || null,
-    planEvent: {
-      id: evaluations[index].canonical.claimedId,
-      name: evaluations[index].canonical.claimedName,
-    },
-    reason: evaluations[index].reason,
-    findings: evaluations[index].findings,
-    targetMatch: captures[index]?.targetMatch || null,
-    launch: captures[index]?.launch || null,
-    checks: evaluations[index].checks,
-    propsReference: evaluations[index].propsReference,
-    observedEvents: evaluations[index].observedEvents || [],
-    reservedEvents: evaluations[index].reservedEvents || [],
-    observed: {
-      dataLayer: evaluations[index].dataLayerEvent || null,
-      beacon: evaluations[index].beacon || null,
-      allDataLayerEvents: (captures[index]?.dataLayerEvents || []).map(
-        (event) => event?.event
-      ),
-    },
-  }));
+  const cases = plan.cases.map((testCase, index) => {
+    const evaluation = evaluations[index];
+    const checks = evaluation.checks || [];
+    const dataLayerChecks = checks.filter((check) =>
+      check.key.startsWith("dataLayer.")
+    );
+    const debuggerChecks = checks.filter(
+      (check) => !check.key.startsWith("dataLayer.")
+    );
+    return {
+      id: testCase.id,
+      name: testCase.name || testCase.id,
+      url: testCase.url,
+      action: testCase.action || "click",
+      interactionType: testCase.interactionType || null,
+      status: evaluation.status,
+      qaResult: evaluation.qaResult,
+      canonicalEvent: evaluation.canonical.eventId,
+      canonicalName: evaluation.canonical.event?.canonicalName || null,
+      planEvent: {
+        id: evaluation.canonical.claimedId,
+        name: evaluation.canonical.claimedName,
+      },
+      reason: evaluation.reason,
+      findings: evaluation.findings,
+      targetMatch: captures[index]?.targetMatch || null,
+      launch: captures[index]?.launch || null,
+      checks,
+      tests: {
+        dataLayer: {
+          result: checkResult(dataLayerChecks),
+          checks: dataLayerChecks,
+          audit: evaluation.dataLayerAudit || null,
+          observed: evaluation.dataLayerEvent || null,
+        },
+        debugger: {
+          result: checkResult(debuggerChecks),
+          checks: debuggerChecks,
+          observedEvents: evaluation.observedEvents || [],
+          beacon: evaluation.beacon || null,
+        },
+      },
+      propsReference: evaluation.propsReference,
+      observedEvents: evaluation.observedEvents || [],
+      reservedEvents: evaluation.reservedEvents || [],
+      observed: {
+        dataLayer: evaluation.dataLayerEvent || null,
+        beacon: evaluation.beacon || null,
+        allDataLayerEvents: (captures[index]?.dataLayerEvents || []).map(
+          (event) => event?.event
+        ),
+      },
+    };
+  });
 
   const buckets = Object.fromEntries(
     ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"].map((status) => [
@@ -120,6 +144,11 @@ export function buildCanonicalReport(
   };
 }
 
+function checkResult(checks) {
+  if (!checks.length) return "NOT TESTABLE";
+  return checks.every((check) => check.pass) ? "PASS" : "FAIL";
+}
+
 function checkLine(check) {
   const marker = check.pageLevel ? "PAGE" : check.pass ? "PASS" : "FAIL";
   const semantics = check.kind && check.kind !== "event" ? ` [${check.kind}]` : "";
@@ -129,6 +158,10 @@ function checkLine(check) {
     ` | actual: ${JSON.stringify(check.actual)}` +
     (check.note ? ` | ${check.note}` : "")
   );
+}
+
+function auditLine(label, values) {
+  return `    ${label}: ${values?.length ? values.join(", ") : "none"}`;
 }
 
 export function toCanonicalText(report) {
@@ -189,30 +222,79 @@ export function toCanonicalText(report) {
     for (const testCase of cases) {
       lines.push(
         `${testCase.id} — ${testCase.name}`,
-        `  canonical: ${testCase.canonicalEvent || "unresolved"} (${testCase.canonicalName || "unknown"})`
+        "  TEST",
+        `    URL: ${testCase.url || "not provided"}`,
+        `    action: ${testCase.action}${testCase.interactionType ? ` (${testCase.interactionType})` : ""}`,
+        `    expected event: ${testCase.canonicalEvent || "unresolved"} (${testCase.canonicalName || "unknown"})`
       );
       if (testCase.planEvent.id || testCase.planEvent.name) {
         lines.push(
-          `  plan: ${testCase.planEvent.name || "unnamed"} / ${testCase.planEvent.id || "no ID"}`
+          `    plan says: ${testCase.planEvent.name || "unnamed"} / ${testCase.planEvent.id || "no ID"}`
         );
       }
-      if (testCase.qaResult) lines.push(`  implementation QA: ${testCase.qaResult}`);
-      if (testCase.observedEvents?.length) {
-        lines.push(`  site actually fired: ${testCase.observedEvents.join(", ")}`);
-      }
-      if (testCase.reason) lines.push(`  reason: ${testCase.reason}`);
       if (testCase.targetMatch) {
         lines.push(
-          `  target: ${testCase.targetMatch.source} (${testCase.targetMatch.confidence})`
+          `    target: ${testCase.targetMatch.source} (${testCase.targetMatch.confidence})`
         );
       }
-      for (const finding of testCase.findings) {
-        lines.push(`  finding ${finding.code}: ${finding.message}`);
+      if (testCase.qaResult) lines.push(`    overall implementation QA: ${testCase.qaResult}`);
+      if (testCase.reason) lines.push(`    reason: ${testCase.reason}`);
+
+      const dataLayerTest = testCase.tests?.dataLayer || {
+        result: checkResult(
+          testCase.checks.filter((check) => check.key.startsWith("dataLayer."))
+        ),
+        checks: testCase.checks.filter((check) =>
+          check.key.startsWith("dataLayer.")
+        ),
+      };
+      lines.push("", `  DATA LAYER TEST — ${dataLayerTest.result}`);
+      if (dataLayerTest.checks.length) {
+        for (const check of dataLayerTest.checks) lines.push(checkLine(check));
+      } else {
+        lines.push("    No comparable data layer push was captured.");
       }
-      for (const check of testCase.checks) lines.push(checkLine(check));
+      if (dataLayerTest.audit) {
+        lines.push(
+          auditLine("declared keys", dataLayerTest.audit.expectedKeys),
+          auditLine("observed keys", dataLayerTest.audit.actualKeys),
+          auditLine("missing", dataLayerTest.audit.missing),
+          auditLine("undeclared", dataLayerTest.audit.undeclared),
+          auditLine("placeholder values", dataLayerTest.audit.placeholders),
+          auditLine("unmapped", dataLayerTest.audit.unmapped)
+        );
+      }
+
+      const debuggerTest = testCase.tests?.debugger || {
+        result: checkResult(
+          testCase.checks.filter(
+            (check) => !check.key.startsWith("dataLayer.")
+          )
+        ),
+        checks: testCase.checks.filter(
+          (check) => !check.key.startsWith("dataLayer.")
+        ),
+        observedEvents: testCase.observedEvents,
+      };
+      lines.push("", `  ADOBE DEBUGGER TEST — ${debuggerTest.result}`);
+      if (debuggerTest.observedEvents?.length) {
+        lines.push(`    observed events: ${debuggerTest.observedEvents.join(", ")}`);
+      }
+      if (debuggerTest.checks.length) {
+        for (const check of debuggerTest.checks) lines.push(checkLine(check));
+      } else {
+        lines.push("    No comparable Adobe interaction beacon was captured.");
+      }
       const props = Object.keys(testCase.propsReference || {});
       if (props.length) {
-        lines.push(`  props (reference only, not scored): ${props.join(", ")}`);
+        lines.push(`    props (reference only, not scored): ${props.join(", ")}`);
+      }
+
+      if (testCase.findings.length) {
+        lines.push("", "  FINDINGS");
+        for (const finding of testCase.findings) {
+          lines.push(`    ${finding.code}: ${finding.message}`);
+        }
       }
       lines.push("");
     }
