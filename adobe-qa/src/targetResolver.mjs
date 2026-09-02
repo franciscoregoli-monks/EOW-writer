@@ -50,16 +50,11 @@ async function explicitTarget(page, selector, source, wanted = {}) {
     const isVideo =
       node.classList.contains("js-video-cta") ||
       card?.classList.contains("has-video");
-    const isSemanticCta =
-      node.classList.contains("primary-cta") ||
-      node.classList.contains("dashboard-cta");
     return {
       tag: node.tagName,
       href: node.href || node.getAttribute("href") || null,
       observedInteractionType: isVideo
         ? "video"
-        : isSemanticCta
-          ? "cta"
         : node.matches("a[href]")
           ? "link"
           : "cta",
@@ -156,9 +151,6 @@ export async function resolveTarget(page, testCase) {
               : "";
       const observedInteractionType = isVideo
         ? "video"
-        : className.includes("primary-cta") ||
-            className.includes("dashboard-cta")
-          ? "cta"
         : node.matches("a[href]")
           ? "link"
           : "cta";

@@ -77,9 +77,13 @@ export function buildCanonicalReport(plan, captures, evaluations, reportSuite) {
     launch: captures[index]?.launch || null,
     checks: evaluations[index].checks,
     propsReference: evaluations[index].propsReference,
+    observedEvents: evaluations[index].observedEvents || [],
     observed: {
       dataLayer: evaluations[index].dataLayerEvent || null,
       beacon: evaluations[index].beacon || null,
+      allDataLayerEvents: (captures[index]?.dataLayerEvents || []).map(
+        (event) => event?.event
+      ),
     },
   }));
 
@@ -138,6 +142,9 @@ export function toCanonicalText(report) {
         );
       }
       if (testCase.qaResult) lines.push(`  implementation QA: ${testCase.qaResult}`);
+      if (testCase.observedEvents?.length) {
+        lines.push(`  site actually fired: ${testCase.observedEvents.join(", ")}`);
+      }
       if (testCase.reason) lines.push(`  reason: ${testCase.reason}`);
       if (testCase.targetMatch) {
         lines.push(
