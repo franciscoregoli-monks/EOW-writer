@@ -7,6 +7,7 @@
   "scripts": {
     "qa": "node src/run.mjs",
     "qa:tcp": "node src/run.mjs --plan examples/tcp-utm.plan.json",
+    "qa:wws": "node src/run.mjs --plan examples/wws-energy.plan.json --sdr knowledge/wws-sdr.json --suite amznsproduction --out reports/wws",
     "sdr:build": "node src/buildSdrArtifact.mjs",
     "test": "node --test test/*.test.mjs"
   },

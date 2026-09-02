@@ -1,0 +1,78 @@
+Adobe QA — WWS Energy Spotlight — MVP canonical event QA
+URL cases: 5 | Report suite dictionary: amznsproduction
+PASS 0 | FAIL 1 | PLAN_DEFECT 2 | NOT_TESTABLE 2
+
+=== FAIL (1) ===
+ENERGY-C43-LINK — C43 Highlight Slider Link
+  canonical: event2 (Link Clicks)
+  plan: Link Clicks / event2
+  implementation QA: FAIL
+  target: secondaryLocators (high)
+    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
+    PASS beacon.events | expected: "event2" | actual: "event89,event2"
+    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
+    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
+    FAIL eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
+    FAIL eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
+    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
+    PASS eVar14 [dynamic] | expected: "<URL of external destination>" | actual: "https://www.aboutamazon.eu/news/sustainability/amazon-continues-to-be-europes-largest-corporate-purchaser-of-carbon-free-energy"
+    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    PASS eVar17 [dynamic] | expected: "<Link title>" | actual: "N/A"
+    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A"
+    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    FAIL eVar36 [fixed] | expected: "C43" | actual: "c43-highlight-slider"
+  props (reference only, not scored): prop1
+
+=== PLAN_DEFECT (2) ===
+ENERGY-C40-IMAGE-LARGE — C40 Fact Card Image Large
+  canonical: event2 (Link Clicks)
+  plan: CTA Clicks / event1
+  implementation QA: FAIL
+  target: secondaryLocators (high)
+  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
+    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
+    PASS beacon.events | expected: "event2" | actual: "event89,event2"
+    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
+    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
+    FAIL eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
+    FAIL eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
+    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
+    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
+    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    FAIL eVar28 [fixed] | expected: "Fact Card Image Large" | actual: "optimize"
+    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    FAIL eVar36 [fixed] | expected: "C40" | actual: "c40-dashboard"
+  props (reference only, not scored): prop1
+
+ENERGY-C40-IMAGE-SMALL — C40 Fact Card Image Small
+  canonical: event2 (Link Clicks)
+  plan: CTA Clicks / event1
+  implementation QA: FAIL
+  target: secondaryLocators (high)
+  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
+    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
+    PASS beacon.events | expected: "event2" | actual: "event89,event2"
+    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
+    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
+    FAIL eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
+    FAIL eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
+    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
+    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
+    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    FAIL eVar28 [fixed] | expected: "Fact Card Image Small" | actual: "approach"
+    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    FAIL eVar36 [fixed] | expected: "C40" | actual: "c40-dashboard"
+
+=== NOT_TESTABLE (2) ===
+ENERGY-C40-VIDEO-LARGE — C40 Fact Card Video Large
+  canonical: event13 (Video Start)
+  plan: CTA Clicks / event1
+  reason: Multi-step video sequences are not supported in this MVP
+  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type video maps to event13
+
+ENERGY-SCROLL-25 — Scroll Reach 25%
+  canonical: event5 (Scroll Reach 25%)
+  plan: Scroll Reach 25% / event15
+  reason: Multi-step scroll sequences are not supported in this MVP
+  finding PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 25% with event15; SDR maps that name to event5
+  finding PLAN_INTERACTION_MISMATCH: Plan claims event15, but interaction type scroll maps to event5

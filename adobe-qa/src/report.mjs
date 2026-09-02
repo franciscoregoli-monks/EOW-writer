@@ -55,3 +55,99 @@ export function toText(report) {
   }
   return lines.join("\n");
 }
+
+export function buildCanonicalReport(plan, captures, evaluations, reportSuite) {
+  const cases = plan.cases.map((testCase, index) => ({
+    id: testCase.id,
+    name: testCase.name || testCase.id,
+    url: testCase.url,
+    action: testCase.action || "click",
+    interactionType: testCase.interactionType || null,
+    status: evaluations[index].status,
+    qaResult: evaluations[index].qaResult,
+    canonicalEvent: evaluations[index].canonical.eventId,
+    canonicalName: evaluations[index].canonical.event?.canonicalName || null,
+    planEvent: {
+      id: evaluations[index].canonical.claimedId,
+      name: evaluations[index].canonical.claimedName,
+    },
+    reason: evaluations[index].reason,
+    findings: evaluations[index].findings,
+    targetMatch: captures[index]?.targetMatch || null,
+    launch: captures[index]?.launch || null,
+    checks: evaluations[index].checks,
+    propsReference: evaluations[index].propsReference,
+    observed: {
+      dataLayer: evaluations[index].dataLayerEvent || null,
+      beacon: evaluations[index].beacon || null,
+    },
+  }));
+
+  const buckets = Object.fromEntries(
+    ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"].map((status) => [
+      status,
+      cases.filter((testCase) => testCase.status === status).length,
+    ])
+  );
+  return {
+    plan: plan.name,
+    reportSuite,
+    ranAt: new Date().toISOString(),
+    summary: { total: cases.length, buckets },
+    cases,
+  };
+}
+
+function checkLine(check) {
+  const marker = check.pass ? "PASS" : "FAIL";
+  const semantics = check.kind && check.kind !== "event" ? ` [${check.kind}]` : "";
+  return (
+    `    ${marker} ${check.key}${semantics}` +
+    ` | expected: ${JSON.stringify(check.expected)}` +
+    ` | actual: ${JSON.stringify(check.actual)}`
+  );
+}
+
+export function toCanonicalText(report) {
+  const { buckets } = report.summary;
+  const lines = [
+    `Adobe QA — ${report.plan}`,
+    `URL cases: ${report.summary.total} | Report suite dictionary: ${report.reportSuite}`,
+    `PASS ${buckets.PASS} | FAIL ${buckets.FAIL} | PLAN_DEFECT ${buckets.PLAN_DEFECT} | NOT_TESTABLE ${buckets.NOT_TESTABLE}`,
+    "",
+  ];
+
+  for (const status of ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"]) {
+    const cases = report.cases.filter((testCase) => testCase.status === status);
+    if (!cases.length) continue;
+    lines.push(`=== ${status} (${cases.length}) ===`);
+    for (const testCase of cases) {
+      lines.push(
+        `${testCase.id} — ${testCase.name}`,
+        `  canonical: ${testCase.canonicalEvent || "unresolved"} (${testCase.canonicalName || "unknown"})`
+      );
+      if (testCase.planEvent.id || testCase.planEvent.name) {
+        lines.push(
+          `  plan: ${testCase.planEvent.name || "unnamed"} / ${testCase.planEvent.id || "no ID"}`
+        );
+      }
+      if (testCase.qaResult) lines.push(`  implementation QA: ${testCase.qaResult}`);
+      if (testCase.reason) lines.push(`  reason: ${testCase.reason}`);
+      if (testCase.targetMatch) {
+        lines.push(
+          `  target: ${testCase.targetMatch.source} (${testCase.targetMatch.confidence})`
+        );
+      }
+      for (const finding of testCase.findings) {
+        lines.push(`  finding ${finding.code}: ${finding.message}`);
+      }
+      for (const check of testCase.checks) lines.push(checkLine(check));
+      const props = Object.keys(testCase.propsReference || {});
+      if (props.length) {
+        lines.push(`  props (reference only, not scored): ${props.join(", ")}`);
+      }
+      lines.push("");
+    }
+  }
+  return lines.join("\n");
+}

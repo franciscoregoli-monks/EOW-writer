@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer-core";
 import { decodeBeaconUrl, flattenBeacon, isAdobeBeacon } from "./decodeBeacon.mjs";
+import { resolveTarget } from "./targetResolver.mjs";
 
 const DEFAULT_CHROME =
   process.env.CHROME_PATH ||
@@ -30,17 +31,33 @@ async function dumpDataLayer(page, name) {
 
 async function runAction(page, testCase) {
   const action = testCase.action || "page_load";
-  if (action === "page_load") return;
+  if (action === "page_load") return null;
   if (action === "click") {
-    if (!testCase.selector) throw new Error(`${testCase.id}: click requires selector`);
-    await page.waitForSelector(testCase.selector, { timeout: 15000 });
-    await page.click(testCase.selector);
-    return;
+    const target = await resolveTarget(page, testCase);
+    if (!target) {
+      const error = new Error(`${testCase.id}: target not found`);
+      error.code = "TARGET_NOT_FOUND";
+      throw error;
+    }
+    await target.element.evaluate((element) =>
+      element.scrollIntoView({ block: "center", inline: "center" })
+    );
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    try {
+      await target.element.click();
+    } catch {
+      await target.element.evaluate((element) => element.click());
+    }
+    await target.element.dispose();
+    return target.match;
   }
   throw new Error(`${testCase.id}: unsupported action "${action}"`);
 }
 
-export async function capturePlan(plan, { timeoutMs = 45000, settleMs = 3500 } = {}) {
+export async function capturePlan(
+  plan,
+  { timeoutMs = 45000, preActionSettleMs = 2500, settleMs = 3500 } = {}
+) {
   const layerName = plan.adobe?.dataLayer || "adobeDataLayer";
   const browser = await puppeteer.launch({
     executablePath: DEFAULT_CHROME,
@@ -56,6 +73,22 @@ export async function capturePlan(plan, { timeoutMs = 45000, settleMs = 3500 } =
   const results = [];
   try {
     for (const testCase of plan.cases) {
+      if (testCase.execution?.skip) {
+        results.push({
+          id: testCase.id,
+          name: testCase.name || testCase.id,
+          url: testCase.url,
+          action: testCase.action || "page_load",
+          skipped: true,
+          skipReason: testCase.execution.reason,
+          error: null,
+          dataLayerEvents: [],
+          beacons: [],
+          launch: null,
+          targetMatch: null,
+        });
+        continue;
+      }
       const page = await browser.newPage();
       await page.setViewport({ width: 1440, height: 900 });
       await page.setUserAgent(
@@ -74,18 +107,17 @@ export async function capturePlan(plan, { timeoutMs = 45000, settleMs = 3500 } =
           waitUntil: "networkidle2",
           timeout: timeoutMs,
         });
+        await new Promise((resolve) => setTimeout(resolve, preActionSettleMs));
         const before = await dumpDataLayer(page, layerName);
-        const beforeCount = before.length;
-        const beforeBeacons = beaconUrls.length;
-        await runAction(page, testCase);
+        const isInteraction = testCase.action && testCase.action !== "page_load";
+        const beforeCount = isInteraction ? before.length : 0;
+        const beforeBeacons = isInteraction ? beaconUrls.length : 0;
+        const targetMatch = await runAction(page, testCase);
         await new Promise((resolve) => setTimeout(resolve, settleMs));
         const after = await dumpDataLayer(page, layerName);
-        const newEvents =
-          testCase.action && testCase.action !== "page_load"
-            ? after.slice(beforeCount)
-            : after;
+        const newEvents = after.slice(beforeCount);
         const newBeacons = beaconUrls
-          .slice(testCase.action && testCase.action !== "page_load" ? beforeBeacons : 0)
+          .slice(beforeBeacons)
           .map(decodeBeaconUrl)
           .map(flattenBeacon);
 
@@ -98,6 +130,7 @@ export async function capturePlan(plan, { timeoutMs = 45000, settleMs = 3500 } =
           error,
           dataLayerEvents: newEvents,
           beacons: newBeacons,
+          targetMatch,
           launch: await page.evaluate(() => ({
             satellite: Boolean(window._satellite),
             property: window._satellite?.property?.name || null,
@@ -113,10 +146,14 @@ export async function capturePlan(plan, { timeoutMs = 45000, settleMs = 3500 } =
           url: testCase.url,
           finalUrl: null,
           action: testCase.action || "page_load",
-          error,
+          error: {
+            code: caught.code || "CAPTURE_ERROR",
+            message: String(caught.message || caught),
+          },
           dataLayerEvents: [],
           beacons: [],
           launch: null,
+          targetMatch: null,
         });
       } finally {
         await page.close();
