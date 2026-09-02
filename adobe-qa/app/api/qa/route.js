@@ -99,7 +99,7 @@ export async function POST(request) {
     const message =
       error instanceof Error ? error.message : "The QA run failed";
     const inputError =
-      /required|must use|must be a public|unsupported plan source/i.test(
+      /required|content-type|must use|must be a public|unsupported plan source/i.test(
         message
       );
     return Response.json(
