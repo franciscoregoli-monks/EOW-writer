@@ -40,7 +40,10 @@ async function saveUpload(form, key, directory, extension) {
   if (!(file instanceof File) || file.size === 0) {
     throw new Error(`${key} is required`);
   }
-  const destination = path.join(directory, `${key}.${extension}`);
+  const destination = path.join(
+    /* turbopackIgnore: true */ directory,
+    `${key}.${extension}`
+  );
   await writeFile(destination, Buffer.from(await file.arrayBuffer()));
   return destination;
 }
