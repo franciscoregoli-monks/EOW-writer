@@ -2,7 +2,7 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { isIP } from "node:net";
 import os from "node:os";
 import path from "node:path";
-import { executeQa } from "../../../src/runQa.mjs";
+import { enqueueQa } from "../../../src/jobQueue.mjs";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -50,6 +50,7 @@ async function saveUpload(form, key, directory, extension) {
 
 export async function POST(request) {
   let directory;
+  let enqueued = false;
   try {
     const form = await request.formData();
     const targetUrl = assertPublicUrl(requiredText(form, "url"), "url");
@@ -93,8 +94,14 @@ export async function POST(request) {
       throw new Error(`Unsupported plan source: ${sourceType}`);
     }
 
-    const report = await executeQa(input);
-    return Response.json({ report });
+    const job = enqueueQa(input, () =>
+      rm(directory, { recursive: true, force: true })
+    );
+    enqueued = true;
+    return Response.json(
+      { run: { id: job.id, status: job.status } },
+      { status: 202 }
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "The QA run failed";
@@ -107,6 +114,8 @@ export async function POST(request) {
       { status: inputError ? 400 : 500 }
     );
   } finally {
-    if (directory) await rm(directory, { recursive: true, force: true });
+    if (directory && !enqueued) {
+      await rm(directory, { recursive: true, force: true });
+    }
   }
 }
