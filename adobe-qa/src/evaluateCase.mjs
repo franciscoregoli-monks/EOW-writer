@@ -4,11 +4,13 @@ import {
   normalizeEventName,
   resolveCanonicalEvent,
 } from "./canonicalEvent.mjs";
+import { checkDataLayerPush } from "./dataLayerCheck.mjs";
 import {
   evaluateEvars,
   isSentinelValue,
   planEvars,
 } from "./valueSemantics.mjs";
+import { detectVariableRoleDefects } from "./variableRoles.mjs";
 
 const WEB_VITALS_EVENTS = new Set([
   "event85",
@@ -64,7 +66,13 @@ export function preparePlan(plan, sdr, reportSuite) {
   };
 }
 
-export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
+export function evaluateCanonicalCase(
+  testCase,
+  capture,
+  sdr,
+  reportSuite,
+  dataLayerMap = null
+) {
   const observedInteractionType = capture?.targetMatch?.observedInteractionType;
   const canonical = observedInteractionType
     ? resolveCanonicalEvent(
@@ -194,21 +202,45 @@ export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
     },
     ...evaluateEvars(planEvars(testCase), interactionBeacon || {}),
   ];
-  const qaPass = checks.every((check) => check.pass);
-  const qaResult = qaPass ? "PASS" : "FAIL";
+
+  const dictionary = sdr.byReportSuite?.[reportSuite]?.dictionary;
+  const roleDefects = detectVariableRoleDefects(testCase, checks, dictionary);
+  const scoredChecks = checks.map((check) =>
+    roleDefects.planLevelKeys.has(check.key)
+      ? { ...check, pass: true, planLevel: true }
+      : check
+  );
+
+  const dataLayerAudit = dataLayerMap
+    ? checkDataLayerPush({
+        rawPushCode: testCase.source?.rawPushCode,
+        dataLayerEvent,
+        map: dataLayerMap,
+        dictionary,
+      })
+    : null;
+
+  const allFindings = [
+    ...findings,
+    ...roleDefects.findings,
+    ...(dataLayerAudit?.findings || []),
+  ];
+  const qaResult = scoredChecks.every((check) => check.pass) ? "PASS" : "FAIL";
 
   return {
-    status: planDefect ? "PLAN_DEFECT" : qaResult,
+    status:
+      planDefect || roleDefects.findings.length ? "PLAN_DEFECT" : qaResult,
     qaResult,
     canonical,
-    findings,
+    findings: allFindings,
+    dataLayerAudit,
     reason: null,
     dataLayerEvent,
     beacon: interactionBeacon,
     observedEvents,
     reservedEvents,
     undocumentedEvents,
-    checks,
+    checks: scoredChecks,
     propsReference: testCase.expected?.props || {},
   };
 }

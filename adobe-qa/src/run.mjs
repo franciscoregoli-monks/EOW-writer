@@ -60,10 +60,22 @@ let failed;
 if (sdrPath) {
   if (!reportSuite) throw new Error("--suite is required with --sdr");
   const sdr = JSON.parse(await readFile(path.resolve(sdrPath), "utf8"));
+  const dataLayerMap = JSON.parse(
+    await readFile(
+      path.resolve(arg("--dl-map", "knowledge/datalayer-map.json")),
+      "utf8"
+    )
+  );
   const prepared = preparePlan(plan, sdr, reportSuite);
   const captures = await capturePlan(prepared);
   const rawEvaluations = prepared.cases.map((testCase, index) =>
-    evaluateCanonicalCase(testCase, captures[index], sdr, reportSuite)
+    evaluateCanonicalCase(
+      testCase,
+      captures[index],
+      sdr,
+      reportSuite,
+      dataLayerMap
+    )
   );
   const { evaluations, pageFindings } =
     rollUpPageLevelFindings(rawEvaluations);
