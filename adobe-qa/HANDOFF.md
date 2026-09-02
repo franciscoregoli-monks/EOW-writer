@@ -24,14 +24,45 @@ Event families (playbook, not chat memory):
 - **Scroll** = wait 25/50/75/100 (SDR `event5–8`, not plan `event15–17`).
 - **Video** = watch in one session: Start → 25 → 50 → 75 → Complete (`event13/15/16/17/14`). Not a CTA click.
 
-## Already proven
+## Status: what is code vs what is only design
 
-| Run | Result |
-|---|---|
-| TCP UTMs `theclimatepledge.com` | Page load beacons OK. eVar41–46. eVar0 = `%Tracking code%` warning. Report suite `amznclimatepledgeproduction`. |
-| Energy `…/stories/spotlight-on-energy` slides 9–14 (3 C40 cards) | Launch works. Image large/small → **Link Clicks / event2**. Video Watch → **Video Start / event13**. Plan claimed **CTA Clicks / event1** → PLAN_DEFECT. pageName/siteSection/component also diverge from slides. |
+Be precise about this. The three rows below are not the same maturity.
 
-Code: [`adobe-qa/`](.) CLI `npm run qa -- --plan examples/tcp-utm.plan.json`. PR: `cursor/adobe-qa-mvp-57e3`.
+### 1. In the committed CLI, executed
+
+TCP UTMs on `theclimatepledge.com`, via `npm run qa -- --plan examples/tcp-utm.plan.json`.
+Output committed at `reports/2026-09-01T18-17-15-396Z.txt` (2/2 pass, eVar41–46, `%Tracking code%` warning on eVar0, suite `amznclimatepledgeproduction`).
+
+### 2. Observed live, but with throwaway scripts, NOT this CLI
+
+Energy `…/stories/spotlight-on-energy`, slides 9–14, three C40 cards, clicked in a real browser:
+
+| Card | Plan claimed | Site actually sent |
+|---|---|---|
+| Fact Card Image Large | CTA Clicks / event1 | **Link Clicks / event2** (eVar14 dest, eVar17 title) |
+| Fact Card Video Large | CTA Clicks / event1 | **Video Start / event13** (eVar11 Video Modal, eVar13 name) |
+| Fact Card Image Small | CTA Clicks / event1 | **Link Clicks / event2** |
+
+Also diverging: `pageName`, `siteSection`, `component` (`C40` vs `c40-dashboard`), `pageSection` (`approach`/`optimize`).
+
+This is real captured evidence, not a paste from a prior report. But the scripts that produced it were ad-hoc and were never committed. Reproducing it through the CLI requires the `click` action plus target resolution.
+
+### 3. Design only, zero lines of code
+
+Nothing below exists in `src/`. Grep confirms: no `canonicalEvent`, no `PLAN_DEFECT`, no SDR reader, no video/scroll sequences.
+
+- SDR as third source of truth / canonical dictionary
+- `canonicalEvent` resolution and secondary locators
+- `PLAN_DEFECT` derived from plan-vs-SDR mismatch
+- Multi-step video (Start→25→50→75→Complete) and scroll (25/50/75/100) with waits
+- `docs/qa-playbook.md`, `knowledge/sdr.xlsx` — paths referenced in this doc, not created yet
+- PdM upload, URL box, HTML report, hosting
+
+The current `compare.mjs` assumes one action produces one event. That assumption breaks for video and scroll and must be replaced, not extended.
+
+## Provenance of this branch
+
+This branch was written from scratch in one session. No `diff-engine.js`, `sheet-plan-parser.js`, `adobe-scraper.js` or `HANDOFF-CURSOR.md` was ever provided to this agent, and `git log --all` confirms none ever existed in this repo. If those exist elsewhere, they were not seen, evaluated, or rejected here. Whoever merges the two efforts should diff them deliberately rather than assume this branch supersedes anything.
 
 ## Sources (uploads, not necessarily in git)
 
