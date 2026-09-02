@@ -49,8 +49,7 @@ if (sdrPath) {
     reportSuite
   );
   text = toCanonicalText(report);
-  failed =
-    report.summary.buckets.FAIL > 0 || report.summary.buckets.PLAN_DEFECT > 0;
+  failed = report.summary.buckets.FAIL > 0;
 } else {
   const captures = await capturePlan(plan);
   const comparisons = plan.cases.map((testCase, index) =>

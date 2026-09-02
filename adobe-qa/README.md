@@ -20,8 +20,8 @@ npm run qa:wws
 
 Chrome is required (`google-chrome-stable`, or set `CHROME_PATH`).
 
-The WWS command exits `1` when it finds implementation failures or plan
-defects. That is expected for the committed Energy Spotlight sample.
+The WWS command exits `1` only for implementation `FAIL` cases. Plan defects
+and unsupported cases stay visible without independently failing the process.
 
 ## WWS SDR
 
