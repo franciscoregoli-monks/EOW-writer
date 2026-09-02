@@ -14,6 +14,18 @@ execution are out of scope.
 ```bash
 cd adobe-qa
 npm install
+npm run dev
+```
+
+Open `http://localhost:3000` to use the internal web interface. It accepts
+PPTX, a shared Google Sheet, paired Events/Pushes CSV exports, executable JSON,
+or a single CSV plan. Each result shows the test contract and separate
+Data Layer and Adobe Debugger evidence.
+
+The browser runner executes on the server, not in the user's browser. The
+host therefore needs Node.js 20.9+ and Chrome. For CLI-only use:
+
+```bash
 npm run qa -- --plan examples/tcp-utm.plan.json
 npm run qa:wws
 ```
