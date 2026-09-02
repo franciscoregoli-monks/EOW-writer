@@ -55,9 +55,11 @@ async function explicitTarget(page, selector, source, wanted = {}) {
       href: node.href || node.getAttribute("href") || null,
       observedInteractionType: isVideo
         ? "video"
-        : node.matches("a[href]")
-          ? "link"
-          : "cta",
+        : node.classList.contains("dashboard-cta")
+          ? "cta"
+          : node.matches("a[href]")
+            ? "link"
+            : "cta",
     };
   });
   return {
@@ -151,9 +153,11 @@ export async function resolveTarget(page, testCase) {
               : "";
       const observedInteractionType = isVideo
         ? "video"
-        : node.matches("a[href]")
-          ? "link"
-          : "cta";
+        : node.classList.contains("dashboard-cta")
+          ? "cta"
+          : node.matches("a[href]")
+            ? "link"
+            : "cta";
 
       let score = 0;
       const reasons = [];
