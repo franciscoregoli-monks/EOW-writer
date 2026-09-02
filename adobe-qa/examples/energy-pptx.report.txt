@@ -1,6 +1,6 @@
 Adobe QA — _Amazon__Energy_Spotlights_-_Measurement_Plan___Implementation_Guide___1__8318.pptx
 URL cases: 18 | Report suite dictionary: amznsproduction
-PASS 0 | FAIL 2 | PLAN_FAIL 4 | NOT_TESTABLE 12
+PASS 0 | FAIL 6 | PLAN FAIL 0 | NOT TESTABLE 12
 Plan cases: 18 | Pushes matched: 10 | Unmatched: 8
 
 === PAGE-LEVEL PLAN FAILS (2) ===
@@ -18,7 +18,71 @@ PLAN_PAGE_METADATA_MISMATCH · eVar4 (all 6 measured components)
 event85, event86, event87, event89 are part of the event85–event89 range reserved for the Web Vitals implementation currently in progress.
 They are expected housekeeping events and do not affect component QA.
 
-=== FAIL (2) ===
+=== FAIL (6) ===
+slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
+  canonical: event1 (CTA Click)
+  plan: CTA Clicks / event1
+  implementation QA: FAIL
+  site actually fired: event2, event5
+  target: secondaryLocators (low)
+  finding PLAN_VARIABLE_ROLE_MISMATCH: Plan asks eVar28 (Page Section) for "Fact Card Image Large", which names the component. The page sends "optimize"; the component name belongs in the Component variable.
+  finding DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
+    FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
+    FAIL beacon.events | expected: "event1" | actual: "event89,event2"
+    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
+    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
+    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
+    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
+    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
+    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
+    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    PASS eVar28 [fixed] | expected: "Fact Card Image Large" | actual: "optimize"
+    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
+  props (reference only, not scored): prop1
+
+slide-13 — Energy Spotlight | C-40 — Fact Cards - Image Small
+  canonical: event1 (CTA Click)
+  plan: CTA Clicks / event1
+  implementation QA: FAIL
+  site actually fired: event2
+  target: secondaryLocators (low)
+  finding PLAN_VARIABLE_ROLE_MISMATCH: Plan asks eVar28 (Page Section) for "Fact Card Image Small", which names the component. The page sends "approach"; the component name belongs in the Component variable.
+  finding DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
+    FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
+    FAIL beacon.events | expected: "event1" | actual: "event89,event2"
+    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
+    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
+    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
+    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
+    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
+    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
+    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    PASS eVar28 [fixed] | expected: "Fact Card Image Small" | actual: "approach"
+    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
+  props (reference only, not scored): prop1
+
 slide-17 — Energy Spotlight | C-40 — Download
   canonical: event1 (CTA Click)
   plan: CTA Clicks / event1
@@ -39,6 +103,37 @@ slide-17 — Energy Spotlight | C-40 — Download
     PASS eVar28 [dynamic] | expected: "<Page section>" | actual: "optimize"
     PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
     PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
+  props (reference only, not scored): prop1
+
+slide-19 — Energy Spotlight | C-43 — Highlight Slider
+  canonical: event1 (CTA Click)
+  plan: CTA Clicks / event1
+  implementation QA: FAIL
+  site actually fired: event2, event5, event6
+  target: secondaryLocators (low)
+  finding DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
+    FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
+    FAIL beacon.events | expected: "event1" | actual: "event89,event2"
+    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
+    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
+    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
+    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
+    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
+    FAIL eVar12 [fixed] | expected: "Slide Card CTA button" | actual: null
+    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
+    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
   props (reference only, not scored): prop1
 
 slide-21 — Energy Spotlight | C-43 — Highlight Slider
@@ -62,93 +157,25 @@ slide-21 — Energy Spotlight | C-43 — Highlight Slider
     PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
   props (reference only, not scored): prop1
 
-=== PLAN_FAIL (4) ===
-slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
-  canonical: event2 (Link Clicks)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event2, event5
-  target: secondaryLocators (low)
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
-  finding PLAN_VARIABLE_ROLE_MISMATCH: Plan asks eVar28 (Page Section) for "Fact Card Image Large", which names the component. The page sends "optimize"; the component name belongs in the Component variable.
-  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-  finding DL_KEY_UNDECLARED: Page sends linkTitle → eVar17 (Link Title), which the plan push does not declare
-  finding DL_KEY_UNDECLARED: Page sends destinationLink → eVar14 (Destination Link), which the plan push does not declare
-    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
-    PASS beacon.events | expected: "event2" | actual: "event89,event2"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar28 [fixed] | expected: "Fact Card Image Large" | actual: "optimize"
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
-  props (reference only, not scored): prop1
-
-slide-13 — Energy Spotlight | C-40 — Fact Cards - Image Small
-  canonical: event2 (Link Clicks)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event2
-  target: secondaryLocators (low)
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
-  finding PLAN_VARIABLE_ROLE_MISMATCH: Plan asks eVar28 (Page Section) for "Fact Card Image Small", which names the component. The page sends "approach"; the component name belongs in the Component variable.
-  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-  finding DL_KEY_UNDECLARED: Page sends linkTitle → eVar17 (Link Title), which the plan push does not declare
-  finding DL_KEY_UNDECLARED: Page sends destinationLink → eVar14 (Destination Link), which the plan push does not declare
-    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
-    PASS beacon.events | expected: "event2" | actual: "event89,event2"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar28 [fixed] | expected: "Fact Card Image Small" | actual: "approach"
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
-  props (reference only, not scored): prop1
-
-slide-19 — Energy Spotlight | C-43 — Highlight Slider
-  canonical: event2 (Link Clicks)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event2, event5, event6
-  target: secondaryLocators (low)
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
-  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-  finding DL_KEY_UNDECLARED: Page sends linkTitle → eVar17 (Link Title), which the plan push does not declare
-  finding DL_KEY_UNDECLARED: Page sends destinationLink → eVar14 (Destination Link), which the plan push does not declare
-    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
-    PASS beacon.events | expected: "event2" | actual: "event89,event2"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    FAIL eVar12 [fixed] | expected: "Slide Card CTA button" | actual: null
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
-  props (reference only, not scored): prop1
-
 slide-23 — Energy Spotlight | C-43 — Highlight Slider
-  canonical: event2 (Link Clicks)
+  canonical: event1 (CTA Click)
   plan: CTA Clicks / event1
   implementation QA: FAIL
   site actually fired: event2, event5, event6
   target: secondaryLocators (low)
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
+  finding DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
   finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-  finding DL_KEY_UNDECLARED: Page sends linkTitle → eVar17 (Link Title), which the plan push does not declare
-  finding DL_KEY_UNDECLARED: Page sends destinationLink → eVar14 (Destination Link), which the plan push does not declare
-    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
-    PASS beacon.events | expected: "event2" | actual: "event89,event2"
+  finding DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
+  finding DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
+    FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
+    FAIL beacon.events | expected: "event1" | actual: "event89,event2"
     PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
     FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
     PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
@@ -161,7 +188,7 @@ slide-23 — Energy Spotlight | C-43 — Highlight Slider
     PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
   props (reference only, not scored): prop1
 
-=== NOT_TESTABLE (12) ===
+=== NOT TESTABLE (12) ===
 slide-11 — Energy Spotlight | C-40 — Fact Cards - Video Large
   canonical: event13 (Video Start)
   plan: CTA Clicks / event1
