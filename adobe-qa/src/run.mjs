@@ -1,21 +1,10 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { capturePlan } from "./capture.mjs";
-import { compareCase } from "./compare.mjs";
 import {
-  evaluateCanonicalCase,
-  preparePlan,
-  rollUpPageLevelFindings,
-} from "./evaluateCase.mjs";
-import { loadPlan } from "./loadPlan.mjs";
-import {
-  buildCanonicalReport,
-  buildReport,
   toCanonicalText,
   toText,
 } from "./report.mjs";
-import { loadSheetPlan } from "./sheetPlanParser.mjs";
-import { loadPptxPlan } from "./pptxPlanParser.mjs";
+import { executeQa } from "./runQa.mjs";
 
 function arg(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -37,70 +26,23 @@ const usesSheet = Boolean(sheetUrl || eventsCsvPath || pushesCsvPath);
 const usesCanonicalSource = usesSheet || Boolean(pptxPath);
 const sdrPath =
   sdrPathArg || (usesCanonicalSource ? "knowledge/wws-sdr.json" : null);
-let plan = pptxPath
-  ? await loadPptxPlan({ filePath: pptxPath, url: urlOverride })
-  : usesSheet
-    ? await loadSheetPlan({
-      sheetUrl,
-      eventsCsvPath,
-      pushesCsvPath,
-      url: urlOverride,
-    })
-    : await loadPlan(planPath);
-if (urlOverride) {
-  plan = {
-    ...plan,
-    cases: plan.cases.map((testCase) => ({ ...testCase, url: urlOverride })),
-  };
-}
+if (sdrPath && !reportSuite) throw new Error("--suite is required with --sdr");
 
-let report;
-let text;
-let failed;
-if (sdrPath) {
-  if (!reportSuite) throw new Error("--suite is required with --sdr");
-  const sdr = JSON.parse(await readFile(path.resolve(sdrPath), "utf8"));
-  const dataLayerMap = JSON.parse(
-    await readFile(
-      path.resolve(arg("--dl-map", "knowledge/datalayer-map.json")),
-      "utf8"
-    )
-  );
-  const prepared = preparePlan(plan, sdr, reportSuite);
-  const captures = await capturePlan(prepared);
-  const rawEvaluations = prepared.cases.map((testCase, index) =>
-    evaluateCanonicalCase(
-      testCase,
-      captures[index],
-      sdr,
-      reportSuite,
-      dataLayerMap
-    )
-  );
-  const { evaluations, pageFindings } =
-    rollUpPageLevelFindings(rawEvaluations);
-  report = buildCanonicalReport(
-    prepared,
-    captures,
-    evaluations,
-    reportSuite,
-    pageFindings
-  );
-  text = toCanonicalText(report);
-  failed = report.summary.buckets.FAIL > 0;
-} else {
-  const captures = await capturePlan(plan);
-  const comparisons = plan.cases.map((testCase, index) =>
-    compareCase({
-      expected: testCase.expected || {},
-      dataLayerEvents: captures[index].dataLayerEvents,
-      beacons: captures[index].beacons,
-    })
-  );
-  report = buildReport(plan, captures, comparisons);
-  text = toText(report);
-  failed = report.summary.failed > 0;
-}
+const report = await executeQa({
+  planPath,
+  pptxPath,
+  sheetUrl,
+  eventsCsvPath,
+  pushesCsvPath,
+  url: urlOverride,
+  reportSuite,
+  sdrPath,
+  dataLayerMapPath: arg("--dl-map", "knowledge/datalayer-map.json"),
+});
+const text = sdrPath ? toCanonicalText(report) : toText(report);
+const failed = sdrPath
+  ? report.summary.buckets.FAIL > 0
+  : report.summary.failed > 0;
 
 await mkdir(outDir, { recursive: true });
 const stamp = report.ranAt.replace(/[:.]/g, "-");
