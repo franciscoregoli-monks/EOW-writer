@@ -1,6 +1,6 @@
 Adobe QA — _Amazon__Energy_Spotlights_-_Measurement_Plan___Implementation_Guide___1__8318.pptx
 URL cases: 18 | Report suite dictionary: amznsproduction
-PASS 0 | FAIL 1 | PLAN_DEFECT 5 | NOT_TESTABLE 12
+PASS 0 | FAIL 2 | PLAN_DEFECT 4 | NOT_TESTABLE 12
 Plan cases: 18 | Pushes matched: 10 | Unmatched: 8
 
 === PAGE-LEVEL PLAN DEFECTS (2) ===
@@ -14,11 +14,33 @@ PLAN_PAGE_METADATA_MISMATCH · eVar4 (all 6 measured components)
   plan: "Energy Stories"
   page: "Spotlight On Energy"
 
-=== EVENTS NOT IN THE SDR (4) ===
-event85, event86, event87, event89 fired on captured hits but are absent from the amznsproduction dictionary.
-Observed alongside web-vitals link names (CLS/INP/LCP/TTFB/FCP).
+=== RESERVED WEB VITALS EVENTS (4) ===
+event85, event86, event87, event89 are part of the event85–event89 range reserved for the Web Vitals implementation currently in progress.
+They are expected housekeeping events and do not affect component QA.
 
-=== FAIL (1) ===
+=== FAIL (2) ===
+slide-17 — Energy Spotlight | C-40 — Download
+  canonical: event1 (CTA Click)
+  plan: CTA Clicks / event1
+  implementation QA: FAIL
+  site actually fired: event1, event5
+  target: secondaryLocators (low)
+    PASS dataLayer.event | expected: "CTA Click" | actual: "CTA Clicks"
+    PASS beacon.events | expected: "event1" | actual: "event89,event1"
+    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
+    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
+    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
+    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
+    PASS eVar5 [dynamic] | expected: "<Name of the document file, e.g., \"Overview Document Q4 2025.pdf\">" | actual: "pue-methodology"
+    PASS eVar6 [dynamic] | expected: "<Type of file, e.g., \"PDF\" or \"XLS\">" | actual: "PDF"
+    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
+    PASS eVar12 [fixed] | expected: "Download" | actual: "Download"
+    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    PASS eVar28 [dynamic] | expected: "<Page section>" | actual: "optimize"
+    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
+    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
+  props (reference only, not scored): prop1
+
 slide-21 — Energy Spotlight | C-43 — Highlight Slider
   canonical: event2 (Link Clicks)
   plan: Link Clicks / event2
@@ -34,28 +56,28 @@ slide-21 — Energy Spotlight | C-43 — Highlight Slider
     PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
     PASS eVar14 [dynamic] | expected: "<URL of external destination>" | actual: "https://www.aboutamazon.eu/news/sustainability/amazon-continues-to-be-europes-largest-corporate-purchaser-of-carbon-free-energy"
     PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar17 [dynamic] | expected: "<Link title>" | actual: "N/A"
-    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A"
+    FAIL eVar17 [dynamic] | expected: "<Link title>" | actual: "N/A" | Placeholder value "N/A" carries no data
+    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
     PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
     PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
   props (reference only, not scored): prop1
 
-=== PLAN_DEFECT (5) ===
+=== PLAN_DEFECT (4) ===
 slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
   canonical: event2 (Link Clicks)
   plan: CTA Clicks / event1
   implementation QA: FAIL
-  site actually fired: event2, event5
+  site actually fired: event1, event5
   target: secondaryLocators (low)
   finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
-    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
-    PASS beacon.events | expected: "event2" | actual: "event89,event2"
+    FAIL dataLayer.event | expected: "Link Clicks" | actual: "CTA Clicks"
+    FAIL beacon.events | expected: "event2" | actual: "event89,event1"
     PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
     FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
     PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
     PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
     PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
+    PASS eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: "Download"
     PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
     FAIL eVar28 [fixed] | expected: "Fact Card Image Large" | actual: "optimize"
     PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
@@ -83,29 +105,6 @@ slide-13 — Energy Spotlight | C-40 — Fact Cards - Image Small
     PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
   props (reference only, not scored): prop1
 
-slide-17 — Energy Spotlight | C-40 — Download
-  canonical: event2 (Link Clicks)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event1, event5
-  target: secondaryLocators (low)
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
-    FAIL dataLayer.event | expected: "Link Clicks" | actual: "CTA Clicks"
-    FAIL beacon.events | expected: "event2" | actual: "event89,event1"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar5 [dynamic] | expected: "<Name of the document file, e.g., \"Overview Document Q4 2025.pdf\">" | actual: "pue-methodology"
-    PASS eVar6 [dynamic] | expected: "<Type of file, e.g., \"PDF\" or \"XLS\">" | actual: "PDF"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    PASS eVar12 [fixed] | expected: "Download" | actual: "Download"
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar28 [dynamic] | expected: "<Page section>" | actual: "optimize"
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
-  props (reference only, not scored): prop1
-
 slide-19 — Energy Spotlight | C-43 — Highlight Slider
   canonical: event2 (Link Clicks)
   plan: CTA Clicks / event1
@@ -122,7 +121,7 @@ slide-19 — Energy Spotlight | C-43 — Highlight Slider
     PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
     FAIL eVar12 [fixed] | expected: "Slide Card CTA button" | actual: null
     PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A"
+    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
     PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
     PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
   props (reference only, not scored): prop1
@@ -143,7 +142,7 @@ slide-23 — Energy Spotlight | C-43 — Highlight Slider
     PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
     FAIL eVar12 [dynamic] | expected: "<CTA Button Label>" | actual: null
     PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A"
+    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
     PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
     PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
   props (reference only, not scored): prop1
