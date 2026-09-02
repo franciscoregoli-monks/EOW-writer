@@ -67,19 +67,23 @@ slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
   canonical: event2 (Link Clicks)
   plan: CTA Clicks / event1
   implementation QA: FAIL
-  site actually fired: event1, event5
+  site actually fired: event2, event5
   target: secondaryLocators (low)
   finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
-    FAIL dataLayer.event | expected: "Link Clicks" | actual: "CTA Clicks"
-    FAIL beacon.events | expected: "event2" | actual: "event89,event1"
+  finding PLAN_VARIABLE_ROLE_MISMATCH: Plan asks eVar28 (Page Section) for "Fact Card Image Large", which names the component. The page sends "optimize"; the component name belongs in the Component variable.
+  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
+  finding DL_KEY_UNDECLARED: Page sends linkTitle → eVar17 (Link Title), which the plan push does not declare
+  finding DL_KEY_UNDECLARED: Page sends destinationLink → eVar14 (Destination Link), which the plan push does not declare
+    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
+    PASS beacon.events | expected: "event2" | actual: "event89,event2"
     PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
     FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
     PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
     PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
     PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    PASS eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: "Download"
+    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
     PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    FAIL eVar28 [fixed] | expected: "Fact Card Image Large" | actual: "optimize"
+    PASS eVar28 [fixed] | expected: "Fact Card Image Large" | actual: "optimize"
     PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
     PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
   props (reference only, not scored): prop1
@@ -91,6 +95,10 @@ slide-13 — Energy Spotlight | C-40 — Fact Cards - Image Small
   site actually fired: event2
   target: secondaryLocators (low)
   finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
+  finding PLAN_VARIABLE_ROLE_MISMATCH: Plan asks eVar28 (Page Section) for "Fact Card Image Small", which names the component. The page sends "approach"; the component name belongs in the Component variable.
+  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
+  finding DL_KEY_UNDECLARED: Page sends linkTitle → eVar17 (Link Title), which the plan push does not declare
+  finding DL_KEY_UNDECLARED: Page sends destinationLink → eVar14 (Destination Link), which the plan push does not declare
     PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
     PASS beacon.events | expected: "event2" | actual: "event89,event2"
     PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
@@ -100,7 +108,7 @@ slide-13 — Energy Spotlight | C-40 — Fact Cards - Image Small
     PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
     FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
     PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    FAIL eVar28 [fixed] | expected: "Fact Card Image Small" | actual: "approach"
+    PASS eVar28 [fixed] | expected: "Fact Card Image Small" | actual: "approach"
     PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
     PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
   props (reference only, not scored): prop1
@@ -112,6 +120,9 @@ slide-19 — Energy Spotlight | C-43 — Highlight Slider
   site actually fired: event2, event5, event6
   target: secondaryLocators (low)
   finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
+  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
+  finding DL_KEY_UNDECLARED: Page sends linkTitle → eVar17 (Link Title), which the plan push does not declare
+  finding DL_KEY_UNDECLARED: Page sends destinationLink → eVar14 (Destination Link), which the plan push does not declare
     PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
     PASS beacon.events | expected: "event2" | actual: "event89,event2"
     PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
@@ -133,6 +144,9 @@ slide-23 — Energy Spotlight | C-43 — Highlight Slider
   site actually fired: event2, event5, event6
   target: secondaryLocators (low)
   finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type link maps to event2
+  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
+  finding DL_KEY_UNDECLARED: Page sends linkTitle → eVar17 (Link Title), which the plan push does not declare
+  finding DL_KEY_UNDECLARED: Page sends destinationLink → eVar14 (Destination Link), which the plan push does not declare
     PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
     PASS beacon.events | expected: "event2" | actual: "event89,event2"
     PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
