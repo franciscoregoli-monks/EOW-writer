@@ -65,7 +65,9 @@ npm run qa:pptx -- \
 
 The parser reads text boxes in visual Y order, pairs specification and
 DataLayer Push slides, and uses the same shared value semantics as the Sheet
-parser. Scroll/video slides are included but reported as `NOT_TESTABLE`.
+parser. Scroll/video slides are included but reported as `NOT_TESTABLE`. See
+the committed direct-PPTX production run at
+[`examples/energy-pptx.report.txt`](examples/energy-pptx.report.txt).
 
 ## WWS SDR
 
