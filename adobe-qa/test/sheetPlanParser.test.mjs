@@ -82,7 +82,7 @@ test("groups Events by exact Order and reuses shared value semantics", () => {
       "Field Name": "Component",
       Value: "”prePromptButton”",
     },
-  ])}`;
+  ])}`.replace("Order,Section", '"Instructions merged into Order",Section');
   const pushesCsv = `One component per row\n${csv(["Order", "Push Code"], [
     {
       Order: "1",
@@ -94,7 +94,7 @@ test("groups Events by exact Order and reuses shared value semantics", () => {
       "Push Code":
         'adobeDataLayer.push({ event: "AI Query Response", component: "messageResponse" });',
     },
-  ])}`;
+  ])}`.replace("Order,Push Code", '"Instructions merged into Order",Push Code');
 
   const plan = parseSheetCsv({
     eventsCsv,

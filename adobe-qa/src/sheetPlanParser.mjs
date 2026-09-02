@@ -23,19 +23,22 @@ function parseCsv(content, requiredHeaders, label) {
     bom: true,
     relax_column_count: true,
   });
-  const headerIndex = rows.findIndex((row) =>
-    requiredHeaders.every((header) => row.includes(header))
-  );
+  const canonicalHeader = (cell) =>
+    requiredHeaders.find(
+      (header) =>
+        cell === header ||
+        String(cell).trim().toLowerCase().endsWith(` ${header.toLowerCase()}`)
+    ) || cell;
+  const headerIndex = rows.findIndex((row) => {
+    const normalized = row.map(canonicalHeader);
+    return requiredHeaders.every((header) => normalized.includes(header));
+  });
   if (headerIndex === -1) {
     throw new Error(
       `${label}: could not find a header row containing ${requiredHeaders.join(", ")}`
     );
   }
-  const headers = rows[headerIndex];
-  const missing = requiredHeaders.filter((header) => !headers.includes(header));
-  if (missing.length) {
-    throw new Error(`${label}: missing columns: ${missing.join(", ")}`);
-  }
+  const headers = rows[headerIndex].map(canonicalHeader);
   return rows.slice(headerIndex + 1).map((row) =>
     Object.fromEntries(
       headers.map((header, index) => [header, String(row[index] || "").trim()])
