@@ -126,7 +126,8 @@ function checkLine(check) {
   return (
     `    ${marker} ${check.key}${semantics}` +
     ` | expected: ${JSON.stringify(check.expected)}` +
-    ` | actual: ${JSON.stringify(check.actual)}`
+    ` | actual: ${JSON.stringify(check.actual)}` +
+    (check.note ? ` | ${check.note}` : "")
   );
 }
 

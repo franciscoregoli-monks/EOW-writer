@@ -2,6 +2,30 @@ const REMOVED = /\bremoved\b/i;
 const ANGLE_VALUE = /^\s*<[^>]+>\s*$/;
 const QUOTED_VALUE = /["“”]([^"“”]+)["“”]/g;
 
+// Values Adobe receives when the implementation had nothing to send. They are
+// technically present, so a bare non-empty check would accept them, but they
+// carry no analysable data and must be reported as failures.
+const SENTINEL_VALUES = new Set([
+  "n/a",
+  "na",
+  "n.a.",
+  "not available",
+  "not applicable",
+  "undefined",
+  "null",
+  "none",
+  "-",
+  "--",
+  "unspecified",
+  "unknown",
+  "%tracking code%",
+]);
+
+export function isSentinelValue(value) {
+  if (value == null) return false;
+  return SENTINEL_VALUES.has(String(value).trim().toLowerCase());
+}
+
 export function parseFieldValue(input) {
   if (input && typeof input === "object" && input.kind) return input;
   const raw = input == null ? "" : String(input).trim();
@@ -41,13 +65,19 @@ export function evaluateField(key, expectedInput, actualInput) {
     };
   }
 
+  const sentinel = isSentinelValue(actual);
+  const note = sentinel
+    ? `Placeholder value ${JSON.stringify(actual)} carries no data`
+    : undefined;
+
   if (expected.kind === "dynamic") {
     return {
       key,
       kind: expected.kind,
       expected: expected.raw,
       actual: actual || null,
-      pass: actual !== "",
+      pass: actual !== "" && !sentinel,
+      ...(note ? { note } : {}),
     };
   }
 
@@ -57,7 +87,8 @@ export function evaluateField(key, expectedInput, actualInput) {
       kind: expected.kind,
       expected: expected.values,
       actual: actual || null,
-      pass: expected.values.includes(String(actual)),
+      pass: !sentinel && expected.values.includes(String(actual)),
+      ...(note ? { note } : {}),
     };
   }
 
@@ -66,7 +97,8 @@ export function evaluateField(key, expectedInput, actualInput) {
     kind: expected.kind,
     expected: expected.value,
     actual: actual || null,
-    pass: String(actual) === expected.value,
+    pass: !sentinel && String(actual) === expected.value,
+    ...(note ? { note } : {}),
   };
 }
 

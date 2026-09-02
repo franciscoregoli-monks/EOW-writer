@@ -4,7 +4,11 @@ import {
   normalizeEventName,
   resolveCanonicalEvent,
 } from "./canonicalEvent.mjs";
-import { evaluateEvars, planEvars } from "./valueSemantics.mjs";
+import {
+  evaluateEvars,
+  isSentinelValue,
+  planEvars,
+} from "./valueSemantics.mjs";
 
 const WEB_VITALS_EVENTS = new Set([
   "event85",
@@ -231,6 +235,9 @@ export function rollUpPageLevelFindings(evaluations) {
   for (const [key, checks] of byKey) {
     if (checks.length !== measured.length) continue;
     if (checks.some((check) => check.pass)) continue;
+    // A placeholder is missing data, not an outdated plan, so it keeps failing
+    // the component instead of being absorbed into a page-level finding.
+    if (checks.some((check) => isSentinelValue(check.actual))) continue;
     const expected = new Set(checks.map((check) => JSON.stringify(check.expected)));
     const actual = new Set(checks.map((check) => JSON.stringify(check.actual)));
     if (expected.size !== 1 || actual.size !== 1) continue;

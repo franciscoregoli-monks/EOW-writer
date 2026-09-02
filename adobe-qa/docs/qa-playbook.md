@@ -73,6 +73,14 @@ Only events and eVars affect PASS/FAIL. Props are stored as reference.
 
 Never invent a missing plan value.
 
+### Placeholder values are failures
+
+`N/A`, `null`, `undefined`, `none`, `-` and similar mean the implementation had
+nothing to send. They are present but carry no analysable data, so they fail
+every check, including dynamic presence checks. They are also never absorbed
+into a page-level plan finding: missing data is an implementation defect, not
+an outdated plan.
+
 ## Output buckets
 
 Every plan case appears exactly once:
