@@ -98,6 +98,12 @@ export function resolveCanonicalEvent(testCase, sdr, reportSuite) {
       message: `Plan event name "${claimedName}" does not resolve in SDR ${reportSuite}`,
     });
   }
+  if (claimedName && !claimedId) {
+    findings.push({
+      code: "MISSING_PLAN_EVENT_ID",
+      message: `Plan names "${claimedName}" but does not provide an Adobe event ID`,
+    });
+  }
   if (claimedId && nameId && claimedId !== nameId) {
     findings.push({
       code: "PLAN_EVENT_ID_NAME_MISMATCH",
@@ -137,6 +143,7 @@ export function isPlanDefect(resolution) {
     [
       "UNKNOWN_PLAN_EVENT",
       "UNKNOWN_PLAN_EVENT_NAME",
+      "MISSING_PLAN_EVENT_ID",
       "PLAN_EVENT_ID_NAME_MISMATCH",
       "PLAN_INTERACTION_MISMATCH",
       "UNRESOLVED_EVENT",

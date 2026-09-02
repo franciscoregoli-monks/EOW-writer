@@ -53,9 +53,15 @@ export function preparePlan(plan, sdr, reportSuite) {
 }
 
 export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
-  const canonical =
-    testCase.canonical ||
-    resolveCanonicalEvent(testCase, sdr, reportSuite);
+  const observedInteractionType = capture?.targetMatch?.observedInteractionType;
+  const canonical = observedInteractionType
+    ? resolveCanonicalEvent(
+        { ...testCase, interactionType: observedInteractionType },
+        sdr,
+        reportSuite
+      )
+    : testCase.canonical ||
+      resolveCanonicalEvent(testCase, sdr, reportSuite);
   const parserFindings = (testCase.source?.parserWarnings || []).map(
     (warning) => ({
       code: warning.code,

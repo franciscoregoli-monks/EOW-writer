@@ -79,3 +79,22 @@ test("does not silently accept an unknown plan event name", () => {
     )
   );
 });
+
+test("flags a missing Adobe event ID while resolving video from SDR context", () => {
+  const result = resolveCanonicalEvent(
+    {
+      id: "video-no-id",
+      interactionType: "video",
+      planEvent: { id: null, name: "Video Start" },
+    },
+    sdr,
+    suite
+  );
+  assert.equal(result.eventId, "event13");
+  assert.equal(isPlanDefect(result), true);
+  assert.ok(
+    result.findings.some(
+      (finding) => finding.code === "MISSING_PLAN_EVENT_ID"
+    )
+  );
+});

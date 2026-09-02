@@ -49,8 +49,23 @@ npm run qa:sheet -- \
 
 The parser groups all event/eVar/prop rows with the same `Order`, joins the
 Pushes row with that exact `Order`, and converts it to the canonical runner
-shape. It imports the shared semantics from `valueSemantics.mjs`; the PPTX
-parser is not a runtime dependency.
+shape. It imports the shared semantics from `valueSemantics.mjs`; it does not
+depend on the supplied CommonJS PPTX parser.
+
+## PPTX plan
+
+PPTX plans can also run directly:
+
+```bash
+npm run qa:pptx -- \
+  --pptx "/path/to/Measurement Plan.pptx" \
+  --url "https://sustainability.aboutamazon.com/..." \
+  --suite amznsproduction
+```
+
+The parser reads text boxes in visual Y order, pairs specification and
+DataLayer Push slides, and uses the same shared value semantics as the Sheet
+parser. Scroll/video slides are included but reported as `NOT_TESTABLE`.
 
 ## WWS SDR
 

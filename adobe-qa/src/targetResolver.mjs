@@ -45,6 +45,26 @@ async function explicitTarget(page, selector, source, wanted = {}) {
     if (!selected) return null;
     element = selected;
   }
+  const observed = await element.evaluate((node) => {
+    const card = node.closest('[data-component="article-card"]');
+    const isVideo =
+      node.classList.contains("js-video-cta") ||
+      card?.classList.contains("has-video");
+    const isSemanticCta =
+      node.classList.contains("primary-cta") ||
+      node.classList.contains("dashboard-cta");
+    return {
+      tag: node.tagName,
+      href: node.href || node.getAttribute("href") || null,
+      observedInteractionType: isVideo
+        ? "video"
+        : isSemanticCta
+          ? "cta"
+        : node.matches("a[href]")
+          ? "link"
+          : "cta",
+    };
+  });
   return {
     element,
     match: {
@@ -52,6 +72,7 @@ async function explicitTarget(page, selector, source, wanted = {}) {
       selector,
       confidence: "confirmed",
       resolvedToClickableDescendant: !interactive,
+      ...observed,
     },
   };
 }
@@ -107,6 +128,11 @@ export async function resolveTarget(page, testCase) {
         .filter(Boolean);
       const component =
         components.find((value) => norm(value) === norm(wanted.component)) ||
+        components.find((value) => {
+          const expected = norm(wanted.component).replace(/[^a-z0-9]/g, "");
+          const actual = norm(value).replace(/[^a-z0-9]/g, "");
+          return expected && actual.startsWith(expected);
+        }) ||
         components[0] ||
         "";
       const section =
@@ -114,6 +140,28 @@ export async function resolveTarget(page, testCase) {
         sections[0] ||
         "";
       const variant = card?.getAttribute("data-variant") || "";
+      const isVideo =
+        node.classList.contains("js-video-cta") ||
+        card?.classList.contains("has-video");
+      const mediaType = isVideo
+        ? "video"
+        : card?.classList.contains("is-medium-light")
+          ? "interactive"
+          : node.hasAttribute("data-download") ||
+              node.closest("[data-download]")
+            ? "download"
+            : card?.querySelector("img")
+              ? "image"
+              : "";
+      const observedInteractionType = isVideo
+        ? "video"
+        : className.includes("primary-cta") ||
+            className.includes("dashboard-cta")
+          ? "cta"
+        : node.matches("a[href]")
+          ? "link"
+          : "cta";
+      const className = String(node.className || "");
 
       let score = 0;
       const reasons = [];
@@ -125,9 +173,16 @@ export async function resolveTarget(page, testCase) {
         score += 6;
         reasons.push("href");
       }
-      if (wanted.component && norm(component) === norm(wanted.component)) {
-        score += 3;
-        reasons.push("component");
+      if (wanted.component) {
+        const expected = norm(wanted.component).replace(/[^a-z0-9]/g, "");
+        const actual = norm(component).replace(/[^a-z0-9]/g, "");
+        if (actual === expected) {
+          score += 3;
+          reasons.push("component");
+        } else if (expected && actual.startsWith(expected)) {
+          score += 2;
+          reasons.push("componentPrefix");
+        }
       }
       if (wanted.pageSection && norm(section) === norm(wanted.pageSection)) {
         score += 2;
@@ -137,6 +192,27 @@ export async function resolveTarget(page, testCase) {
         score += 1;
         reasons.push("variant");
       }
+      if (wanted.mediaType && norm(mediaType) === norm(wanted.mediaType)) {
+        score += 2;
+        reasons.push("mediaType");
+      }
+      if (
+        wanted.controlType === "link" &&
+        className.includes("card-link")
+      ) {
+        score += 2;
+        reasons.push("linkControl");
+      }
+      if (
+        wanted.controlType === "cta" &&
+        className.includes("primary-cta")
+      ) {
+        score += 2;
+        reasons.push("ctaControl");
+      }
+      if (node.matches('a, button, [role="button"], input[type="submit"]')) {
+        score += 0.5;
+      }
       return {
         score,
         reasons,
@@ -145,6 +221,8 @@ export async function resolveTarget(page, testCase) {
         component,
         section,
         variant,
+        mediaType,
+        observedInteractionType,
         tag: node.tagName,
       };
     }, target);

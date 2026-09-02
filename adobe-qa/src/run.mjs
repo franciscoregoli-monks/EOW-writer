@@ -11,6 +11,7 @@ import {
   toText,
 } from "./report.mjs";
 import { loadSheetPlan } from "./sheetPlanParser.mjs";
+import { loadPptxPlan } from "./pptxPlanParser.mjs";
 
 function arg(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -26,17 +27,22 @@ const urlOverride = arg("--url", null);
 const sheetUrl = arg("--sheet", null);
 const eventsCsvPath = arg("--events-csv", null);
 const pushesCsvPath = arg("--pushes-csv", null);
+const pptxPath = arg("--pptx", null);
 
 const usesSheet = Boolean(sheetUrl || eventsCsvPath || pushesCsvPath);
-const sdrPath = sdrPathArg || (usesSheet ? "knowledge/wws-sdr.json" : null);
-let plan = usesSheet
-  ? await loadSheetPlan({
+const usesCanonicalSource = usesSheet || Boolean(pptxPath);
+const sdrPath =
+  sdrPathArg || (usesCanonicalSource ? "knowledge/wws-sdr.json" : null);
+let plan = pptxPath
+  ? await loadPptxPlan({ filePath: pptxPath, url: urlOverride })
+  : usesSheet
+    ? await loadSheetPlan({
       sheetUrl,
       eventsCsvPath,
       pushesCsvPath,
       url: urlOverride,
     })
-  : await loadPlan(planPath);
+    : await loadPlan(planPath);
 if (urlOverride) {
   plan = {
     ...plan,
