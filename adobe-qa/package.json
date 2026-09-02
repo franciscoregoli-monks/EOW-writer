@@ -6,12 +6,16 @@
   "description": "MVP QA runner: measurement plan vs Adobe data layer and Launch beacons",
   "scripts": {
     "qa": "node src/run.mjs",
-    "qa:tcp": "node src/run.mjs --plan examples/tcp-utm.plan.json"
+    "qa:tcp": "node src/run.mjs --plan examples/tcp-utm.plan.json",
+    "sdr:build": "node src/buildSdrArtifact.mjs",
+    "test": "node --test test/*.test.mjs"
   },
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
-    "puppeteer-core": "^23.11.1"
+    "fast-xml-parser": "^5.11.1",
+    "fflate": "^0.8.3",
+    "puppeteer-core": "^25.9.0"
   }
 }
