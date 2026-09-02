@@ -8,6 +8,7 @@
     "qa": "node src/run.mjs",
     "qa:tcp": "node src/run.mjs --plan examples/tcp-utm.plan.json",
     "qa:wws": "node src/run.mjs --plan examples/wws-energy.plan.json --sdr knowledge/wws-sdr.json --suite amznsproduction --out reports/wws",
+    "qa:sheet": "node src/run.mjs",
     "sdr:build": "node src/buildSdrArtifact.mjs",
     "test": "node --test test/*.test.mjs"
   },
@@ -15,6 +16,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "csv-parse": "^7.0.2",
     "fast-xml-parser": "^5.11.1",
     "fflate": "^0.8.3",
     "puppeteer-core": "^25.9.0"

@@ -92,6 +92,7 @@ export function buildCanonicalReport(plan, captures, evaluations, reportSuite) {
   return {
     plan: plan.name,
     reportSuite,
+    planStats: plan.stats || null,
     ranAt: new Date().toISOString(),
     summary: { total: cases.length, buckets },
     cases,
@@ -114,8 +115,13 @@ export function toCanonicalText(report) {
     `Adobe QA — ${report.plan}`,
     `URL cases: ${report.summary.total} | Report suite dictionary: ${report.reportSuite}`,
     `PASS ${buckets.PASS} | FAIL ${buckets.FAIL} | PLAN_DEFECT ${buckets.PLAN_DEFECT} | NOT_TESTABLE ${buckets.NOT_TESTABLE}`,
-    "",
   ];
+  if (report.planStats) {
+    lines.push(
+      `Sheet Orders: ${report.planStats.totalItems} | Pushes matched: ${report.planStats.matched} | Unmatched: ${report.planStats.unmatched}`
+    );
+  }
+  lines.push("");
 
   for (const status of ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"]) {
     const cases = report.cases.filter((testCase) => testCase.status === status);

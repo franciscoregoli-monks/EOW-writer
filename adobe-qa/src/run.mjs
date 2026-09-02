@@ -10,6 +10,7 @@ import {
   toCanonicalText,
   toText,
 } from "./report.mjs";
+import { loadSheetPlan } from "./sheetPlanParser.mjs";
 
 function arg(name, fallback) {
   const index = process.argv.indexOf(name);
@@ -19,11 +20,23 @@ function arg(name, fallback) {
 
 const planPath = arg("--plan", "examples/tcp-utm.plan.json");
 const outDir = arg("--out", "reports");
-const sdrPath = arg("--sdr", null);
+const sdrPathArg = arg("--sdr", null);
 const reportSuite = arg("--suite", null);
 const urlOverride = arg("--url", null);
+const sheetUrl = arg("--sheet", null);
+const eventsCsvPath = arg("--events-csv", null);
+const pushesCsvPath = arg("--pushes-csv", null);
 
-let plan = await loadPlan(planPath);
+const usesSheet = Boolean(sheetUrl || eventsCsvPath || pushesCsvPath);
+const sdrPath = sdrPathArg || (usesSheet ? "knowledge/wws-sdr.json" : null);
+let plan = usesSheet
+  ? await loadSheetPlan({
+      sheetUrl,
+      eventsCsvPath,
+      pushesCsvPath,
+      url: urlOverride,
+    })
+  : await loadPlan(planPath);
 if (urlOverride) {
   plan = {
     ...plan,

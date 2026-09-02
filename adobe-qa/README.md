@@ -23,6 +23,35 @@ Chrome is required (`google-chrome-stable`, or set `CHROME_PATH`).
 The WWS command exits `1` only for implementation `FAIL` cases. Plan defects
 and unsupported cases stay visible without independently failing the process.
 
+## Google Sheet plan
+
+The working plan format is two tabs named `Events` and `Pushes`. Rows are
+joined by exact `Order`; there is deliberately no fuzzy matching.
+
+For a Sheet shared by link:
+
+```bash
+npm run qa:sheet -- \
+  --sheet "https://docs.google.com/spreadsheets/d/SHEET_ID/edit" \
+  --url "https://sustainability.aboutamazon.com/..." \
+  --suite amznsproduction
+```
+
+For a private Sheet, export both tabs as CSV:
+
+```bash
+npm run qa:sheet -- \
+  --events-csv Events.csv \
+  --pushes-csv Pushes.csv \
+  --url "https://sustainability.aboutamazon.com/..." \
+  --suite amznsproduction
+```
+
+The parser groups all event/eVar/prop rows with the same `Order`, joins the
+Pushes row with that exact `Order`, and converts it to the canonical runner
+shape. It imports the shared semantics from `valueSemantics.mjs`; the PPTX
+parser is not a runtime dependency.
+
 ## WWS SDR
 
 `knowledge/wws-sdr.json` is a committed artifact generated from the real SDR:

@@ -37,11 +37,13 @@ Implemented and unit-tested:
 - Four exclusive report buckets: PASS, FAIL, PLAN_DEFECT, NOT_TESTABLE.
 - Explicit NOT_TESTABLE branch for video/scroll.
 - Live WWS CLI plan at `examples/wws-energy.plan.json`.
+- Google Sheet parser for exact `Order` joins across Events + Pushes. It uses
+  `valueSemantics.mjs` directly; the supplied PPTX parser is not a dependency.
 
 Still not implemented:
 
-- Google Sheet `sheet-plan-parser.js`: that file was never provided to this
-  repo. Current executable inputs remain JSON/CSV.
+- Authenticated Google Sheets API. Public/link-shared Sheets can be fetched
+  directly; private Sheets currently require two CSV exports.
 - Multi-step video and scroll (deliberately post-MVP).
 - Upload page, HTML report and hosting.
 
@@ -49,7 +51,13 @@ Run `npm test`, `npm run qa:wws`, or the legacy TCP `npm run qa:tcp`.
 
 ## Provenance of this branch
 
-This branch was written from scratch in one session. No `diff-engine.js`, `sheet-plan-parser.js`, `adobe-scraper.js` or `HANDOFF-CURSOR.md` was ever provided to this agent, and `git log --all` confirms none ever existed in this repo. If those exist elsewhere, they were not seen, evaluated, or rejected here. Whoever merges the two efforts should diff them deliberately rather than assume this branch supersedes anything.
+The first MVP was written before the parallel Vask files were available.
+They were later supplied and reviewed. `sheet-plan-parser.js` was ported to
+ESM and wired to the existing value semantics. `pptx-plan-parser.js` remains a
+reference only. `adobe-scraper.js` was not adopted because its element locator
+never ran live; the existing `capture.mjs` and `targetResolver.mjs` have.
+`diff-engine.js` confirmed the four value kinds but was not copied wholesale
+because it shares the intentionally deferred one-action/one-event limitation.
 
 ## Sources (uploads, not necessarily in git)
 

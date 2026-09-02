@@ -56,8 +56,14 @@ export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
   const canonical =
     testCase.canonical ||
     resolveCanonicalEvent(testCase, sdr, reportSuite);
-  const planDefect = isPlanDefect(canonical);
-  const findings = [...canonical.findings];
+  const parserFindings = (testCase.source?.parserWarnings || []).map(
+    (warning) => ({
+      code: warning.code,
+      message: warning.message,
+    })
+  );
+  const planDefect = isPlanDefect(canonical) || parserFindings.length > 0;
+  const findings = [...canonical.findings, ...parserFindings];
 
   if (["video", "scroll"].includes(eventFamily(canonical.eventId))) {
     return {
