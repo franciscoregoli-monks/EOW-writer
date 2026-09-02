@@ -2,7 +2,11 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { capturePlan } from "./capture.mjs";
 import { compareCase } from "./compare.mjs";
-import { evaluateCanonicalCase, preparePlan } from "./evaluateCase.mjs";
+import {
+  evaluateCanonicalCase,
+  preparePlan,
+  rollUpPageLevelFindings,
+} from "./evaluateCase.mjs";
 import { loadPlan } from "./loadPlan.mjs";
 import {
   buildCanonicalReport,
@@ -58,14 +62,17 @@ if (sdrPath) {
   const sdr = JSON.parse(await readFile(path.resolve(sdrPath), "utf8"));
   const prepared = preparePlan(plan, sdr, reportSuite);
   const captures = await capturePlan(prepared);
-  const evaluations = prepared.cases.map((testCase, index) =>
+  const rawEvaluations = prepared.cases.map((testCase, index) =>
     evaluateCanonicalCase(testCase, captures[index], sdr, reportSuite)
   );
+  const { evaluations, pageFindings } =
+    rollUpPageLevelFindings(rawEvaluations);
   report = buildCanonicalReport(
     prepared,
     captures,
     evaluations,
-    reportSuite
+    reportSuite,
+    pageFindings
   );
   text = toCanonicalText(report);
   failed = report.summary.buckets.FAIL > 0;

@@ -56,7 +56,13 @@ export function toText(report) {
   return lines.join("\n");
 }
 
-export function buildCanonicalReport(plan, captures, evaluations, reportSuite) {
+export function buildCanonicalReport(
+  plan,
+  captures,
+  evaluations,
+  reportSuite,
+  pageFindings = []
+) {
   const cases = plan.cases.map((testCase, index) => ({
     id: testCase.id,
     name: testCase.name || testCase.id,
@@ -93,10 +99,16 @@ export function buildCanonicalReport(plan, captures, evaluations, reportSuite) {
       cases.filter((testCase) => testCase.status === status).length,
     ])
   );
+  const undocumentedEvents = [
+    ...new Set(evaluations.flatMap((item) => item.undocumentedEvents || [])),
+  ].sort();
+
   return {
     plan: plan.name,
     reportSuite,
     planStats: plan.stats || null,
+    pageFindings,
+    undocumentedEvents,
     ranAt: new Date().toISOString(),
     summary: { total: cases.length, buckets },
     cases,
@@ -104,7 +116,7 @@ export function buildCanonicalReport(plan, captures, evaluations, reportSuite) {
 }
 
 function checkLine(check) {
-  const marker = check.pass ? "PASS" : "FAIL";
+  const marker = check.pageLevel ? "PAGE" : check.pass ? "PASS" : "FAIL";
   const semantics = check.kind && check.kind !== "event" ? ` [${check.kind}]` : "";
   return (
     `    ${marker} ${check.key}${semantics}` +
@@ -126,6 +138,32 @@ export function toCanonicalText(report) {
     );
   }
   lines.push("");
+
+  if (report.pageFindings?.length) {
+    lines.push(
+      `=== PAGE-LEVEL PLAN DEFECTS (${report.pageFindings.length}) ===`,
+      "Reported once for the whole page. Excluded from per-component scoring.",
+      ""
+    );
+    for (const finding of report.pageFindings) {
+      lines.push(
+        `${finding.code} · ${finding.key} (all ${finding.cases} measured components)`,
+        `  plan: ${JSON.stringify(finding.expected)}`,
+        `  page: ${JSON.stringify(finding.actual)}`,
+        ""
+      );
+    }
+  }
+
+  if (report.undocumentedEvents?.length) {
+    lines.push(
+      `=== EVENTS NOT IN THE SDR (${report.undocumentedEvents.length}) ===`,
+      `${report.undocumentedEvents.join(", ")} fired on captured hits but are ` +
+        `absent from the ${report.reportSuite} dictionary.`,
+      "Observed alongside web-vitals link names (CLS/INP/LCP/TTFB/FCP).",
+      ""
+    );
+  }
 
   for (const status of ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"]) {
     const cases = report.cases.filter((testCase) => testCase.status === status);

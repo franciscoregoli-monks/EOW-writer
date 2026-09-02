@@ -170,15 +170,17 @@ function key(...values) {
   return values.map((value) => String(value || "").trim().toLowerCase()).join("::");
 }
 
+// Confirmed against the live WWS DOM: components are identified by
+// `data-component`, whose values are slugs such as `c40-dashboard`, while plans
+// name them `C40`. `data-analytics-component` and `data-testid` do not exist on
+// this site, and `id` holds section names, so neither is used as a candidate.
 function candidateSelectors(component) {
   if (!component) return [];
-  const normalized = component.toLowerCase().replace(/[^a-z0-9.-]/g, "");
+  const slug = component.toLowerCase().replace(/[^a-z0-9.]/g, "");
   return [
     `[data-component="${component}"]`,
-    `[data-analytics-component="${component}"]`,
-    `#${component}`,
-    `[data-testid="${component}"]`,
-    `[data-component^="${normalized}-"]`,
+    `[data-component^="${slug}-"]`,
+    `[data-component^="${slug}"]`,
   ];
 }
 

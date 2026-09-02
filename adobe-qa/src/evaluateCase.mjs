@@ -92,16 +92,23 @@ export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
   }
 
   if (capture?.error) {
+    const unresolved = capture.error.code === "TARGET_NOT_FOUND";
     return {
-      status:
-        capture.error.code === "TARGET_NOT_FOUND" ? "NOT_TESTABLE" : "FAIL",
-      qaResult: capture.error.code === "TARGET_NOT_FOUND" ? null : "FAIL",
+      status: unresolved ? "NOT_TESTABLE" : "FAIL",
+      qaResult: unresolved ? null : "FAIL",
       canonical,
-      findings,
-      reason:
-        capture.error.code === "TARGET_NOT_FOUND"
-          ? `${capture.error.message} — component may not exist on this URL`
-          : capture.error.message,
+      findings: unresolved
+        ? [
+            ...findings,
+            {
+              code: "TARGET_NOT_RESOLVED",
+              message: `No element matched this component on ${testCase.url}`,
+            },
+          ]
+        : findings,
+      reason: unresolved
+        ? "Target not resolved — nothing was measured"
+        : capture.error.message,
       checks: [],
       propsReference: testCase.expected?.props || {},
     };
@@ -124,9 +131,38 @@ export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
       eventIdsInBeacon(item).some((id) => !WEB_VITALS_EVENTS.has(id))
     ) ||
     null;
-  const observedEvents = [
+  const allBeaconEvents = [
     ...new Set(capture.beacons.flatMap(eventIdsInBeacon)),
-  ].filter((id) => !WEB_VITALS_EVENTS.has(id));
+  ];
+  const observedEvents = allBeaconEvents.filter(
+    (id) => !WEB_VITALS_EVENTS.has(id)
+  );
+  const undocumentedEvents = allBeaconEvents.filter(
+    (id) => !sdr.byReportSuite?.[reportSuite]?.dictionary?.events?.[id]
+  );
+
+  // Clicking successfully but capturing nothing means the interaction was never
+  // measured, so it cannot be judged as an implementation failure.
+  if (!capture.dataLayerEvents.length && !observedEvents.length) {
+    return {
+      status: "NOT_TESTABLE",
+      qaResult: null,
+      canonical,
+      findings: [
+        ...findings,
+        {
+          code: "NO_TRACKING_FIRED",
+          message:
+            "Element was clicked but produced no data layer push and no Adobe interaction hit",
+        },
+      ],
+      reason: "Nothing was captured — cannot verify this component",
+      checks: [],
+      observedEvents,
+      undocumentedEvents,
+      propsReference: testCase.expected?.props || {},
+    };
+  }
 
   const checks = [
     {
@@ -160,7 +196,72 @@ export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
     dataLayerEvent,
     beacon: interactionBeacon,
     observedEvents,
+    undocumentedEvents,
     checks,
     propsReference: testCase.expected?.props || {},
+  };
+}
+
+// A fixed value that is identical across every measured case, and wrong in the
+// same way every time, describes the page rather than any single component.
+// Detected from the run itself so per-component values such as eVar28 are
+// never swept up.
+export function rollUpPageLevelFindings(evaluations) {
+  const measured = evaluations.filter((item) => item.checks.length);
+  if (measured.length < 2) return { evaluations, pageFindings: [] };
+
+  const byKey = new Map();
+  for (const evaluation of measured) {
+    for (const check of evaluation.checks) {
+      if (check.kind !== "fixed") continue;
+      if (!byKey.has(check.key)) byKey.set(check.key, []);
+      byKey.get(check.key).push(check);
+    }
+  }
+
+  const pageLevelKeys = new Set();
+  const pageFindings = [];
+  for (const [key, checks] of byKey) {
+    if (checks.length !== measured.length) continue;
+    if (checks.some((check) => check.pass)) continue;
+    const expected = new Set(checks.map((check) => JSON.stringify(check.expected)));
+    const actual = new Set(checks.map((check) => JSON.stringify(check.actual)));
+    if (expected.size !== 1 || actual.size !== 1) continue;
+    pageLevelKeys.add(key);
+    pageFindings.push({
+      code: "PLAN_PAGE_METADATA_MISMATCH",
+      key,
+      expected: checks[0].expected,
+      actual: checks[0].actual,
+      cases: checks.length,
+      message:
+        `${key} is identical on every measured component: plan expects ` +
+        `${JSON.stringify(checks[0].expected)}, page sends ` +
+        `${JSON.stringify(checks[0].actual)}`,
+    });
+  }
+
+  if (!pageLevelKeys.size) return { evaluations, pageFindings: [] };
+
+  return {
+    pageFindings,
+    evaluations: evaluations.map((evaluation) => {
+      if (!evaluation.checks.length) return evaluation;
+      const checks = evaluation.checks.map((check) =>
+        pageLevelKeys.has(check.key)
+          ? { ...check, pass: true, pageLevel: true }
+          : check
+      );
+      const qaResult = checks.every((check) => check.pass) ? "PASS" : "FAIL";
+      // The page-level defect is reported once for the run; a component keeps
+      // its own verdict instead of inheriting it.
+      return {
+        ...evaluation,
+        checks,
+        qaResult,
+        status:
+          evaluation.status === "PLAN_DEFECT" ? "PLAN_DEFECT" : qaResult,
+      };
+    }),
   };
 }
