@@ -78,3 +78,34 @@ test("components pass once only page-level values disagreed", () => {
     assert.equal(item.status, "PASS");
   }
 });
+
+test("known page variables remain page defects with one measured component", () => {
+  const { evaluations, pageFindings } = rollUpPageLevelFindings([
+    evaluation("only-measured-case", [
+      {
+        key: "eVar3",
+        kind: "fixed",
+        expected: "Energy Spotlight",
+        actual: "Actual page title",
+        pass: false,
+      },
+      {
+        key: "eVar28",
+        kind: "fixed",
+        expected: "Card",
+        actual: "section",
+        pass: false,
+      },
+    ]),
+  ]);
+
+  assert.deepEqual(pageFindings.map((finding) => finding.key), ["eVar3"]);
+  assert.equal(
+    evaluations[0].checks.find((check) => check.key === "eVar3").pageLevel,
+    true
+  );
+  assert.equal(
+    evaluations[0].checks.find((check) => check.key === "eVar28").pass,
+    false
+  );
+});

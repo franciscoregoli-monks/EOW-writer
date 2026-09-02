@@ -1,6 +1,6 @@
 Adobe QA — WWS Energy Spotlight — MVP canonical event QA
 URL cases: 5 | Report suite dictionary: amznsproduction
-PASS 0 | FAIL 1 | PLAN_FAIL 2 | NOT_TESTABLE 2
+PASS 0 | FAIL 1 | PLAN DEFECT 2 | NOT TESTABLE 2
 
 === FAIL (1) ===
 ENERGY-C43-LINK — C43 Highlight Slider Link
@@ -23,7 +23,7 @@ ENERGY-C43-LINK — C43 Highlight Slider Link
     FAIL eVar36 [fixed] | expected: "C43" | actual: "c43-highlight-slider"
   props (reference only, not scored): prop1
 
-=== PLAN_FAIL (2) ===
+=== PLAN DEFECT (2) ===
 ENERGY-C40-IMAGE-LARGE — C40 Fact Card Image Large
   canonical: event2 (Link Clicks)
   plan: CTA Clicks / event1

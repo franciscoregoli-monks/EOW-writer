@@ -154,6 +154,8 @@ function parsePush(lines, slide) {
   const componentMatch = value("component");
   const eventMatch = value("event");
   const component = componentMatch?.[1] || componentMatch?.[2] || null;
+  const linkTitle = value("linkTitle")?.[1] || null;
+  const destinationLink = value("destinationLink")?.[1] || null;
   return {
     slide,
     section: lines[1] || null,
@@ -162,6 +164,8 @@ function parsePush(lines, slide) {
       .trim(),
     eventName: eventMatch?.[1] || eventMatch?.[2] || null,
     component,
+    linkTitle,
+    destinationLink,
     rawPushCode,
   };
 }
@@ -187,10 +191,18 @@ function candidateSelectors(component) {
 function targetMetadata(spec, push) {
   const feature = spec.feature || "";
   const lower = feature.toLowerCase();
+  const plannedCta = spec.eVars?.eVar12;
   return {
     component: push?.component || null,
     pageSection: spec.section,
     label: feature,
+    dataTitle: push?.linkTitle || null,
+    href: push?.destinationLink || null,
+    scope:
+      plannedCta?.kind === "fixed" &&
+      /slide\s*card/i.test(plannedCta.value || "")
+        ? "slider-card"
+        : null,
     variant: lower.includes("large")
       ? "large"
       : lower.includes("small")

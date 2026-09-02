@@ -20,7 +20,7 @@ import { useMemo, useState } from "react";
 const STATUS_META = {
   PASS: { label: "Pass", icon: CheckCircle2 },
   FAIL: { label: "Fail", icon: XCircle },
-  PLAN_FAIL: { label: "Plan fail", icon: AlertCircle },
+  PLAN_DEFECT: { label: "Plan defect", icon: AlertCircle },
   NOT_TESTABLE: { label: "Not testable", icon: CircleSlash2 },
 };
 

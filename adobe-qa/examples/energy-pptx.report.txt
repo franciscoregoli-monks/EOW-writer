@@ -1,16 +1,17 @@
-Adobe QA — _Amazon__Energy_Spotlights_-_Measurement_Plan___Implementation_Guide___1__8318.pptx
-URL cases: 18 | Report suite dictionary: amznsproduction
-PASS 0 | FAIL 6 | PLAN FAIL 0 | NOT TESTABLE 12
+Adobe QA — energy-spotlights-measurement-plan.pptx
+Plan cases: 18 | Page-level findings: 2 | Accounted outcomes: 20
+Report suite dictionary: amznsproduction
+PASS 0 | FAIL 1 | PLAN DEFECT 4 | NOT TESTABLE 15
 Plan cases: 18 | Pushes matched: 10 | Unmatched: 8
 
-=== PAGE-LEVEL PLAN FAILS (2) ===
-Reported once for the whole page. Excluded from per-component scoring.
+=== PAGE-LEVEL PLAN DEFECTS (2) ===
+Reported and counted once for the whole page. Excluded from per-component scoring.
 
-PLAN_PAGE_METADATA_MISMATCH · eVar3 (all 6 measured components)
+PLAN_PAGE_METADATA_MISMATCH · eVar3 (all 1 measured components)
   plan: "Energy Spotlight"
   page: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
 
-PLAN_PAGE_METADATA_MISMATCH · eVar4 (all 6 measured components)
+PLAN_PAGE_METADATA_MISMATCH · eVar4 (all 1 measured components)
   plan: "Energy Stories"
   page: "Spotlight On Energy"
 
@@ -18,163 +19,27 @@ PLAN_PAGE_METADATA_MISMATCH · eVar4 (all 6 measured components)
 event85, event86, event87, event89 are part of the event85–event89 range reserved for the Web Vitals implementation currently in progress.
 They are expected housekeeping events and do not affect component QA.
 
-=== FAIL (6) ===
-slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
-  canonical: event1 (CTA Click)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event2, event5
-  target: secondaryLocators (low)
-  finding PLAN_VARIABLE_ROLE_MISMATCH: Plan asks eVar28 (Page Section) for "Fact Card Image Large", which names the component. The page sends "optimize"; the component name belongs in the Component variable.
-  finding DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
-    FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
-    FAIL beacon.events | expected: "event1" | actual: "event89,event2"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar28 [fixed] | expected: "Fact Card Image Large" | actual: "optimize"
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
-  props (reference only, not scored): prop1
-
-slide-13 — Energy Spotlight | C-40 — Fact Cards - Image Small
-  canonical: event1 (CTA Click)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event2
-  target: secondaryLocators (low)
-  finding PLAN_VARIABLE_ROLE_MISMATCH: Plan asks eVar28 (Page Section) for "Fact Card Image Small", which names the component. The page sends "approach"; the component name belongs in the Component variable.
-  finding DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
-    FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
-    FAIL beacon.events | expected: "event1" | actual: "event89,event2"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    FAIL eVar12 [dynamic] | expected: "<CTA button name/action>" | actual: null
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar28 [fixed] | expected: "Fact Card Image Small" | actual: "approach"
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
-  props (reference only, not scored): prop1
-
-slide-17 — Energy Spotlight | C-40 — Download
-  canonical: event1 (CTA Click)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event1, event5
-  target: secondaryLocators (low)
-    PASS dataLayer.event | expected: "CTA Click" | actual: "CTA Clicks"
-    PASS beacon.events | expected: "event1" | actual: "event89,event1"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar5 [dynamic] | expected: "<Name of the document file, e.g., \"Overview Document Q4 2025.pdf\">" | actual: "pue-methodology"
-    PASS eVar6 [dynamic] | expected: "<Type of file, e.g., \"PDF\" or \"XLS\">" | actual: "PDF"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    PASS eVar12 [fixed] | expected: "Download" | actual: "Download"
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar28 [dynamic] | expected: "<Page section>" | actual: "optimize"
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C40>" | actual: "c40-dashboard"
-  props (reference only, not scored): prop1
-
-slide-19 — Energy Spotlight | C-43 — Highlight Slider
-  canonical: event1 (CTA Click)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event2, event5, event6
-  target: secondaryLocators (low)
-  finding DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
-    FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
-    FAIL beacon.events | expected: "event1" | actual: "event89,event2"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    FAIL eVar12 [fixed] | expected: "Slide Card CTA button" | actual: null
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
-  props (reference only, not scored): prop1
-
-slide-21 — Energy Spotlight | C-43 — Highlight Slider
-  canonical: event2 (Link Clicks)
-  plan: Link Clicks / event2
-  implementation QA: FAIL
-  site actually fired: event2, event5, event6
-  target: secondaryLocators (low)
-    PASS dataLayer.event | expected: "Link Clicks" | actual: "Link Clicks"
-    PASS beacon.events | expected: "event2" | actual: "event89,event2"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    PASS eVar14 [dynamic] | expected: "<URL of external destination>" | actual: "https://www.aboutamazon.eu/news/sustainability/amazon-continues-to-be-europes-largest-corporate-purchaser-of-carbon-free-energy"
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    FAIL eVar17 [dynamic] | expected: "<Link title>" | actual: "N/A" | Placeholder value "N/A" carries no data
-    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
-  props (reference only, not scored): prop1
-
+=== FAIL (1) ===
 slide-23 — Energy Spotlight | C-43 — Highlight Slider
-  canonical: event1 (CTA Click)
-  plan: CTA Clicks / event1
-  implementation QA: FAIL
-  site actually fired: event2, event5, event6
-  target: secondaryLocators (low)
-  finding DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
-  finding DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    target: domHint (confirmed)
+    overall implementation QA: FAIL
+
+  DATA LAYER TEST — FAIL
     FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
+    declared keys: timestamp, domain, previousPage, pageName, siteSection, pageType, ctaButton, pageURL, pageSection, cleanPageURL, component
+    observed keys: none
+    missing: timestamp, domain, previousPage, pageName, siteSection, pageType, ctaButton, pageURL, pageSection, cleanPageURL, component
+    undeclared: none
+    placeholder values: none
+    unmapped: none
+
+  ADOBE DEBUGGER TEST — FAIL
+    observed events: event2, event5, event6
     FAIL beacon.events | expected: "event1" | actual: "event89,event2"
     PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
     FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
@@ -186,102 +51,340 @@ slide-23 — Energy Spotlight | C-43 — Highlight Slider
     FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
     PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
     PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
-  props (reference only, not scored): prop1
+    Props (compared, never scored):
+    REF  prop1 [dynamic] | expected: "<Timestamp MM/DD/YYYY format>" | actual: "09/02/2026"
+    plan coverage: event compared | eVars 10/10 | props 1/1
 
-=== NOT TESTABLE (12) ===
-slide-11 — Energy Spotlight | C-40 — Fact Cards - Video Large
-  canonical: event13 (Video Start)
-  plan: CTA Clicks / event1
-  reason: Multi-step video sequences are not supported in this MVP
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type video maps to event13
-  props (reference only, not scored): prop1
+  FINDINGS
+    DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
+    DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
+    DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
+    DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
+    DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
+    DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
+    DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
+    DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
+    DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
+    DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
+    DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
 
-slide-15 — Energy Spotlight | C-40 — Interactive Card
-  canonical: event1 (CTA Click)
-  plan: CTA Clicks / event1
-  reason: Target not resolved — nothing was measured
-  finding TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
-  props (reference only, not scored): prop1
-
+=== PLAN DEFECT (2) ===
 slide-25 — Energy Spotlight | C-38.1 — Teaser Small Cards
-  canonical: event2 (Link Clicks)
-  plan: Link Clicks / event2
-  reason: Target not resolved — nothing was measured
-  finding TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (link)
+    expected event: event2 (Link Clicks)
+    plan says: Link Clicks / event2
+    reason: Component not present on page
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/11 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar14, eVar15, eVar17, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_COMPONENT_NOT_PRESENT: C38.1 is not present on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
 
 slide-27 — Energy Spotlight | C-38.1 — Teaser Small Cards
-  canonical: event1 (CTA Click)
-  plan: CTA Clicks / event1
-  reason: Target not resolved — nothing was measured
-  finding TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Component not present on page
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_COMPONENT_NOT_PRESENT: C38.1 is not present on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+=== NOT TESTABLE (15) ===
+slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-11 — Energy Spotlight | C-40 — Fact Cards - Video Large
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event13 (Video Start)
+    plan says: CTA Clicks / event1
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type video maps to event13
+
+slide-13 — Energy Spotlight | C-40 — Fact Cards - Image Small
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-15 — Energy Spotlight | C-40 — Interactive Card
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-17 — Energy Spotlight | C-40 — Download
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/12 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar5, eVar6, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-19 — Energy Spotlight | C-43 — Highlight Slider
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-21 — Energy Spotlight | C-43 — Highlight Slider
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (link)
+    expected event: event2 (Link Clicks)
+    plan says: Link Clicks / event2
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/11 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar14, eVar15, eVar17, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
 
 slide-31 — Scroll — Scroll Reach 25%
-  canonical: event5 (Scroll Reach 25%)
-  plan: Scroll Reach 25% / event15
-  reason: Multi-step scroll sequences are not supported in this MVP
-  finding PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 25% with event15; SDR maps that name to event5
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event15, but interaction type scroll maps to event5
-  finding UNMATCHED_PUSH_SLIDE: Slide 31 has no matching DataLayer Push slide
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: scroll (scroll)
+    expected event: event5 (Scroll Reach 25%)
+    plan says: Scroll Reach 25% / event15
+    reason: Multi-step scroll sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/6 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar15, eVar28, prop1
+
+  FINDINGS
+    PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 25% with event15; SDR maps that name to event5
+    PLAN_INTERACTION_MISMATCH: Plan claims event15, but interaction type scroll maps to event5
+    UNMATCHED_PUSH_SLIDE: Slide 31 has no matching DataLayer Push slide
 
 slide-32 — Scroll — Scroll Reach 50%
-  canonical: event6 (Scroll Reach 50%)
-  plan: Scroll Reach 50% / event16
-  reason: Multi-step scroll sequences are not supported in this MVP
-  finding PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 50% with event16; SDR maps that name to event6
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event16, but interaction type scroll maps to event6
-  finding UNMATCHED_PUSH_SLIDE: Slide 32 has no matching DataLayer Push slide
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: scroll (scroll)
+    expected event: event6 (Scroll Reach 50%)
+    plan says: Scroll Reach 50% / event16
+    reason: Multi-step scroll sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/6 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar15, eVar28, prop1
+
+  FINDINGS
+    PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 50% with event16; SDR maps that name to event6
+    PLAN_INTERACTION_MISMATCH: Plan claims event16, but interaction type scroll maps to event6
+    UNMATCHED_PUSH_SLIDE: Slide 32 has no matching DataLayer Push slide
 
 slide-33 — Scroll — Scroll Reach 75%
-  canonical: event7 (Scroll Reach 75%)
-  plan: Scroll Reach 75% / event17
-  reason: Multi-step scroll sequences are not supported in this MVP
-  finding PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 75% with event17; SDR maps that name to event7
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event17, but interaction type scroll maps to event7
-  finding UNMATCHED_PUSH_SLIDE: Slide 33 has no matching DataLayer Push slide
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: scroll (scroll)
+    expected event: event7 (Scroll Reach 75%)
+    plan says: Scroll Reach 75% / event17
+    reason: Multi-step scroll sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/6 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar15, eVar28, prop1
+
+  FINDINGS
+    PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 75% with event17; SDR maps that name to event7
+    PLAN_INTERACTION_MISMATCH: Plan claims event17, but interaction type scroll maps to event7
+    UNMATCHED_PUSH_SLIDE: Slide 33 has no matching DataLayer Push slide
 
 slide-34 — Scroll — Video complete
-  canonical: event8 (Scroll Reach 100%)
-  plan: Video complete / event14
-  reason: Multi-step scroll sequences are not supported in this MVP
-  finding PLAN_INTERACTION_MISMATCH: Plan claims event14, but interaction type scroll maps to event8
-  finding UNMATCHED_PUSH_SLIDE: Slide 34 has no matching DataLayer Push slide
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: scroll (scroll)
+    expected event: event8 (Scroll Reach 100%)
+    plan says: Video complete / event14
+    reason: Multi-step scroll sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/6 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar15, eVar28, prop1
+
+  FINDINGS
+    PLAN_INTERACTION_MISMATCH: Plan claims event14, but interaction type scroll maps to event8
+    UNMATCHED_PUSH_SLIDE: Slide 34 has no matching DataLayer Push slide
 
 slide-36 — Video — Video Start
-  canonical: event13 (Video Start)
-  plan: Video Start / no ID
-  reason: Multi-step video sequences are not supported in this MVP
-  finding MISSING_PLAN_EVENT_ID: Plan names "Video Start" but does not provide an Adobe event ID
-  finding UNMATCHED_PUSH_SLIDE: Slide 36 has no matching DataLayer Push slide
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event13 (Video Start)
+    plan says: Video Start / no ID
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/9 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar11, eVar13, eVar15, eVar28, eVar36, prop1
+
+  FINDINGS
+    MISSING_PLAN_EVENT_ID: Plan names "Video Start" but does not provide an Adobe event ID
+    UNMATCHED_PUSH_SLIDE: Slide 36 has no matching DataLayer Push slide
 
 slide-37 — Video — Video 50%
-  canonical: event16 (Video 50% Milestone)
-  plan: Video 50% / no ID
-  reason: Multi-step video sequences are not supported in this MVP
-  finding UNKNOWN_PLAN_EVENT_NAME: Plan event name "Video 50%" does not resolve in SDR amznsproduction
-  finding MISSING_PLAN_EVENT_ID: Plan names "Video 50%" but does not provide an Adobe event ID
-  finding UNMATCHED_PUSH_SLIDE: Slide 37 has no matching DataLayer Push slide
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event16 (Video 50% Milestone)
+    plan says: Video 50% / no ID
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/9 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar11, eVar13, eVar15, eVar28, eVar36, prop1
+
+  FINDINGS
+    UNKNOWN_PLAN_EVENT_NAME: Plan event name "Video 50%" does not resolve in SDR amznsproduction
+    MISSING_PLAN_EVENT_ID: Plan names "Video 50%" but does not provide an Adobe event ID
+    UNMATCHED_PUSH_SLIDE: Slide 37 has no matching DataLayer Push slide
 
 slide-38 — Video — Video 75%
-  canonical: event17 (Video 75% Milestone)
-  plan: Video 75% / no ID
-  reason: Multi-step video sequences are not supported in this MVP
-  finding UNKNOWN_PLAN_EVENT_NAME: Plan event name "Video 75%" does not resolve in SDR amznsproduction
-  finding MISSING_PLAN_EVENT_ID: Plan names "Video 75%" but does not provide an Adobe event ID
-  finding UNMATCHED_PUSH_SLIDE: Slide 38 has no matching DataLayer Push slide
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event17 (Video 75% Milestone)
+    plan says: Video 75% / no ID
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/9 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar11, eVar13, eVar15, eVar28, eVar36, prop1
+
+  FINDINGS
+    UNKNOWN_PLAN_EVENT_NAME: Plan event name "Video 75%" does not resolve in SDR amznsproduction
+    MISSING_PLAN_EVENT_ID: Plan names "Video 75%" but does not provide an Adobe event ID
+    UNMATCHED_PUSH_SLIDE: Slide 38 has no matching DataLayer Push slide
 
 slide-39 — Video — Video Complete
-  canonical: event14 (Video Complete)
-  plan: Video Complete / no ID
-  reason: Multi-step video sequences are not supported in this MVP
-  finding MISSING_PLAN_EVENT_ID: Plan names "Video Complete" but does not provide an Adobe event ID
-  finding UNMATCHED_PUSH_SLIDE: Slide 39 has no matching DataLayer Push slide
-  props (reference only, not scored): prop1
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event14 (Video Complete)
+    plan says: Video Complete / no ID
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/9 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar11, eVar13, eVar15, eVar28, eVar36, prop1
+
+  FINDINGS
+    MISSING_PLAN_EVENT_ID: Plan names "Video Complete" but does not provide an Adobe event ID
+    UNMATCHED_PUSH_SLIDE: Slide 39 has no matching DataLayer Push slide

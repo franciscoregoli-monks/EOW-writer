@@ -45,6 +45,8 @@ test("PPTX parser pairs spec/push slides and keeps sequence cases visible", asyn
         "var adobeDataLayer = adobeDataLayer || [];",
         "adobeDataLayer.push({",
         'event: "CTA Clicks",',
+        'linkTitle: "8M",',
+        'destinationLink: "https://example.com/eu",',
         "component: <C40>",
         "});",
       ])
@@ -90,6 +92,8 @@ test("PPTX parser pairs spec/push slides and keeps sequence cases visible", asyn
   assert.equal(click.target.component, "C40");
   assert.equal(click.target.variant, "large");
   assert.equal(click.target.mediaType, "image");
+  assert.equal(click.target.dataTitle, "8M");
+  assert.equal(click.target.href, "https://example.com/eu");
 
   assert.equal(plan.cases[1].interactionType, "scroll");
   assert.equal(plan.cases[1].planEvent.id, "event15");

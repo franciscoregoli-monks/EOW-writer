@@ -2,7 +2,26 @@ async function explicitTarget(page, selector, source, wanted = {}) {
   if (!selector) return null;
   let element;
   try {
-    element = await page.$(selector);
+    const matches = await page.$$(selector);
+    if (matches.length === 1) {
+      [element] = matches;
+    } else if (matches.length > 1 && wanted.pageSection) {
+      const sectionMatches = [];
+      for (const candidate of matches) {
+        const matchesSection = await candidate.evaluate((node, pageSection) => {
+          const norm = (value) => String(value || "").trim().toLowerCase();
+          return (
+            norm(node.getAttribute("data-section-label")) === norm(pageSection) ||
+            norm(node.id) === norm(pageSection)
+          );
+        }, wanted.pageSection);
+        if (matchesSection) sectionMatches.push(candidate);
+      }
+      if (sectionMatches.length === 1) [element] = sectionMatches;
+    }
+    for (const candidate of matches) {
+      if (candidate !== element) await candidate.dispose();
+    }
   } catch {
     return null;
   }
@@ -19,7 +38,7 @@ async function explicitTarget(page, selector, source, wanted = {}) {
       return null;
     }
     let selected = descendants.length === 1 ? descendants[0] : null;
-    if (!selected && (wanted.label || wanted.href)) {
+    if (!selected && (wanted.label || wanted.href || wanted.dataTitle)) {
       for (const candidate of descendants) {
         const matches = await candidate.evaluate((node, target) => {
           const norm = (value) => String(value || "").trim().toLowerCase();
@@ -27,9 +46,15 @@ async function explicitTarget(page, selector, source, wanted = {}) {
             node.getAttribute("aria-label") || node.textContent || node.title
           );
           const href = norm(node.href || node.getAttribute("href"));
+          const dataTitle = norm(
+            node.closest('[data-component="slider-card"]')?.getAttribute(
+              "data-title"
+            )
+          );
           return (
-            (target.label && label.includes(norm(target.label))) ||
-            (target.href && href === norm(target.href))
+            (target.href && href === norm(target.href)) ||
+            (target.dataTitle && dataTitle === norm(target.dataTitle)) ||
+            (target.label && label.includes(norm(target.label)))
           );
         }, wanted);
         if (matches) {
@@ -37,6 +62,32 @@ async function explicitTarget(page, selector, source, wanted = {}) {
           break;
         }
       }
+    }
+    if (!selected && wanted.controlType) {
+      const matchingControl = [];
+      for (const candidate of descendants) {
+        const matches = await candidate.evaluate((node, controlType) => {
+          const inRequestedScope =
+            !controlType.scope ||
+            (controlType.scope === "slider-card" &&
+              Boolean(node.closest('[data-component="slider-card"]')));
+          if (!inRequestedScope) return false;
+          if (controlType.type === "link") {
+            return node.classList.contains("card-link");
+          }
+          if (controlType.type === "cta") {
+            return (
+              node.classList.contains("primary-cta") ||
+              node.classList.contains("dashboard-cta")
+            );
+          }
+          return false;
+        }, { type: wanted.controlType, scope: wanted.scope });
+        if (matches) matchingControl.push(candidate);
+      }
+      // Ambiguous controls are deliberately left unresolved. Clicking the
+      // first plausible element produces evidence for the wrong interaction.
+      if (matchingControl.length === 1) selected = matchingControl[0];
     }
     for (const candidate of descendants) {
       if (candidate !== selected) await candidate.dispose();
@@ -78,6 +129,23 @@ function normalized(value) {
   return String(value || "").trim().toLowerCase();
 }
 
+async function plannedComponentExists(page, component) {
+  if (!component) return true;
+  const expected = normalized(component).replace(/[^a-z0-9]/g, "");
+  return page.$$eval(
+    "[data-component]",
+    (elements, wanted) =>
+      elements.some((element) => {
+        const actual = String(element.getAttribute("data-component") || "")
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+        return actual === wanted || actual.startsWith(wanted);
+      }),
+    expected
+  );
+}
+
 export async function resolveTarget(page, testCase) {
   const target = testCase.target || {};
   const explicit = await explicitTarget(
@@ -88,10 +156,32 @@ export async function resolveTarget(page, testCase) {
   );
   if (explicit) return explicit;
 
+  let matchedHintContainer = false;
   for (const hint of testCase.domHints || []) {
+    try {
+      const hintedContainer = await page.$(hint);
+      if (hintedContainer) {
+        matchedHintContainer = true;
+        await hintedContainer.dispose();
+      }
+    } catch {
+      // Invalid hints are ignored by explicitTarget as well.
+    }
     const hinted = await explicitTarget(page, hint, "domHint", target);
     if (hinted) return hinted;
   }
+
+  if (!(await plannedComponentExists(page, target.component))) {
+    const error = new Error(
+      `${testCase.id}: component ${target.component} not present on page`
+    );
+    error.code = "COMPONENT_NOT_PRESENT";
+    throw error;
+  }
+
+  // A confirmed component container with no unique instance match is an
+  // ambiguity, not permission to click a lower-confidence element elsewhere.
+  if (matchedHintContainer) return null;
 
   const candidates = await page.$$(
     'a, button, [role="button"], [data-component="article-card"]'

@@ -13,7 +13,7 @@ Not: Adobe Workspace, dashboards, public app, browser extension (later), stuffin
 1. **SDR** = canonical events/eVars/props (`[INT][NEW][WWS]Amazon Sustainability - SDR.xlsx`).
 2. **PdM** = this implementation’s claims (PPTX/CSV). Can be wrong.
 3. **Observed** = `adobeDataLayer` + AppMeasurement `/b/ss/`.
-4. Plan vs SDR mismatch → `PLAN_FAIL` (still run QA against **canonicalEvent**).
+4. Plan vs SDR mismatch → `PLAN_DEFECT` (still run QA against **canonicalEvent**).
 5. Plan/SDR vs site → `PASS` / `FAIL`. Missing target → `NOT TESTABLE`.
 
 Primary match key: **canonicalEvent** (SDR + interaction type). Secondary: component, pageSection, aria-label/text, href, card variant. Screenshot last.
@@ -34,7 +34,7 @@ Implemented and unit-tested:
 - Fixed/options/dynamic/removed eVar semantics. Props are reference-only.
 - Canonical event resolution and plan-defect findings.
 - Secondary click target resolution.
-- Four exclusive report buckets: PASS, FAIL, PLAN_FAIL, NOT_TESTABLE.
+- Four report buckets: PASS, FAIL, PLAN_DEFECT, NOT_TESTABLE.
 - Explicit NOT_TESTABLE branch for video/scroll.
 - Live WWS CLI plan at `examples/wws-energy.plan.json`.
 - Google Sheet parser for exact `Order` joins across Events + Pushes. It uses
@@ -69,7 +69,7 @@ Energy plan flags (SDR wins): scroll IDs mixed with video; slide 34 scroll 100% 
 ## Product skeleton (build next, UX later)
 
 ```text
-[ PdM file ] [ URL ] [ Run QA ]  →  TESTABLE | NOT TESTABLE | PLAN FAILS
+[ PdM file ] [ URL ] [ Run QA ]  →  TESTABLE | NOT TESTABLE | PLAN DEFECTS
 each case: event, eVars, expected vs actual
 ```
 

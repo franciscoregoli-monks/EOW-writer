@@ -11,6 +11,7 @@
     "qa": "node src/run.mjs",
     "qa:tcp": "node src/run.mjs --plan examples/tcp-utm.plan.json",
     "qa:wws": "node src/run.mjs --plan examples/wws-energy.plan.json --sdr knowledge/wws-sdr.json --suite amznsproduction --out reports/wws",
+    "qa:energy": "node src/run.mjs --pptx examples/energy-spotlights-measurement-plan.pptx --url https://sustainability.aboutamazon.com/stories/spotlight-on-energy --suite amznsproduction --out reports/energy",
     "qa:sheet": "node src/run.mjs",
     "qa:pptx": "node src/run.mjs",
     "sdr:build": "node src/buildSdrArtifact.mjs",

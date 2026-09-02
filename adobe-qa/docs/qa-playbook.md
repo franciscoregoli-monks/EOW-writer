@@ -9,7 +9,7 @@ the model prompt.
 2. The measurement plan defines the interaction and its expected values.
 3. The browser provides observed `adobeDataLayer` pushes and `/b/ss/` beacons.
 
-If a plan name, ID, and interaction type disagree, report `PLAN_FAIL`.
+If a plan name, ID, and interaction type disagree, report `PLAN_DEFECT`.
 Continue the implementation QA against the SDR event when the case is a
 single click.
 
@@ -39,7 +39,7 @@ single clicks, use the plan's declared event; DOM attributes and destination
 are locators only.
 
 If the plan expects CTA/event1 but the measured hit sends Link Click/event2,
-that is an implementation `FAIL`, not a `PLAN FAIL`.
+that is an implementation `FAIL`, not a `PLAN_DEFECT`.
 
 ### Video
 
@@ -96,9 +96,9 @@ Every plan case appears exactly once:
 
 - `PASS`
 - `FAIL`
-- `PLAN_FAIL`
+- `PLAN_DEFECT`
 - `NOT_TESTABLE`
 
-A `PLAN_FAIL` may also show the implementation QA result. An unsupported
+A `PLAN_DEFECT` may also show the implementation QA result. An unsupported
 video/scroll case remains `NOT_TESTABLE` and carries plan-defect findings as
 secondary details.

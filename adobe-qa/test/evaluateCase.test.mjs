@@ -37,6 +37,41 @@ test("video and scroll are explicit NOT_TESTABLE cases", () => {
   }
 });
 
+test("a planned component absent from the page is a PLAN_DEFECT", () => {
+  const [item] = preparePlan(
+    {
+      cases: [
+        {
+          id: "missing-c38",
+          url: "https://example.com",
+          interactionType: "link",
+          planEvent: { id: "event2", name: "Link Clicks" },
+          target: { component: "C38.1" },
+        },
+      ],
+    },
+    sdr,
+    suite
+  ).cases;
+
+  const result = evaluateCanonicalCase(
+    item,
+    {
+      error: {
+        code: "COMPONENT_NOT_PRESENT",
+        message: "component C38.1 not present",
+      },
+    },
+    sdr,
+    suite
+  );
+
+  assert.equal(result.status, "PLAN_DEFECT");
+  assert.equal(result.qaResult, null);
+  assert.equal(result.reason, "Component not present on page");
+  assert.equal(result.findings[0].code, "PLAN_COMPONENT_NOT_PRESENT");
+});
+
 test("events and eVars score; props remain reference-only", () => {
   const [item] = preparePlan(
     {
