@@ -1,9 +1,9 @@
 Adobe QA — _Amazon__Energy_Spotlights_-_Measurement_Plan___Implementation_Guide___1__8318.pptx
 URL cases: 18 | Report suite dictionary: amznsproduction
-PASS 0 | FAIL 2 | PLAN_DEFECT 4 | NOT_TESTABLE 12
+PASS 0 | FAIL 2 | PLAN_FAIL 4 | NOT_TESTABLE 12
 Plan cases: 18 | Pushes matched: 10 | Unmatched: 8
 
-=== PAGE-LEVEL PLAN DEFECTS (2) ===
+=== PAGE-LEVEL PLAN FAILS (2) ===
 Reported once for the whole page. Excluded from per-component scoring.
 
 PLAN_PAGE_METADATA_MISMATCH · eVar3 (all 6 measured components)
@@ -62,7 +62,7 @@ slide-21 — Energy Spotlight | C-43 — Highlight Slider
     PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
   props (reference only, not scored): prop1
 
-=== PLAN_DEFECT (4) ===
+=== PLAN_FAIL (4) ===
 slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
   canonical: event2 (Link Clicks)
   plan: CTA Clicks / event1

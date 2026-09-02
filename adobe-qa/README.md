@@ -20,7 +20,7 @@ npm run qa:wws
 
 Chrome is required (`google-chrome-stable`, or set `CHROME_PATH`).
 
-The WWS command exits `1` only for implementation `FAIL` cases. Plan defects
+The WWS command exits `1` only for implementation `FAIL` cases. Plan fails
 and unsupported cases stay visible without independently failing the process.
 
 ## Google Sheet plan
@@ -138,7 +138,7 @@ pageSection, label, href and card variant. Video and scroll cases appear as
 
 ## Output
 
-`reports/<timestamp>.txt` — PASS/FAIL/PLAN_DEFECT/NOT_TESTABLE
+`reports/<timestamp>.txt` — PASS/FAIL/PLAN_FAIL/NOT_TESTABLE
 `reports/<timestamp>.json` — full data layer events and decoded beacons
 
 Every plan case appears exactly once. See

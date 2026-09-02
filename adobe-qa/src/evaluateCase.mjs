@@ -229,7 +229,7 @@ export function evaluateCanonicalCase(
 
   return {
     status:
-      planDefect || roleDefects.findings.length ? "PLAN_DEFECT" : qaResult,
+      planDefect || roleDefects.findings.length ? "PLAN_FAIL" : qaResult,
     qaResult,
     canonical,
     findings: allFindings,
@@ -306,7 +306,7 @@ export function rollUpPageLevelFindings(evaluations) {
         checks,
         qaResult,
         status:
-          evaluation.status === "PLAN_DEFECT" ? "PLAN_DEFECT" : qaResult,
+          evaluation.status === "PLAN_FAIL" ? "PLAN_FAIL" : qaResult,
       };
     }),
   };

@@ -95,7 +95,7 @@ export function buildCanonicalReport(
   }));
 
   const buckets = Object.fromEntries(
-    ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"].map((status) => [
+    ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"].map((status) => [
       status,
       cases.filter((testCase) => testCase.status === status).length,
     ])
@@ -136,7 +136,7 @@ export function toCanonicalText(report) {
   const lines = [
     `Adobe QA — ${report.plan}`,
     `URL cases: ${report.summary.total} | Report suite dictionary: ${report.reportSuite}`,
-    `PASS ${buckets.PASS} | FAIL ${buckets.FAIL} | PLAN_DEFECT ${buckets.PLAN_DEFECT} | NOT_TESTABLE ${buckets.NOT_TESTABLE}`,
+    `PASS ${buckets.PASS} | FAIL ${buckets.FAIL} | PLAN FAIL ${buckets.PLAN_FAIL} | NOT TESTABLE ${buckets.NOT_TESTABLE}`,
   ];
   if (report.planStats) {
     lines.push(
@@ -147,7 +147,7 @@ export function toCanonicalText(report) {
 
   if (report.pageFindings?.length) {
     lines.push(
-      `=== PAGE-LEVEL PLAN DEFECTS (${report.pageFindings.length}) ===`,
+      `=== PAGE-LEVEL PLAN FAILS (${report.pageFindings.length}) ===`,
       "Reported once for the whole page. Excluded from per-component scoring.",
       ""
     );
@@ -181,10 +181,11 @@ export function toCanonicalText(report) {
     );
   }
 
-  for (const status of ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"]) {
+  for (const status of ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"]) {
     const cases = report.cases.filter((testCase) => testCase.status === status);
     if (!cases.length) continue;
-    lines.push(`=== ${status} (${cases.length}) ===`);
+    const label = status.replaceAll("_", " ");
+    lines.push(`=== ${label} (${cases.length}) ===`);
     for (const testCase of cases) {
       lines.push(
         `${testCase.id} — ${testCase.name}`,

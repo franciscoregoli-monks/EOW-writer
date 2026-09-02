@@ -32,7 +32,7 @@ function roleOf(key, dictionary) {
 }
 
 // Returns the checks a plan got structurally wrong, so they can be reported as
-// plan defects rather than counted as implementation failures.
+// plan fails rather than counted as implementation failures.
 export function detectVariableRoleDefects(testCase, checks, dictionary) {
   const componentSubject =
     testCase.target?.component || testCase.feature || testCase.name || "";

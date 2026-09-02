@@ -6,7 +6,7 @@ import {
 } from "../src/report.mjs";
 
 test("canonical report assigns every case to exactly one visible bucket", () => {
-  const statuses = ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"];
+  const statuses = ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"];
   const plan = {
     name: "Bucket test",
     cases: statuses.map((status, index) => ({
@@ -46,7 +46,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
   assert.deepEqual(report.summary.buckets, {
     PASS: 1,
     FAIL: 1,
-    PLAN_DEFECT: 1,
+    PLAN_FAIL: 1,
     NOT_TESTABLE: 1,
   });
   assert.equal(
@@ -56,7 +56,10 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
 
   const output = toCanonicalText(report);
   for (const status of statuses) {
-    assert.match(output, new RegExp(`=== ${status} \\(1\\) ===`));
+    assert.match(
+      output,
+      new RegExp(`=== ${status.replaceAll("_", " ")} \\(1\\) ===`)
+    );
   }
   for (const testCase of plan.cases) {
     assert.match(output, new RegExp(testCase.id));
