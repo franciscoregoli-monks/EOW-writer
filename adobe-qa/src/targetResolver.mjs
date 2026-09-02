@@ -143,6 +143,7 @@ export async function resolveTarget(page, testCase) {
       const isVideo =
         node.classList.contains("js-video-cta") ||
         card?.classList.contains("has-video");
+      const className = String(node.className || "");
       const mediaType = isVideo
         ? "video"
         : card?.classList.contains("is-medium-light")
@@ -161,7 +162,6 @@ export async function resolveTarget(page, testCase) {
         : node.matches("a[href]")
           ? "link"
           : "cta";
-      const className = String(node.className || "");
 
       let score = 0;
       const reasons = [];
