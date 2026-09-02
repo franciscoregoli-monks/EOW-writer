@@ -4,6 +4,7 @@
 |---|---|---|
 | Energy PPTX ingestion and live run | CODE | `cd adobe-qa && npm run qa:energy` |
 | End-to-end PASS path on a navigating CTA | CODE | Run `src/run.mjs` with `examples/homepage-hero-pass.plan.json`; evidence in `examples/homepage-hero-pass.report.txt`. |
+| End-to-end FAIL path on a navigating CTA | CODE | Same hero with a wrong eVar12 in `examples/homepage-hero-negative.plan.json`; evidence in `examples/homepage-hero-negative.report.txt`. |
 | Page-level defect rollup and bucket accounting | CODE | `cd adobe-qa && npm test` |
 | Missing planned component classification | CODE | `cd adobe-qa && npm test` |
 | Hierarchical DOM target resolution | CODE | `cd adobe-qa && npm test` |
