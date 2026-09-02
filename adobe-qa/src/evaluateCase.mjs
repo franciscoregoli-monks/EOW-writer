@@ -137,8 +137,13 @@ export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
   const observedEvents = allBeaconEvents.filter(
     (id) => !WEB_VITALS_EVENTS.has(id)
   );
+  const reservedEvents = allBeaconEvents.filter((id) =>
+    WEB_VITALS_EVENTS.has(id)
+  );
   const undocumentedEvents = allBeaconEvents.filter(
-    (id) => !sdr.byReportSuite?.[reportSuite]?.dictionary?.events?.[id]
+    (id) =>
+      !WEB_VITALS_EVENTS.has(id) &&
+      !sdr.byReportSuite?.[reportSuite]?.dictionary?.events?.[id]
   );
 
   // Clicking successfully but capturing nothing means the interaction was never
@@ -159,6 +164,7 @@ export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
       reason: "Nothing was captured — cannot verify this component",
       checks: [],
       observedEvents,
+      reservedEvents,
       undocumentedEvents,
       propsReference: testCase.expected?.props || {},
     };
@@ -196,6 +202,7 @@ export function evaluateCanonicalCase(testCase, capture, sdr, reportSuite) {
     dataLayerEvent,
     beacon: interactionBeacon,
     observedEvents,
+    reservedEvents,
     undocumentedEvents,
     checks,
     propsReference: testCase.expected?.props || {},

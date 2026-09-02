@@ -20,7 +20,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
     targetMatch: null,
     launch: null,
   }));
-  const evaluations = statuses.map((status) => ({
+  const evaluations = statuses.map((status, index) => ({
     status,
     qaResult: status === "PASS" || status === "FAIL" ? status : null,
     canonical: {
@@ -33,6 +33,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
     reason: status === "NOT_TESTABLE" ? "unsupported" : null,
     checks: [],
     propsReference: {},
+    reservedEvents: index === 0 ? ["event89"] : [],
   }));
 
   const report = buildCanonicalReport(
@@ -60,4 +61,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
   for (const testCase of plan.cases) {
     assert.match(output, new RegExp(testCase.id));
   }
+  assert.deepEqual(report.reservedEvents, ["event89"]);
+  assert.match(output, /RESERVED WEB VITALS EVENTS/);
+  assert.match(output, /reserved for the Web Vitals implementation/);
 });

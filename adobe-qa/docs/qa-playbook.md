@@ -50,6 +50,16 @@ Canonical WWS sequence:
 Multi-step scrolling is not implemented in the MVP. Every scroll case must
 appear as `NOT_TESTABLE`.
 
+### Web Vitals
+
+WWS reserves `event85` through `event89` for a Web Vitals implementation that
+is currently in progress. They may appear alongside component events and must
+not affect component PASS/FAIL.
+
+The current SDR artifact does not yet define these IDs. Treat the range as a
+documented supplemental rule, not as an unexplained-event warning. Do not
+invent the final per-ID metric mapping until the SDR is updated.
+
 ## Value semantics
 
 Only events and eVars affect PASS/FAIL. Props are stored as reference.

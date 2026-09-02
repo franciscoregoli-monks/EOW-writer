@@ -84,6 +84,7 @@ export function buildCanonicalReport(
     checks: evaluations[index].checks,
     propsReference: evaluations[index].propsReference,
     observedEvents: evaluations[index].observedEvents || [],
+    reservedEvents: evaluations[index].reservedEvents || [],
     observed: {
       dataLayer: evaluations[index].dataLayerEvent || null,
       beacon: evaluations[index].beacon || null,
@@ -102,12 +103,16 @@ export function buildCanonicalReport(
   const undocumentedEvents = [
     ...new Set(evaluations.flatMap((item) => item.undocumentedEvents || [])),
   ].sort();
+  const reservedEvents = [
+    ...new Set(evaluations.flatMap((item) => item.reservedEvents || [])),
+  ].sort();
 
   return {
     plan: plan.name,
     reportSuite,
     planStats: plan.stats || null,
     pageFindings,
+    reservedEvents,
     undocumentedEvents,
     ranAt: new Date().toISOString(),
     summary: { total: cases.length, buckets },
@@ -153,6 +158,16 @@ export function toCanonicalText(report) {
         ""
       );
     }
+  }
+
+  if (report.reservedEvents?.length) {
+    lines.push(
+      `=== RESERVED WEB VITALS EVENTS (${report.reservedEvents.length}) ===`,
+      `${report.reservedEvents.join(", ")} are part of the event85–event89 ` +
+        "range reserved for the Web Vitals implementation currently in progress.",
+      "They are expected housekeeping events and do not affect component QA.",
+      ""
+    );
   }
 
   if (report.undocumentedEvents?.length) {
