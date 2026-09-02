@@ -26,7 +26,7 @@ const eventHeaders = [
 ];
 
 test("groups Events by exact Order and reuses shared value semantics", () => {
-  const eventsCsv = csv(eventHeaders, [
+  const eventsCsv = `Instructions before the real header\n${csv(eventHeaders, [
     {
       Order: "1",
       Section: "Landing",
@@ -82,8 +82,8 @@ test("groups Events by exact Order and reuses shared value semantics", () => {
       "Field Name": "Component",
       Value: "”prePromptButton”",
     },
-  ]);
-  const pushesCsv = csv(["Order", "Push Code"], [
+  ])}`;
+  const pushesCsv = `One component per row\n${csv(["Order", "Push Code"], [
     {
       Order: "1",
       "Push Code":
@@ -94,7 +94,7 @@ test("groups Events by exact Order and reuses shared value semantics", () => {
       "Push Code":
         'adobeDataLayer.push({ event: "AI Query Response", component: "messageResponse" });',
     },
-  ]);
+  ])}`;
 
   const plan = parseSheetCsv({
     eventsCsv,
@@ -148,6 +148,6 @@ test("rejects a Sheet export with missing literal columns", () => {
         pushesCsv: "Order,Push Code\n1,x",
         url: "https://example.com",
       }),
-    /missing columns/
+    /could not find a header row/
   );
 });

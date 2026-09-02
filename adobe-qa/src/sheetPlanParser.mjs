@@ -17,19 +17,30 @@ const EVENTS_HEADERS = [
 const PUSHES_HEADERS = ["Order", "Push Code"];
 
 function parseCsv(content, requiredHeaders, label) {
-  const records = parse(content, {
-    columns: true,
+  const rows = parse(content, {
     skip_empty_lines: true,
     trim: true,
     bom: true,
     relax_column_count: true,
   });
-  const headers = records.length ? Object.keys(records[0]) : [];
+  const headerIndex = rows.findIndex((row) =>
+    requiredHeaders.every((header) => row.includes(header))
+  );
+  if (headerIndex === -1) {
+    throw new Error(
+      `${label}: could not find a header row containing ${requiredHeaders.join(", ")}`
+    );
+  }
+  const headers = rows[headerIndex];
   const missing = requiredHeaders.filter((header) => !headers.includes(header));
   if (missing.length) {
     throw new Error(`${label}: missing columns: ${missing.join(", ")}`);
   }
-  return records;
+  return rows.slice(headerIndex + 1).map((row) =>
+    Object.fromEntries(
+      headers.map((header, index) => [header, String(row[index] || "").trim()])
+    )
+  );
 }
 
 function canonicalFieldKey(fieldType, fieldKey) {
