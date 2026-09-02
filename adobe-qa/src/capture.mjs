@@ -96,6 +96,10 @@ export async function capturePlan(
       );
 
       const beaconUrls = [];
+      const liveDataLayerEvents = [];
+      await page.exposeFunction("__adobeQaCapturePush", (value) => {
+        liveDataLayerEvents.push(value);
+      });
       page.on("request", (request) => {
         const url = request.url();
         if (isAdobeBeacon(url)) beaconUrls.push(url);
@@ -112,10 +116,35 @@ export async function capturePlan(
         const isInteraction = testCase.action && testCase.action !== "page_load";
         const beforeCount = isInteraction ? before.length : 0;
         const beforeBeacons = isInteraction ? beaconUrls.length : 0;
+        if (isInteraction) {
+          await page.evaluate((name) => {
+            const layer = window[name];
+            if (!Array.isArray(layer) || layer.__adobeQaWrapped) return;
+            const originalPush = layer.push.bind(layer);
+            Object.defineProperty(layer, "__adobeQaWrapped", {
+              value: true,
+              configurable: true,
+            });
+            layer.push = (...items) => {
+              for (const item of items) {
+                try {
+                  window.__adobeQaCapturePush(
+                    JSON.parse(JSON.stringify(item))
+                  );
+                } catch {
+                  // The normal push must continue even if evidence cannot clone.
+                }
+              }
+              return originalPush(...items);
+            };
+          }, layerName);
+        }
         const targetMatch = await runAction(page, testCase);
         await new Promise((resolve) => setTimeout(resolve, settleMs));
         const after = await dumpDataLayer(page, layerName);
-        const newEvents = after.slice(beforeCount);
+        const newEvents = liveDataLayerEvents.length
+          ? liveDataLayerEvents
+          : after.slice(beforeCount);
         const newBeacons = beaconUrls
           .slice(beforeBeacons)
           .map(decodeBeaconUrl)

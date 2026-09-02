@@ -241,7 +241,7 @@ export function toCanonicalText(report) {
       `=== RESERVED WEB VITALS EVENTS (${report.reservedEvents.length}) ===`,
       `${report.reservedEvents.join(", ")} are part of the event85–event89 ` +
         "range reserved for the Web Vitals implementation currently in progress.",
-      "They are expected housekeeping events and do not affect component QA.",
+      "They are global housekeeping events, not component-specific, and do not affect component QA.",
       ""
     );
   }

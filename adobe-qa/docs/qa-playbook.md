@@ -65,6 +65,9 @@ WWS reserves `event85` through `event89` for a Web Vitals implementation that
 is currently in progress. They may appear alongside component events and must
 not affect component PASS/FAIL.
 
+`event89` is global housekeeping observed across Energy and the homepage hero:
+it accompanies interaction hits and is not specific to the clicked component.
+
 The current SDR artifact does not yet define these IDs. Treat the range as a
 documented supplemental rule, not as an unexplained-event warning. Do not
 invent the final per-ID metric mapping until the SDR is updated.
