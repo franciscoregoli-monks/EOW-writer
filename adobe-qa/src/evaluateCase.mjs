@@ -104,13 +104,15 @@ export function evaluateCanonicalCase(
   if (capture?.error) {
     const unresolved = capture.error.code === "TARGET_NOT_FOUND";
     const componentAbsent = capture.error.code === "COMPONENT_NOT_PRESENT";
+    const underspecified =
+      capture.error.code === "PLAN_UNDERSPECIFIED_TARGET";
     return {
       status: componentAbsent
         ? "PLAN_DEFECT"
-        : unresolved
+        : unresolved || underspecified
           ? "NOT_TESTABLE"
           : "FAIL",
-      qaResult: unresolved || componentAbsent ? null : "FAIL",
+      qaResult: unresolved || componentAbsent || underspecified ? null : "FAIL",
       canonical,
       findings: componentAbsent
         ? [
@@ -121,6 +123,14 @@ export function evaluateCanonicalCase(
                 `${testCase.target?.component || "Planned component"} is not present on ${testCase.url}`,
             },
           ]
+        : underspecified
+          ? [
+              ...findings,
+              {
+                code: "PLAN_UNDERSPECIFIED_TARGET",
+                message: capture.error.message,
+              },
+            ]
         : unresolved
         ? [
             ...findings,
@@ -132,6 +142,8 @@ export function evaluateCanonicalCase(
         : findings,
       reason: componentAbsent
         ? "Component not present on page"
+        : underspecified
+          ? "Plan does not uniquely identify a target"
         : unresolved
           ? "Target not resolved — nothing was measured"
           : capture.error.message,

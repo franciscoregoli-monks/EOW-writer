@@ -146,8 +146,44 @@ async function plannedComponentExists(page, component) {
   );
 }
 
+async function plannedComponentClickableCount(page, component) {
+  const expected = normalized(component).replace(/[^a-z0-9]/g, "");
+  return page.$$eval(
+    "[data-component]",
+    (elements, wanted) => {
+      const roots = elements.filter((element) => {
+        const actual = String(element.getAttribute("data-component") || "")
+          .trim()
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+        return actual === wanted || actual.startsWith(wanted);
+      });
+      return new Set(
+        roots.flatMap((root) => [
+          ...root.querySelectorAll(
+            'a, button, [role="button"], input[type="submit"]'
+          ),
+        ])
+      ).size;
+    },
+    expected
+  );
+}
+
 export async function resolveTarget(page, testCase) {
   const target = testCase.target || {};
+  if (target.planUnderspecified) {
+    const clickableCount = await plannedComponentClickableCount(
+      page,
+      target.component
+    );
+    const error = new Error(
+      `The plan identifies ${target.component}/${String(target.controlType || "control").toUpperCase()} ` +
+        `but does not distinguish among the ${clickableCount} clickables in the component`
+    );
+    error.code = "PLAN_UNDERSPECIFIED_TARGET";
+    throw error;
+  }
   const explicit = await explicitTarget(
     page,
     testCase.selector,

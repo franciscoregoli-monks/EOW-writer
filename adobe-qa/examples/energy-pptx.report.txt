@@ -1,72 +1,8 @@
 Adobe QA — energy-spotlights-measurement-plan.pptx
-Plan cases: 18 | Page-level findings: 2 | Accounted outcomes: 20
+Plan cases: 18 | Page-level findings: 0 | Accounted outcomes: 18
 Report suite dictionary: amznsproduction
-PASS 0 | FAIL 1 | PLAN DEFECT 4 | NOT TESTABLE 15
+PASS 0 | FAIL 0 | PLAN DEFECT 2 | NOT TESTABLE 16
 Plan cases: 18 | Pushes matched: 10 | Unmatched: 8
-
-=== PAGE-LEVEL PLAN DEFECTS (2) ===
-Reported and counted once for the whole page. Excluded from per-component scoring.
-
-PLAN_PAGE_METADATA_MISMATCH · eVar3 (all 1 measured components)
-  plan: "Energy Spotlight"
-  page: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-
-PLAN_PAGE_METADATA_MISMATCH · eVar4 (all 1 measured components)
-  plan: "Energy Stories"
-  page: "Spotlight On Energy"
-
-=== RESERVED WEB VITALS EVENTS (4) ===
-event85, event86, event87, event89 are part of the event85–event89 range reserved for the Web Vitals implementation currently in progress.
-They are expected housekeeping events and do not affect component QA.
-
-=== FAIL (1) ===
-slide-23 — Energy Spotlight | C-43 — Highlight Slider
-  TEST
-    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
-    action: click (cta)
-    expected event: event1 (CTA Click)
-    plan says: CTA Clicks / event1
-    target: domHint (confirmed)
-    overall implementation QA: FAIL
-
-  DATA LAYER TEST — FAIL
-    FAIL dataLayer.event | expected: "CTA Click" | actual: "Link Clicks"
-    declared keys: timestamp, domain, previousPage, pageName, siteSection, pageType, ctaButton, pageURL, pageSection, cleanPageURL, component
-    observed keys: none
-    missing: timestamp, domain, previousPage, pageName, siteSection, pageType, ctaButton, pageURL, pageSection, cleanPageURL, component
-    undeclared: none
-    placeholder values: none
-    unmapped: none
-
-  ADOBE DEBUGGER TEST — FAIL
-    observed events: event2, event5, event6
-    FAIL beacon.events | expected: "event1" | actual: "event89,event2"
-    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
-    FAIL eVar2 [dynamic] | expected: "<previous page>" | actual: null
-    PAGE eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
-    PAGE eVar4 [fixed] | expected: "Energy Stories" | actual: "Spotlight On Energy"
-    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
-    FAIL eVar12 [dynamic] | expected: "<CTA Button Label>" | actual: null
-    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    FAIL eVar28 [fixed] | expected: "Highlight Slider" | actual: "N/A" | Placeholder value "N/A" carries no data
-    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/stories/spotlight-on-energy"
-    PASS eVar36 [dynamic] | expected: "<C43>" | actual: "c43-highlight-slider"
-    Props (compared, never scored):
-    REF  prop1 [dynamic] | expected: "<Timestamp MM/DD/YYYY format>" | actual: "09/02/2026"
-    plan coverage: event compared | eVars 10/10 | props 1/1
-
-  FINDINGS
-    DL_KEY_MISSING: Plan push declares timestamp but the page did not send it
-    DL_KEY_MISSING: Plan push declares domain → eVar1 (Domain) but the page did not send it
-    DL_KEY_MISSING: Plan push declares previousPage → eVar2 (Previous Page) but the page did not send it
-    DL_KEY_MISSING: Plan push declares pageName → eVar3 (Page Name) but the page did not send it
-    DL_KEY_MISSING: Plan push declares siteSection → eVar4 (Site Section) but the page did not send it
-    DL_KEY_MISSING: Plan push declares pageType → eVar10 (Page Type) but the page did not send it
-    DL_KEY_MISSING: Plan push declares ctaButton → eVar12 (CTA Button) but the page did not send it
-    DL_KEY_MISSING: Plan push declares pageURL → eVar15 (Page URL) but the page did not send it
-    DL_KEY_MISSING: Plan push declares pageSection → eVar28 (Page Section) but the page did not send it
-    DL_KEY_MISSING: Plan push declares cleanPageURL → eVar31 (Clean Page URL) but the page did not send it
-    DL_KEY_MISSING: Plan push declares component → eVar36 (Component) but the page did not send it
 
 === PLAN DEFECT (2) ===
 slide-25 — Energy Spotlight | C-38.1 — Teaser Small Cards
@@ -105,7 +41,7 @@ slide-27 — Energy Spotlight | C-38.1 — Teaser Small Cards
   FINDINGS
     PLAN_COMPONENT_NOT_PRESENT: C38.1 is not present on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
 
-=== NOT TESTABLE (15) ===
+=== NOT TESTABLE (16) ===
 slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
   TEST
     URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
@@ -202,7 +138,7 @@ slide-19 — Energy Spotlight | C-43 — Highlight Slider
     action: click (cta)
     expected event: event1 (CTA Click)
     plan says: CTA Clicks / event1
-    reason: Target not resolved — nothing was measured
+    reason: Plan does not uniquely identify a target
 
   DATA LAYER TEST — NOT TESTABLE
     No comparable data layer push was captured.
@@ -212,7 +148,7 @@ slide-19 — Energy Spotlight | C-43 — Highlight Slider
     plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
 
   FINDINGS
-    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    PLAN_UNDERSPECIFIED_TARGET: The plan identifies C43/CTA but does not distinguish among the 5 clickables in the component
 
 slide-21 — Energy Spotlight | C-43 — Highlight Slider
   TEST
@@ -231,6 +167,24 @@ slide-21 — Energy Spotlight | C-43 — Highlight Slider
 
   FINDINGS
     TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-23 — Energy Spotlight | C-43 — Highlight Slider
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Plan does not uniquely identify a target
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_UNDERSPECIFIED_TARGET: The plan identifies C43/CTA but does not distinguish among the 5 clickables in the component
 
 slide-31 — Scroll — Scroll Reach 25%
   TEST

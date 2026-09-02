@@ -33,6 +33,8 @@ test("domHint containers resolve to the intended clickable descendant", async ()
         <div data-component="slider-card" data-title="8M">
           <a class="card-link" href="/eu">8M</a>
         </div>
+        <button aria-label="Previous slide">Previous</button>
+        <button aria-label="Next slide">Next</button>
       </section>
     `);
     const resolved = await resolveTarget(page, {
@@ -142,6 +144,20 @@ test("domHint containers resolve to the intended clickable descendant", async ()
       target: { component: "C43", controlType: "link" },
     });
     assert.equal(ambiguousSliderLink, null);
+
+    await assert.rejects(
+      resolveTarget(page, {
+        id: "underspecified-slider-cta",
+        target: {
+          component: "C43",
+          controlType: "cta",
+          planUnderspecified: true,
+        },
+      }),
+      (error) =>
+        error.code === "PLAN_UNDERSPECIFIED_TARGET" &&
+        /5 clickables/.test(error.message)
+    );
 
     await assert.rejects(
       resolveTarget(page, {
