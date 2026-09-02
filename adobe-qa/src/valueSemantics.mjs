@@ -115,3 +115,11 @@ export function planEvars(testCase) {
     Object.entries(beacon).filter(([key]) => /^eVar\d+$/.test(key))
   );
 }
+
+export function planProps(testCase) {
+  if (testCase.expected?.props) return testCase.expected.props;
+  const beacon = testCase.expected?.beacon || {};
+  return Object.fromEntries(
+    Object.entries(beacon).filter(([key]) => /^prop\d+$/.test(key))
+  );
+}

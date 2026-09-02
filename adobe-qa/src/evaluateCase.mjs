@@ -9,6 +9,7 @@ import {
   evaluateEvars,
   isSentinelValue,
   planEvars,
+  planProps,
 } from "./valueSemantics.mjs";
 import { detectVariableRoleDefects } from "./variableRoles.mjs";
 
@@ -222,6 +223,12 @@ export function evaluateCanonicalCase(
     ...(dataLayerAudit?.findings || []),
   ];
   const qaResult = scoredChecks.every((check) => check.pass) ? "PASS" : "FAIL";
+  // Props are compared so the report can show every field the plan declares,
+  // but they stay out of the verdict as agreed for this MVP.
+  const propChecks = evaluateEvars(
+    planProps(testCase),
+    interactionBeacon || {}
+  ).map((check) => ({ ...check, reference: true }));
 
   return {
     // A measured implementation failure takes precedence. Plan findings remain
@@ -244,6 +251,7 @@ export function evaluateCanonicalCase(
     reservedEvents,
     undocumentedEvents,
     checks: scoredChecks,
+    propChecks,
     propsReference: testCase.expected?.props || {},
   };
 }

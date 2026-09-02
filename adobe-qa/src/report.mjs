@@ -1,3 +1,27 @@
+import { planEvars, planProps } from "./valueSemantics.mjs";
+
+// The plan text box is the contract, so the report states how many of its
+// declared fields were actually compared instead of only the headline event.
+function planCoverage(testCase, checks, propChecks) {
+  const declaredEvars = Object.keys(planEvars(testCase));
+  const declaredProps = Object.keys(planProps(testCase));
+  const compared = new Set([...checks, ...propChecks].map((check) => check.key));
+  return {
+    eventChecked: checks.some((check) => check.key === "beacon.events"),
+    eVars: {
+      declared: declaredEvars.length,
+      compared: declaredEvars.filter((key) => compared.has(key)).length,
+    },
+    props: {
+      declared: declaredProps.length,
+      compared: declaredProps.filter((key) => compared.has(key)).length,
+    },
+    notCompared: [...declaredEvars, ...declaredProps].filter(
+      (key) => !compared.has(key)
+    ),
+  };
+}
+
 export function buildReport(plan, captures, comparisons) {
   const cases = plan.cases.map((testCase, index) => {
     const capture = captures[index];
@@ -72,6 +96,7 @@ export function buildCanonicalReport(
     const debuggerChecks = checks.filter(
       (check) => !check.key.startsWith("dataLayer.")
     );
+    const propChecks = evaluation.propChecks || [];
     return {
       id: testCase.id,
       name: testCase.name || testCase.id,
@@ -101,10 +126,12 @@ export function buildCanonicalReport(
         debugger: {
           result: checkResult(debuggerChecks),
           checks: debuggerChecks,
+          propChecks,
           observedEvents: evaluation.observedEvents || [],
           beacon: evaluation.beacon || null,
         },
       },
+      coverage: planCoverage(testCase, checks, propChecks),
       propsReference: evaluation.propsReference,
       observedEvents: evaluation.observedEvents || [],
       reservedEvents: evaluation.reservedEvents || [],
@@ -150,7 +177,13 @@ function checkResult(checks) {
 }
 
 function checkLine(check) {
-  const marker = check.pageLevel ? "PAGE" : check.pass ? "PASS" : "FAIL";
+  const marker = check.reference
+    ? "REF "
+    : check.pageLevel
+      ? "PAGE"
+      : check.pass
+        ? "PASS"
+        : "FAIL";
   const semantics = check.kind && check.kind !== "event" ? ` [${check.kind}]` : "";
   return (
     `    ${marker} ${check.key}${semantics}` +
@@ -285,9 +318,22 @@ export function toCanonicalText(report) {
       } else {
         lines.push("    No comparable Adobe interaction beacon was captured.");
       }
-      const props = Object.keys(testCase.propsReference || {});
-      if (props.length) {
-        lines.push(`    props (reference only, not scored): ${props.join(", ")}`);
+      if (debuggerTest.propChecks?.length) {
+        lines.push("    Props (compared, never scored):");
+        for (const check of debuggerTest.propChecks) {
+          lines.push(checkLine(check));
+        }
+      }
+      if (testCase.coverage) {
+        const { eVars, props, notCompared } = testCase.coverage;
+        lines.push(
+          `    plan coverage: event ${testCase.coverage.eventChecked ? "compared" : "not compared"}` +
+            ` | eVars ${eVars.compared}/${eVars.declared}` +
+            ` | props ${props.compared}/${props.declared}` +
+            (notCompared.length
+              ? ` | not compared: ${notCompared.join(", ")}`
+              : "")
+        );
       }
 
       if (testCase.findings.length) {

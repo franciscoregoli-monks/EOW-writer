@@ -661,6 +661,23 @@ select:focus {
 .check-pass { color: var(--pass); }
 .check-fail { color: var(--fail); }
 .check-page { color: var(--plan); }
+.check-ref { color: var(--unknown); }
+
+.panel-subhead {
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  margin: 16px 0 0;
+  text-transform: uppercase;
+}
+
+.coverage {
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  margin: 14px 0 0;
+  padding-top: 11px;
+}
 
 .check-key {
   align-items: center;

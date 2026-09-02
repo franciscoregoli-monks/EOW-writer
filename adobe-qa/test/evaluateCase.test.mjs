@@ -81,6 +81,18 @@ test("events and eVars score; props remain reference-only", () => {
   assert.deepEqual(result.propsReference, {
     prop1: '"deliberately wrong"',
   });
+  // The prop is compared so it is visible in the report, but a mismatch must
+  // never change the verdict.
+  assert.deepEqual(result.propChecks, [
+    {
+      key: "prop1",
+      kind: "fixed",
+      expected: "deliberately wrong",
+      actual: "actual timestamp",
+      pass: false,
+      reference: true,
+    },
+  ]);
 });
 
 test("an anchor planned as CTA stays event1 and event2 is a real FAIL", () => {

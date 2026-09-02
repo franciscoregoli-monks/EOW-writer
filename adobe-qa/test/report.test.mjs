@@ -79,6 +79,10 @@ test("canonical report separates the data layer and debugger tests", () => {
         url: "https://example.com/story",
         action: "click hero CTA",
         interactionType: "cta",
+        expected: {
+          eVars: { eVar14: "<Link Title>" },
+          props: { prop1: "<Timestamp>" },
+        },
       },
     ],
   };
@@ -138,7 +142,17 @@ test("canonical report separates the data layer and debugger tests", () => {
       dataLayerEvent: { event: "CTA Click" },
       beacon: { events: "event2", eVar14: "Read more" },
       observedEvents: ["event2"],
-      propsReference: {},
+      propChecks: [
+        {
+          key: "prop1",
+          kind: "dynamic",
+          expected: "<Timestamp>",
+          actual: "09/02/2026",
+          pass: true,
+          reference: true,
+        },
+      ],
+      propsReference: { prop1: "<Timestamp>" },
     },
   ];
 
@@ -164,4 +178,19 @@ test("canonical report separates the data layer and debugger tests", () => {
   assert.match(output, /action: click hero CTA \(cta\)/);
   assert.match(output, /missing: linkTitle/);
   assert.match(output, /observed events: event2/);
+
+  // Every field the plan slide declares must be accounted for, not only the
+  // headline event and its most relevant eVar.
+  assert.deepEqual(report.cases[0].coverage, {
+    eventChecked: true,
+    eVars: { declared: 1, compared: 1 },
+    props: { declared: 1, compared: 1 },
+    notCompared: [],
+  });
+  assert.match(output, /Props \(compared, never scored\)/);
+  assert.match(output, /REF {2}prop1/);
+  assert.match(
+    output,
+    /plan coverage: event compared \| eVars 1\/1 \| props 1\/1/
+  );
 });

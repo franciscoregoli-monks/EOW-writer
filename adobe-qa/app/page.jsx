@@ -41,9 +41,9 @@ function CheckRow({ check }) {
       {check.pageLevel ? (
         <AlertCircle className="check-page" size={17} />
       ) : check.pass ? (
-        <CheckCircle2 className="check-pass" size={17} />
+        <CheckCircle2 className={check.reference ? "check-ref" : "check-pass"} size={17} />
       ) : (
-        <XCircle className="check-fail" size={17} />
+        <XCircle className={check.reference ? "check-ref" : "check-fail"} size={17} />
       )}
       <div>
         <div className="check-key">
@@ -51,6 +51,7 @@ function CheckRow({ check }) {
           {check.kind && check.kind !== "event" && (
             <span className="kind">{check.kind}</span>
           )}
+          {check.reference && <span className="kind">not scored</span>}
         </div>
         <div className="comparison">
           <span>Expected: {JSON.stringify(check.expected)}</span>
@@ -154,6 +155,26 @@ function TestCard({ testCase }) {
           </div>
         )}
         {panel === "dataLayer" && <AuditGrid audit={activeTest?.audit} />}
+        {panel === "debugger" && activeTest?.propChecks?.length > 0 && (
+          <>
+            <p className="panel-subhead">Props (compared, never scored)</p>
+            {activeTest.propChecks.map((check) => (
+              <CheckRow key={check.key} check={check} />
+            ))}
+          </>
+        )}
+        {testCase.coverage && (
+          <p className="coverage">
+            Plan coverage: event{" "}
+            {testCase.coverage.eventChecked ? "compared" : "not compared"} ·
+            eVars {testCase.coverage.eVars.compared}/
+            {testCase.coverage.eVars.declared} · props{" "}
+            {testCase.coverage.props.compared}/
+            {testCase.coverage.props.declared}
+            {testCase.coverage.notCompared.length > 0 &&
+              ` · not compared: ${testCase.coverage.notCompared.join(", ")}`}
+          </p>
+        )}
       </div>
 
       {(planFindings.length > 0 || testCase.reason) && (
