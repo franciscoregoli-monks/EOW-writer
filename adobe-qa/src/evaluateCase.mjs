@@ -73,15 +73,11 @@ export function evaluateCanonicalCase(
   reportSuite,
   dataLayerMap = null
 ) {
-  const observedInteractionType = capture?.targetMatch?.observedInteractionType;
-  const canonical = observedInteractionType
-    ? resolveCanonicalEvent(
-        { ...testCase, interactionType: observedInteractionType },
-        sdr,
-        reportSuite
-      )
-    : testCase.canonical ||
-      resolveCanonicalEvent(testCase, sdr, reportSuite);
+  // An HTML link may be an editorial CTA. For single-click cases, the plan
+  // decides CTA vs Link Click; DOM tag and destination only locate the target.
+  const canonical =
+    testCase.canonical ||
+    resolveCanonicalEvent(testCase, sdr, reportSuite);
   const parserFindings = (testCase.source?.parserWarnings || []).map(
     (warning) => ({
       code: warning.code,
@@ -228,8 +224,15 @@ export function evaluateCanonicalCase(
   const qaResult = scoredChecks.every((check) => check.pass) ? "PASS" : "FAIL";
 
   return {
+    // A measured implementation failure takes precedence. Plan findings remain
+    // attached, but may not hide a real bug such as event2 firing for a planned
+    // event1 CTA.
     status:
-      planDefect || roleDefects.findings.length ? "PLAN_FAIL" : qaResult,
+      qaResult === "FAIL"
+        ? "FAIL"
+        : planDefect || roleDefects.findings.length
+          ? "PLAN_FAIL"
+          : "PASS",
     qaResult,
     canonical,
     findings: allFindings,

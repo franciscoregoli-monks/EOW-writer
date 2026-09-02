@@ -82,3 +82,54 @@ test("events and eVars score; props remain reference-only", () => {
     prop1: '"deliberately wrong"',
   });
 });
+
+test("an anchor planned as CTA stays event1 and event2 is a real FAIL", () => {
+  const [item] = preparePlan(
+    {
+      cases: [
+        {
+          id: "editorial-cta",
+          interactionType: "cta",
+          planEvent: { id: "event1", name: "CTA Clicks" },
+          expected: { eVars: { eVar12: "<CTA label>" } },
+        },
+      ],
+    },
+    sdr,
+    suite
+  ).cases;
+  const result = evaluateCanonicalCase(
+    item,
+    {
+      error: null,
+      targetMatch: { observedInteractionType: "link", href: "/internal-story" },
+      dataLayerEvents: [
+        {
+          event: "Link Clicks",
+          userInteraction: {
+            destinationLink: "https://example.com/internal-story",
+          },
+        },
+      ],
+      beacons: [
+        {
+          events: "event89,event2",
+          eVar14: "https://example.com/internal-story",
+        },
+      ],
+    },
+    sdr,
+    suite
+  );
+
+  assert.equal(result.canonical.eventId, "event1");
+  assert.equal(result.status, "FAIL");
+  assert.equal(
+    result.checks.find((check) => check.key === "beacon.events").actual,
+    "event89,event2"
+  );
+  assert.equal(
+    result.checks.find((check) => check.key === "eVar12").pass,
+    false
+  );
+});

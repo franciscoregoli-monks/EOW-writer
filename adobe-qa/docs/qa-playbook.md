@@ -32,6 +32,15 @@ interactions. Resolve a target in this order:
 
 Screenshots are a later fallback.
 
+The HTML element type does **not** determine the analytics event. An
+`<a href>` can be an editorial CTA (`event1` + `eVar12`) or a Link Click
+(`event2` + `eVar14`/`eVar17`), including internal or external redirects. For
+single clicks, use the plan's declared event; DOM attributes and destination
+are locators only.
+
+If the plan expects CTA/event1 but the measured hit sends Link Click/event2,
+that is an implementation `FAIL`, not a `PLAN FAIL`.
+
 ### Video
 
 Canonical WWS sequence:
