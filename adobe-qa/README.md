@@ -23,7 +23,9 @@ or a single CSV plan. Each result shows the test contract and separate
 Data Layer and Adobe Debugger evidence.
 
 The browser runner executes on the server, not in the user's browser. The
-host therefore needs Node.js 20.9+ and Chrome. For CLI-only use:
+host therefore needs Node.js 20.9+ and Chrome. Web runs are queued and executed
+one at a time; the UI polls their status so full plans do not hold open the
+submission request. For CLI-only use:
 
 ```bash
 npm run qa -- --plan examples/tcp-utm.plan.json

@@ -300,10 +300,12 @@ export default function Home() {
   const [report, setReport] = useState(null);
   const [error, setError] = useState("");
   const [running, setRunning] = useState(false);
+  const [runStatus, setRunStatus] = useState("");
 
   async function runQa(event) {
     event.preventDefault();
     setRunning(true);
+    setRunStatus("Submitting run");
     setError("");
     try {
       const response = await fetch("/api/qa", {
@@ -312,11 +314,36 @@ export default function Home() {
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "The QA run failed");
-      setReport(payload.report);
+      const runId = payload.run?.id;
+      if (!runId) throw new Error("The server did not return a run ID");
+
+      let run = payload.run;
+      while (["queued", "running"].includes(run.status)) {
+        setRunStatus(
+          run.status === "queued"
+            ? "Waiting for runner"
+            : "Running browser tests"
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        const statusResponse = await fetch(`/api/qa/${runId}`, {
+          cache: "no-store",
+        });
+        const statusPayload = await statusResponse.json();
+        if (!statusResponse.ok) {
+          throw new Error(statusPayload.error || "Could not read run status");
+        }
+        run = statusPayload.run;
+      }
+      if (run.status === "error") {
+        throw new Error(run.error || "The QA run failed");
+      }
+      if (!run.report) throw new Error("The completed run has no report");
+      setReport(run.report);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The QA run failed");
     } finally {
       setRunning(false);
+      setRunStatus("");
     }
   }
 
@@ -445,7 +472,7 @@ export default function Home() {
                 {running ? (
                   <>
                     <LoaderCircle className="spin" size={18} />
-                    Running browser tests…
+                    {runStatus}…
                   </>
                 ) : (
                   <>
