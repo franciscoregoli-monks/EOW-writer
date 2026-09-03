@@ -106,3 +106,25 @@ test("a missing Page Section value stays an implementation failure", () => {
   assert.equal(result.planLevelKeys.size, 0);
   assert.deepEqual(result.findings, []);
 });
+
+test("the visible case name can reveal a Page Section/component plan mixup", () => {
+  const result = detectVariableRoleDefects(
+    {
+      name: "C40 Fact Card Image Large",
+      target: { component: "c40-dashboard" },
+    },
+    [
+      {
+        key: "eVar28",
+        kind: "fixed",
+        expected: "Fact Card Image Large",
+        actual: "optimize",
+        pass: false,
+      },
+    ],
+    dictionary
+  );
+
+  assert.equal(result.planLevelKeys.has("eVar28"), true);
+  assert.equal(result.findings[0].code, "PLAN_VARIABLE_ROLE_MISMATCH");
+});

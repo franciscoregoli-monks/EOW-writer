@@ -34,8 +34,11 @@ function roleOf(key, dictionary) {
 // Returns the checks a plan got structurally wrong, so they can be reported as
 // plan fails rather than counted as implementation failures.
 export function detectVariableRoleDefects(testCase, checks, dictionary) {
-  const componentSubject =
-    testCase.target?.component || testCase.feature || testCase.name || "";
+  const componentSubjects = [
+    testCase.target?.component,
+    testCase.feature,
+    testCase.name,
+  ].filter(Boolean);
   const findings = [];
   const planLevelKeys = new Set();
 
@@ -49,8 +52,9 @@ export function detectVariableRoleDefects(testCase, checks, dictionary) {
     const expectedValue =
       expected.kind === "fixed" ? expected.value : expected.raw;
     const looksLikeComponent =
-      sameSubject(expectedValue, componentSubject) ||
-      sameSubject(expectedValue, testCase.feature);
+      componentSubjects.some((subject) =>
+        sameSubject(expectedValue, subject)
+      );
     if (!looksLikeComponent) continue;
 
     planLevelKeys.add(check.key);
