@@ -1,10 +1,18 @@
 import puppeteer from "puppeteer-core";
 import { decodeBeaconUrl, flattenBeacon, isAdobeBeacon } from "./decodeBeacon.mjs";
-import { resolveTarget } from "./targetResolver.mjs";
+import {
+  countProbeCandidates,
+  resolveProbeCandidate,
+  resolveTarget,
+} from "./targetResolver.mjs";
+import { parseFieldValue } from "./valueSemantics.mjs";
 
 const DEFAULT_CHROME =
   process.env.CHROME_PATH ||
   "/usr/bin/google-chrome-stable";
+const USER_AGENT =
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 " +
+  "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
 
 function getPath(obj, path) {
   return path.split(".").reduce((acc, key) => (acc == null ? undefined : acc[key]), obj);
@@ -29,6 +37,48 @@ async function dumpDataLayer(page, name) {
   }, name);
 }
 
+function fixedEVar12(testCase) {
+  const expected = parseFieldValue(testCase.expected?.eVars?.eVar12);
+  return expected.kind === "fixed" && expected.value
+    ? expected.value
+    : null;
+}
+
+async function installDataLayerObserver(page, layerName) {
+  await page.evaluate((name) => {
+    const layer = window[name];
+    if (!Array.isArray(layer) || layer.__adobeQaWrapped) return;
+    const originalPush = layer.push.bind(layer);
+    Object.defineProperty(layer, "__adobeQaWrapped", {
+      value: true,
+      configurable: true,
+    });
+    layer.push = (...items) => {
+      for (const item of items) {
+        try {
+          window.__adobeQaCapturePush(JSON.parse(JSON.stringify(item)));
+        } catch {
+          // The normal push must continue even if evidence cannot clone.
+        }
+      }
+      return originalPush(...items);
+    };
+  }, layerName);
+}
+
+async function clickTarget(target) {
+  await target.element.evaluate((element) =>
+    element.scrollIntoView({ block: "center", inline: "center" })
+  );
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  try {
+    await target.element.click();
+  } catch {
+    await target.element.evaluate((element) => element.click());
+  }
+  await target.element.dispose();
+}
+
 async function runAction(page, testCase) {
   const action = testCase.action || "page_load";
   if (action === "page_load") return null;
@@ -39,19 +89,116 @@ async function runAction(page, testCase) {
       error.code = "TARGET_NOT_FOUND";
       throw error;
     }
-    await target.element.evaluate((element) =>
-      element.scrollIntoView({ block: "center", inline: "center" })
-    );
-    await new Promise((resolve) => setTimeout(resolve, 300));
-    try {
-      await target.element.click();
-    } catch {
-      await target.element.evaluate((element) => element.click());
-    }
-    await target.element.dispose();
+    await clickTarget(target);
     return target.match;
   }
   throw new Error(`${testCase.id}: unsupported action "${action}"`);
+}
+
+async function captureProbeCandidate(
+  browser,
+  testCase,
+  candidateIndex,
+  layerName,
+  { timeoutMs, preActionSettleMs, settleMs }
+) {
+  const page = await browser.newPage();
+  const beaconUrls = [];
+  const liveDataLayerEvents = [];
+  try {
+    await page.setViewport({ width: 1440, height: 900 });
+    await page.setUserAgent(USER_AGENT);
+    await page.exposeFunction("__adobeQaCapturePush", (value) => {
+      liveDataLayerEvents.push(value);
+    });
+    page.on("request", (request) => {
+      const url = request.url();
+      if (isAdobeBeacon(url)) beaconUrls.push(url);
+    });
+    await page.goto(testCase.url, {
+      waitUntil: "networkidle2",
+      timeout: timeoutMs,
+    });
+    await new Promise((resolve) => setTimeout(resolve, preActionSettleMs));
+    const before = await dumpDataLayer(page, layerName);
+    const beforeBeacons = beaconUrls.length;
+    await installDataLayerObserver(page, layerName);
+    const target = await resolveProbeCandidate(page, testCase, candidateIndex);
+    if (!target) return null;
+    await clickTarget(target);
+    await new Promise((resolve) => setTimeout(resolve, settleMs));
+    const after = await dumpDataLayer(page, layerName);
+    return {
+      finalUrl: page.url(),
+      dataLayerEvents: liveDataLayerEvents.length
+        ? liveDataLayerEvents
+        : after.slice(before.length),
+      beacons: beaconUrls
+        .slice(beforeBeacons)
+        .map(decodeBeaconUrl)
+        .map(flattenBeacon),
+      targetMatch: target.match,
+      launch: await page.evaluate(() => ({
+        satellite: Boolean(window._satellite),
+        property: window._satellite?.property?.name || null,
+        environment: window._satellite?.environment?.stage || null,
+        appMeasurement: typeof window.AppMeasurement === "function",
+      })),
+    };
+  } finally {
+    await page.close();
+  }
+}
+
+async function probeAmbiguousTarget(
+  browser,
+  page,
+  testCase,
+  layerName,
+  options
+) {
+  const expectedEVar12 = fixedEVar12(testCase);
+  if (!expectedEVar12) return null;
+  const candidateCount = await countProbeCandidates(page, testCase);
+  if (candidateCount < 2) return null;
+
+  const matches = [];
+  for (let index = 0; index < candidateCount; index += 1) {
+    try {
+      const capture = await captureProbeCandidate(
+        browser,
+        testCase,
+        index,
+        layerName,
+        options
+      );
+      if (
+        capture?.beacons.some((beacon) => beacon.eVar12 === expectedEVar12)
+      ) {
+        matches.push(capture);
+      }
+    } catch {
+      // A candidate that cannot be exercised cannot prove the planned target.
+    }
+  }
+
+  if (matches.length !== 1) {
+    const error = new Error(
+      `The plan identifies ${testCase.target?.component}/${String(testCase.target?.controlType || "control").toUpperCase()} ` +
+        `with fixed eVar12 ${JSON.stringify(expectedEVar12)}, but ${matches.length} of ${candidateCount} candidates matched`
+    );
+    error.code = "PLAN_UNDERSPECIFIED_TARGET";
+    throw error;
+  }
+
+  const [capture] = matches;
+  capture.targetMatch = {
+    ...capture.targetMatch,
+    source: "beaconEVar12",
+    confidence: "confirmed",
+    expectedEVar12,
+  };
+  return capture;
 }
 
 export async function capturePlan(
@@ -91,9 +238,7 @@ export async function capturePlan(
       }
       const page = await browser.newPage();
       await page.setViewport({ width: 1440, height: 900 });
-      await page.setUserAgent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-      );
+      await page.setUserAgent(USER_AGENT);
 
       const beaconUrls = [];
       const liveDataLayerEvents = [];
@@ -117,29 +262,36 @@ export async function capturePlan(
         const beforeCount = isInteraction ? before.length : 0;
         const beforeBeacons = isInteraction ? beaconUrls.length : 0;
         if (isInteraction) {
-          await page.evaluate((name) => {
-            const layer = window[name];
-            if (!Array.isArray(layer) || layer.__adobeQaWrapped) return;
-            const originalPush = layer.push.bind(layer);
-            Object.defineProperty(layer, "__adobeQaWrapped", {
-              value: true,
-              configurable: true,
-            });
-            layer.push = (...items) => {
-              for (const item of items) {
-                try {
-                  window.__adobeQaCapturePush(
-                    JSON.parse(JSON.stringify(item))
-                  );
-                } catch {
-                  // The normal push must continue even if evidence cannot clone.
-                }
-              }
-              return originalPush(...items);
-            };
-          }, layerName);
+          await installDataLayerObserver(page, layerName);
         }
-        const targetMatch = await runAction(page, testCase);
+        let targetMatch;
+        try {
+          targetMatch = await runAction(page, testCase);
+        } catch (resolutionError) {
+          const canProbe =
+            testCase.action === "click" &&
+            ["PLAN_UNDERSPECIFIED_TARGET", "TARGET_NOT_FOUND"].includes(
+              resolutionError.code
+            );
+          if (!canProbe) throw resolutionError;
+          const probed = await probeAmbiguousTarget(
+            browser,
+            page,
+            testCase,
+            layerName,
+            { timeoutMs, preActionSettleMs, settleMs }
+          );
+          if (!probed) throw resolutionError;
+          results.push({
+            id: testCase.id,
+            name: testCase.name || testCase.id,
+            url: testCase.url,
+            action: testCase.action || "page_load",
+            error: null,
+            ...probed,
+          });
+          continue;
+        }
         await new Promise((resolve) => setTimeout(resolve, settleMs));
         const after = await dumpDataLayer(page, layerName);
         const newEvents = liveDataLayerEvents.length

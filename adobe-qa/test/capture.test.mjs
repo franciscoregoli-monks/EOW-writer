@@ -34,3 +34,66 @@ test("captures a data layer push before same-tab navigation", async () => {
     },
   ]);
 });
+
+function beaconProbePlan(eVar12Values, expected = "Download") {
+  const buttons = eVar12Values
+    .map(
+      (value, index) => `
+        <button onclick="
+          const beacon = new Image();
+          beacon.src = 'https://example.com/b/ss/test/1?events=event1&v12=${value}';
+        ">Candidate ${index + 1}</button>
+      `
+    )
+    .join("");
+  const page = encodeURIComponent(`
+    <script>window.adobeDataLayer = [];</script>
+    <section data-component="c40-dashboard">${buttons}</section>
+  `);
+  return {
+    adobe: { dataLayer: "adobeDataLayer" },
+    cases: [
+      {
+        id: "ambiguous-download",
+        url: `data:text/html,${page}`,
+        action: "click",
+        target: {
+          component: "C40",
+          controlType: "cta",
+          planUnderspecified: true,
+        },
+        expected: {
+          eVars: {
+            eVar12: { kind: "fixed", value: expected, raw: `"${expected}"` },
+          },
+        },
+      },
+    ],
+  };
+}
+
+test("selects the only ambiguous candidate whose beacon matches fixed eVar12", async () => {
+  const [capture] = await capturePlan(
+    beaconProbePlan(["Other", "Download", "Another"]),
+    { preActionSettleMs: 0, settleMs: 100 }
+  );
+
+  assert.equal(capture.error, null);
+  assert.equal(capture.targetMatch.source, "beaconEVar12");
+  assert.equal(capture.targetMatch.candidateIndex, 1);
+  assert.equal(capture.targetMatch.expectedEVar12, "Download");
+  assert.equal(capture.beacons[0].eVar12, "Download");
+});
+
+test("keeps an ambiguous target unresolved unless exactly one beacon matches", async () => {
+  for (const values of [
+    ["Other", "Another"],
+    ["Download", "Download"],
+  ]) {
+    const [capture] = await capturePlan(beaconProbePlan(values), {
+      preActionSettleMs: 0,
+      settleMs: 100,
+    });
+    assert.equal(capture.error.code, "PLAN_UNDERSPECIFIED_TARGET");
+  }
+});

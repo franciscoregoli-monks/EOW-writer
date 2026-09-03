@@ -170,6 +170,101 @@ async function plannedComponentClickableCount(page, component) {
   );
 }
 
+async function markProbeCandidates(page, testCase) {
+  const target = testCase.target || {};
+  return page.$$eval(
+    "[data-component]",
+    (elements, wanted) => {
+      const norm = (value) =>
+        String(value || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+      document
+        .querySelectorAll("[data-adobe-qa-probe-index]")
+        .forEach((element) =>
+          element.removeAttribute("data-adobe-qa-probe-index")
+        );
+      const expected = norm(wanted.component);
+      const roots = elements.filter((element) => {
+        const actual = norm(element.getAttribute("data-component"));
+        return actual === expected || (expected && actual.startsWith(expected));
+      });
+      const all = [];
+      const seen = new Set();
+      const add = (element) => {
+        if (!seen.has(element)) {
+          seen.add(element);
+          all.push(element);
+        }
+      };
+      for (const root of roots) {
+        if (root.matches('a, button, [role="button"], input[type="submit"]')) {
+          add(root);
+        }
+        root
+          .querySelectorAll('a, button, [role="button"], input[type="submit"]')
+          .forEach(add);
+      }
+      const scoped = wanted.scope === "slider-card"
+        ? all.filter((element) =>
+            Boolean(element.closest('[data-component="slider-card"]'))
+          )
+        : all;
+      const typed = scoped.filter((element) => {
+        if (wanted.controlType === "link") {
+          return element.classList.contains("card-link");
+        }
+        if (wanted.controlType === "cta") {
+          return (
+            element.matches('button, [role="button"], input[type="submit"]') ||
+            element.classList.contains("primary-cta") ||
+            element.classList.contains("dashboard-cta")
+          );
+        }
+        return true;
+      });
+      const candidates = typed.length ? typed : scoped;
+      candidates.forEach((element, index) =>
+        element.setAttribute("data-adobe-qa-probe-index", String(index))
+      );
+      return candidates.length;
+    },
+    {
+      component: target.component,
+      controlType: target.controlType,
+      scope: target.scope,
+    }
+  );
+}
+
+export async function countProbeCandidates(page, testCase) {
+  return markProbeCandidates(page, testCase);
+}
+
+export async function resolveProbeCandidate(page, testCase, index) {
+  const count = await markProbeCandidates(page, testCase);
+  if (index < 0 || index >= count) return null;
+  const element = await page.$(
+    `[data-adobe-qa-probe-index="${index}"]`
+  );
+  if (!element) return null;
+  const observed = await element.evaluate((node) => ({
+    tag: node.tagName,
+    href: node.href || node.getAttribute("href") || null,
+    text: String(
+      node.getAttribute("aria-label") || node.textContent || node.title || ""
+    ).trim(),
+  }));
+  return {
+    element,
+    match: {
+      source: "beaconEVar12Candidate",
+      confidence: "probe",
+      candidateIndex: index,
+      candidateCount: count,
+      ...observed,
+    },
+  };
+}
+
 export async function resolveTarget(page, testCase) {
   const target = testCase.target || {};
   if (target.planUnderspecified) {
