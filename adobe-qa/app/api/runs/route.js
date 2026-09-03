@@ -2,10 +2,23 @@ import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { isIP } from "node:net";
 import os from "node:os";
 import path from "node:path";
-import { enqueueQa } from "../../../src/jobQueue.mjs";
+import { enqueueQa, listQaJobs } from "../../../src/jobQueue.mjs";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 export const maxDuration = 300;
+
+function publicJob(job, includeReport = false) {
+  return {
+    id: job.id,
+    status: job.status,
+    createdAt: job.createdAt,
+    startedAt: job.startedAt,
+    completedAt: job.completedAt,
+    error: job.error,
+    ...(includeReport ? { report: job.report } : {}),
+  };
+}
 
 function requiredText(form, key) {
   const value = String(form.get(key) || "").trim();
@@ -46,6 +59,12 @@ async function saveUpload(form, key, directory, extension) {
   );
   await writeFile(destination, Buffer.from(await file.arrayBuffer()));
   return destination;
+}
+
+export async function GET() {
+  return Response.json({
+    runs: listQaJobs().map((job) => publicJob(job)),
+  });
 }
 
 export async function POST(request) {
@@ -99,7 +118,7 @@ export async function POST(request) {
     );
     enqueued = true;
     return Response.json(
-      { run: { id: job.id, status: job.status } },
+      { run: publicJob(job) },
       { status: 202 }
     );
   } catch (error) {

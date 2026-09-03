@@ -265,7 +265,7 @@ function Results({ report, runId }) {
           {runId && (
             <a
               className="secondary-button"
-              href={`/api/qa/${runId}/report.html`}
+              href={`/api/runs/${runId}/report.html`}
               download
             >
               <Download size={17} />
@@ -439,7 +439,7 @@ export default function Home() {
     setRunStatus("Submitting run");
     setError("");
     try {
-      const response = await fetch("/api/qa", {
+      const response = await fetch("/api/runs", {
         method: "POST",
         body: new FormData(event.currentTarget),
       });
@@ -457,7 +457,7 @@ export default function Home() {
             : "Running browser tests"
         );
         await new Promise((resolve) => setTimeout(resolve, 1500));
-        const statusResponse = await fetch(`/api/qa/${runId}`, {
+        const statusResponse = await fetch(`/api/runs/${runId}`, {
           cache: "no-store",
         });
         const statusPayload = await statusResponse.json();

@@ -71,3 +71,11 @@ export function getQaJob(id) {
   pruneJobs(queue);
   return queue.jobs.get(id) || null;
 }
+
+export function listQaJobs() {
+  const queue = state();
+  pruneJobs(queue);
+  return [...queue.jobs.values()].sort((left, right) =>
+    right.createdAt.localeCompare(left.createdAt)
+  );
+}
