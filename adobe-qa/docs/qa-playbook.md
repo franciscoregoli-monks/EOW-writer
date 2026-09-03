@@ -47,8 +47,19 @@ Canonical WWS sequence:
 
 `event13 Start → event15 25% → event16 50% → event17 75% → event14 Complete`
 
-Multi-step playback is not implemented in the MVP. Every video case must
-appear as `NOT_TESTABLE`; never silently skip it.
+When sequence execution is implemented, it must use one browser page and one
+player session:
+
+1. Start playback and capture `event13`.
+2. Wait for actual media progress to cross 25%, 50%, and 75%; capture
+   `event15`, `event16`, and `event17` in that order.
+3. Let the same playback reach its ended state and capture `event14`.
+4. Fail the sequence if a milestone is missing, duplicated, out of order, or
+   emitted by a different player.
+
+Do not simulate completion by issuing five unrelated clicks. Multi-step
+playback is not implemented in the current runner, so every video case must
+appear as `NOT_TESTABLE`; never silently skip it or infer a PASS.
 
 ### Scroll
 
@@ -56,8 +67,14 @@ Canonical WWS sequence:
 
 `event5 25% → event6 50% → event7 75% → event8 100%`
 
-Multi-step scrolling is not implemented in the MVP. Every scroll case must
-appear as `NOT_TESTABLE`.
+When sequence execution is implemented, use one page session and advance the
+document through each threshold. At every threshold, wait for and capture the
+corresponding beacon before continuing. Fail missing, duplicate, or
+out-of-order milestones.
+
+Multi-step scrolling is not implemented in the current runner. Every scroll
+case must appear as `NOT_TESTABLE`; never convert absence of execution into an
+implementation FAIL.
 
 ### Web Vitals
 
@@ -71,7 +88,9 @@ invent the final per-ID metric mapping until the SDR is updated.
 
 ## Value semantics
 
-Only events and eVars affect PASS/FAIL. Props are stored as reference.
+Only events and eVars affect PASS/FAIL. Props are compared and displayed as
+reference checks so every field declared by the plan is accounted for, but a
+prop mismatch does not change the verdict.
 
 | Plan syntax | Meaning | Check |
 |---|---|---|
