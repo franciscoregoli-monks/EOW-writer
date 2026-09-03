@@ -29,6 +29,7 @@ export function buildReport(plan, captures, comparisons) {
     return {
       id: testCase.id,
       name: testCase.name || testCase.id,
+      instance: testCase.instance || null,
       url: testCase.url,
       action: testCase.action || "page_load",
       pass: Boolean(comparison?.pass) && !capture.error,
@@ -100,6 +101,7 @@ export function buildCanonicalReport(
     return {
       id: testCase.id,
       name: testCase.name || testCase.id,
+      instance: testCase.instance || null,
       url: testCase.url,
       action: testCase.action || "click",
       interactionType: testCase.interactionType || null,

@@ -27,6 +27,29 @@ function projectPath(relativePath) {
     : path.join(PROJECT_ROOT, relativePath);
 }
 
+function expandCapturedCases(plan, captures) {
+  const sourceCases = new Map(
+    plan.cases.map((testCase) => [testCase.id, testCase])
+  );
+  return {
+    ...plan,
+    cases: captures.map((capture) => {
+      const source = sourceCases.get(capture.sourceCaseId || capture.id);
+      if (!source) {
+        throw new Error(`Capture ${capture.id} has no source plan case`);
+      }
+      return capture.instance
+        ? {
+            ...source,
+            id: capture.id,
+            name: capture.name,
+            instance: capture.instance,
+          }
+        : source;
+    }),
+  };
+}
+
 export async function executeQa({
   planPath,
   pptxPath,
@@ -63,14 +86,15 @@ export async function executeQa({
   );
   if (!usesCanonicalEvaluation) {
     const captures = await capturePlan(plan, captureOptions);
-    const comparisons = plan.cases.map((testCase, index) =>
+    const capturedPlan = expandCapturedCases(plan, captures);
+    const comparisons = capturedPlan.cases.map((testCase, index) =>
       compareCase({
         expected: testCase.expected || {},
         dataLayerEvents: captures[index].dataLayerEvents,
         beacons: captures[index].beacons,
       })
     );
-    return buildReport(plan, captures, comparisons);
+    return buildReport(capturedPlan, captures, comparisons);
   }
 
   if (!reportSuite) {
@@ -82,7 +106,8 @@ export async function executeQa({
   ]);
   const prepared = preparePlan(plan, sdr, reportSuite);
   const captures = await capturePlan(prepared, captureOptions);
-  const rawEvaluations = prepared.cases.map((testCase, index) =>
+  const capturedPlan = expandCapturedCases(prepared, captures);
+  const rawEvaluations = capturedPlan.cases.map((testCase, index) =>
     evaluateCanonicalCase(
       testCase,
       captures[index],
@@ -94,7 +119,7 @@ export async function executeQa({
   const { evaluations, pageFindings } =
     rollUpPageLevelFindings(rawEvaluations);
   return buildCanonicalReport(
-    prepared,
+    capturedPlan,
     captures,
     evaluations,
     reportSuite,

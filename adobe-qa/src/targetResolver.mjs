@@ -203,6 +203,16 @@ async function markProbeCandidates(page, testCase) {
           .querySelectorAll('a, button, [role="button"], input[type="submit"]')
           .forEach(add);
       }
+      const visible = (element) => {
+        const rect = element.getBoundingClientRect();
+        const style = getComputedStyle(element);
+        return (
+          rect.width > 0 &&
+          rect.height > 0 &&
+          style.display !== "none" &&
+          style.visibility !== "hidden"
+        );
+      };
       const scoped = wanted.scope === "slider-card"
         ? all.filter((element) =>
             Boolean(element.closest('[data-component="slider-card"]'))
@@ -214,34 +224,92 @@ async function markProbeCandidates(page, testCase) {
         }
         if (wanted.controlType === "cta") {
           return (
-            element.matches('button, [role="button"], input[type="submit"]') ||
             element.classList.contains("primary-cta") ||
-            element.classList.contains("dashboard-cta")
+            element.classList.contains("dashboard-cta") ||
+            element.classList.contains("article-cta") ||
+            element.classList.contains("qa-toggle-button")
           );
         }
         return true;
       });
-      const candidates = typed.length ? typed : scoped;
+      const byControl = typed.length ? typed : scoped.filter(visible);
+      const candidates = byControl.filter((element) => {
+        const card = element.closest(".dashboard-card");
+        const cardComponent = card?.getAttribute("data-component") || "";
+        const variant = card?.getAttribute("data-variant") || "";
+        const href = element.href || element.getAttribute("href") || "";
+        if (wanted.variant && variant !== wanted.variant) return false;
+        if (wanted.mediaType === "image") {
+          return (
+            cardComponent === "article-card" &&
+            !card?.classList.contains("has-video")
+          );
+        }
+        if (wanted.mediaType === "video") {
+          return Boolean(card?.classList.contains("has-video"));
+        }
+        if (wanted.mediaType === "download") {
+          return (
+            element.hasAttribute("data-download") ||
+            Boolean(element.closest("[data-download]")) ||
+            /\.pdf(?:$|[?#])/i.test(href)
+          );
+        }
+        if (wanted.mediaType === "interactive") {
+          return ["infographic-card", "qa-card"].includes(cardComponent);
+        }
+        return true;
+      });
       candidates.forEach((element, index) =>
         element.setAttribute("data-adobe-qa-probe-index", String(index))
       );
-      return candidates.length;
+      return candidates.map((element, index) => {
+        const sliderCard = element.closest('[data-component="slider-card"]');
+        const dashboardCard = element.closest(".dashboard-card");
+        const dataTitle = sliderCard?.getAttribute("data-title") || null;
+        const href = element.href || element.getAttribute("href") || null;
+        const childHref =
+          dashboardCard?.querySelector("a[href]")?.href || null;
+        const ariaLabel = element.getAttribute("aria-label") || null;
+        const identity = dataTitle
+          ? { type: "data-title", value: dataTitle }
+          : href
+            ? { type: "href", value: href }
+            : childHref
+              ? { type: "href", value: childHref }
+              : ariaLabel
+                ? { type: "aria-label", value: ariaLabel }
+                : null;
+        return {
+          index,
+          identity,
+          href,
+          ariaLabel,
+          dataTitle,
+        };
+      });
     },
     {
       component: target.component,
       controlType: target.controlType,
       scope: target.scope,
+      variant: target.variant,
+      mediaType: target.mediaType,
     }
   );
 }
 
-export async function countProbeCandidates(page, testCase) {
+export async function findProbeCandidates(page, testCase) {
   return markProbeCandidates(page, testCase);
 }
 
+export async function countProbeCandidates(page, testCase) {
+  return (await markProbeCandidates(page, testCase)).length;
+}
+
 export async function resolveProbeCandidate(page, testCase, index) {
-  const count = await markProbeCandidates(page, testCase);
-  if (index < 0 || index >= count) return null;
+  const candidates = await markProbeCandidates(page, testCase);
+  if (index < 0 || index >= candidates.length) return null;
   const element = await page.$(
     `[data-adobe-qa-probe-index="${index}"]`
   );
@@ -259,7 +327,8 @@ export async function resolveProbeCandidate(page, testCase, index) {
       source: "beaconEVar12Candidate",
       confidence: "probe",
       candidateIndex: index,
-      candidateCount: count,
+      candidateCount: candidates.length,
+      identity: candidates[index].identity,
       ...observed,
     },
   };

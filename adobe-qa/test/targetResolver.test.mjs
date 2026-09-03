@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import puppeteer from "puppeteer-core";
-import { resolveTarget } from "../src/targetResolver.mjs";
+import {
+  findProbeCandidates,
+  resolveTarget,
+} from "../src/targetResolver.mjs";
 
 test("domHint containers resolve to the intended clickable descendant", async () => {
   const browser = await puppeteer.launch({
@@ -166,6 +169,51 @@ test("domHint containers resolve to the intended clickable descendant", async ()
         target: { component: "C38.1", controlType: "link" },
       }),
       (error) => error.code === "COMPONENT_NOT_PRESENT"
+    );
+
+    await page.setContent(`
+      <section data-component="c40-dashboard">
+        <article class="dashboard-card" data-component="article-card" data-variant="large">
+          <a class="article-cta" href="/large-a">Large A</a>
+        </article>
+        <article class="dashboard-card" data-component="article-card" data-variant="large">
+          <a class="article-cta" href="/large-b">Large B</a>
+        </article>
+        <article class="dashboard-card" data-component="article-card" data-variant="small">
+          <a class="article-cta" href="/small">Small</a>
+        </article>
+      </section>
+      <section data-component="c43-highlight-slider">
+        <div data-component="slider-card" data-title="8M">
+          <a class="card-link" href="/eight">Eight</a>
+        </div>
+        <div data-component="slider-card" data-title="500K">
+          <a class="card-link" href="/five-hundred">Five hundred</a>
+        </div>
+      </section>
+    `);
+    const largeImages = await findProbeCandidates(page, {
+      target: {
+        component: "C40",
+        controlType: "cta",
+        mediaType: "image",
+        variant: "large",
+      },
+    });
+    assert.deepEqual(
+      largeImages.map((candidate) => candidate.identity.value),
+      ["/large-a", "/large-b"]
+    );
+
+    const sliderLinks = await findProbeCandidates(page, {
+      target: { component: "C43", controlType: "link" },
+    });
+    assert.deepEqual(
+      sliderLinks.map((candidate) => candidate.identity),
+      [
+        { type: "data-title", value: "8M" },
+        { type: "data-title", value: "500K" },
+      ]
     );
   } finally {
     await browser.close();

@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer-core";
 import { decodeBeaconUrl, flattenBeacon, isAdobeBeacon } from "./decodeBeacon.mjs";
 import {
-  countProbeCandidates,
+  findProbeCandidates,
   resolveProbeCandidate,
   resolveTarget,
 } from "./targetResolver.mjs";
@@ -150,7 +150,7 @@ async function captureProbeCandidate(
   }
 }
 
-async function probeAmbiguousTarget(
+async function probeTargetInstances(
   browser,
   page,
   testCase,
@@ -158,47 +158,69 @@ async function probeAmbiguousTarget(
   options
 ) {
   const expectedEVar12 = fixedEVar12(testCase);
-  if (!expectedEVar12) return null;
-  const candidateCount = await countProbeCandidates(page, testCase);
-  if (candidateCount < 2) return null;
+  const candidates = await findProbeCandidates(page, testCase);
+  if (!candidates.length) return null;
+  const identifiers = candidates.map((candidate) => candidate.identity?.value);
+  const distinguishable =
+    identifiers.every(Boolean) &&
+    new Set(identifiers).size === identifiers.length;
+  if (!distinguishable) {
+    const error = new Error(
+      `The plan identifies ${testCase.target?.component}/${String(testCase.target?.controlType || "control").toUpperCase()}, ` +
+        `but ${candidates.length} candidates do not have unique href, aria-label, or parent data-title values`
+    );
+    error.code = "PLAN_UNDERSPECIFIED_TARGET";
+    throw error;
+  }
 
   const matches = [];
-  for (let index = 0; index < candidateCount; index += 1) {
+  for (const candidate of candidates) {
     try {
       const capture = await captureProbeCandidate(
         browser,
         testCase,
-        index,
+        candidate.index,
         layerName,
         options
       );
+      if (!capture) continue;
       if (
-        capture?.beacons.some((beacon) => beacon.eVar12 === expectedEVar12)
+        !expectedEVar12 ||
+        capture.beacons.some((beacon) => beacon.eVar12 === expectedEVar12)
       ) {
-        matches.push(capture);
+        matches.push({
+          ...capture,
+          instance: candidate.identity,
+          sourceCaseId: testCase.id,
+          id: `${testCase.id}::${candidate.identity.type}=${candidate.identity.value}`,
+          name: `${testCase.name || testCase.id} — ${candidate.identity.value}`,
+        });
       }
     } catch {
       // A candidate that cannot be exercised cannot prove the planned target.
     }
   }
 
-  if (matches.length !== 1) {
+  if (!matches.length) {
     const error = new Error(
       `The plan identifies ${testCase.target?.component}/${String(testCase.target?.controlType || "control").toUpperCase()} ` +
-        `with fixed eVar12 ${JSON.stringify(expectedEVar12)}, but ${matches.length} of ${candidateCount} candidates matched`
+        (expectedEVar12
+          ? `with fixed eVar12 ${JSON.stringify(expectedEVar12)}, but none of ${candidates.length} candidates matched`
+          : `but none of ${candidates.length} distinguishable candidates could be tested`)
     );
     error.code = "PLAN_UNDERSPECIFIED_TARGET";
     throw error;
   }
 
-  const [capture] = matches;
-  capture.targetMatch = {
-    ...capture.targetMatch,
-    source: "beaconEVar12",
-    confidence: "confirmed",
-    expectedEVar12,
-  };
-  return capture;
+  return matches.map((capture) => ({
+    ...capture,
+    targetMatch: {
+      ...capture.targetMatch,
+      source: expectedEVar12 ? "beaconEVar12" : "domInstance",
+      confidence: "confirmed",
+      ...(expectedEVar12 ? { expectedEVar12 } : {}),
+    },
+  }));
 }
 
 export async function capturePlan(
@@ -223,6 +245,7 @@ export async function capturePlan(
       if (testCase.execution?.skip) {
         results.push({
           id: testCase.id,
+          sourceCaseId: testCase.id,
           name: testCase.name || testCase.id,
           url: testCase.url,
           action: testCase.action || "page_load",
@@ -274,7 +297,7 @@ export async function capturePlan(
               resolutionError.code
             );
           if (!canProbe) throw resolutionError;
-          const probed = await probeAmbiguousTarget(
+          const probed = await probeTargetInstances(
             browser,
             page,
             testCase,
@@ -282,14 +305,16 @@ export async function capturePlan(
             { timeoutMs, preActionSettleMs, settleMs }
           );
           if (!probed) throw resolutionError;
-          results.push({
-            id: testCase.id,
-            name: testCase.name || testCase.id,
-            url: testCase.url,
-            action: testCase.action || "page_load",
-            error: null,
-            ...probed,
-          });
+          results.push(
+            ...probed.map((capture) => ({
+              id: testCase.id,
+              name: testCase.name || testCase.id,
+              url: testCase.url,
+              action: testCase.action || "page_load",
+              error: null,
+              ...capture,
+            }))
+          );
           continue;
         }
         await new Promise((resolve) => setTimeout(resolve, settleMs));
@@ -304,6 +329,7 @@ export async function capturePlan(
 
         results.push({
           id: testCase.id,
+          sourceCaseId: testCase.id,
           name: testCase.name || testCase.id,
           url: testCase.url,
           finalUrl: page.url(),
@@ -323,6 +349,7 @@ export async function capturePlan(
         error = String(caught);
         results.push({
           id: testCase.id,
+          sourceCaseId: testCase.id,
           name: testCase.name || testCase.id,
           url: testCase.url,
           finalUrl: null,
