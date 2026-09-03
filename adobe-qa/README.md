@@ -37,6 +37,26 @@ Chrome is required (`google-chrome-stable`, or set `CHROME_PATH`).
 The WWS command exits `1` only for implementation `FAIL` cases. Plan fails
 and unsupported cases stay visible without independently failing the process.
 
+## Run API
+
+Start the API without the web interface:
+
+```bash
+npm run start:api
+```
+
+`POST /api/runs` accepts the same options as `runQa()` and immediately returns
+a queued run ID. `GET /api/runs/:id` returns its current status and completed
+report. The in-memory queue runs one QA job at a time.
+
+```bash
+curl -X POST http://localhost:3000/api/runs \
+  -H 'content-type: application/json' \
+  -d '{"planPath":"examples/homepage-hero-pass.plan.json"}'
+
+curl http://localhost:3000/api/runs/RUN_ID
+```
+
 ## Google Sheet plan
 
 The working plan format is two tabs named `Events` and `Pushes`. Rows are
