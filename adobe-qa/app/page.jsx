@@ -201,6 +201,12 @@ function TestCard({ testCase }) {
             <ChevronDown size={16} />
           </summary>
           {testCase.reason && <p>{testCase.reason}</p>}
+          {testCase.executionIssue && (
+            <p>
+              <strong>{testCase.executionIssue.label}</strong> — owner:{" "}
+              {testCase.executionIssue.owner}
+            </p>
+          )}
           {planFindings.map((finding) => (
             <p key={`${finding.code}-${finding.message}`}>
               <strong>{finding.code}</strong> — {finding.message}
@@ -272,6 +278,80 @@ function Results({ report, runId }) {
           </button>
         </div>
       </div>
+
+      <section className="diagnostic-summary">
+        <div className="diagnostic-count">
+          <span>Field-level problems</span>
+          <strong>{report.summary.fieldProblems?.total || 0}</strong>
+        </div>
+        <div className="diagnostic-breakdown">
+          {Object.entries(report.summary.fieldProblems?.byType || {}).map(
+            ([type, count]) => (
+              <span key={type}>
+                <strong>{count}</strong>{" "}
+                {type.replaceAll("_", " ").toLowerCase()}
+              </span>
+            )
+          )}
+        </div>
+        {report.insights?.length > 0 && (
+          <div className="unified-insights">
+            <h3>Unified diagnosis</h3>
+            {report.insights.map((insight) => (
+              <p key={`${insight.code}-${insight.field || insight.fields}`}>
+                {insight.message}
+              </p>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="field-comparison">
+        <div>
+          <p className="eyebrow">Comparison table</p>
+          <h3>One row per variable</h3>
+        </div>
+        <div className="field-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Problems</th>
+                <th>Expected from plan</th>
+                <th>Actual captured</th>
+                <th>Affected cases</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(report.fields || []).map((field) => (
+                <tr
+                  key={`${field.layer}-${field.key}`}
+                  className={field.problems ? "has-problem" : ""}
+                >
+                  <td>
+                    <code>{field.key}</code>
+                    <small>{field.layer}</small>
+                  </td>
+                  <td>
+                    <strong>{field.problems}/{field.checks}</strong>
+                    <small>
+                      {Object.entries(field.issueTypes)
+                        .map(
+                          ([type, count]) =>
+                            `${count} ${type.replaceAll("_", " ").toLowerCase()}`
+                        )
+                        .join(", ") || "correct"}
+                    </small>
+                  </td>
+                  <td><code>{JSON.stringify(field.expected)}</code></td>
+                  <td><code>{JSON.stringify(field.actual)}</code></td>
+                  <td>{field.affectedCases.join(", ") || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       <div className="summary-grid">
         {Object.entries(OUTCOME_META).map(([status, meta]) => {

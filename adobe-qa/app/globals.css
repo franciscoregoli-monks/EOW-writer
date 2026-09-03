@@ -428,6 +428,117 @@ select:focus {
   gap: 8px;
 }
 
+.diagnostic-summary,
+.field-comparison {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  margin-bottom: 16px;
+}
+
+.diagnostic-summary {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: auto 1fr;
+  padding: 18px;
+}
+
+.diagnostic-count {
+  border-right: 1px solid var(--border);
+  display: grid;
+  min-width: 125px;
+  padding-right: 18px;
+}
+
+.diagnostic-count span,
+.diagnostic-breakdown span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.diagnostic-count strong {
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 34px;
+}
+
+.diagnostic-breakdown {
+  align-content: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.diagnostic-breakdown span {
+  background: rgba(255, 107, 107, 0.07);
+  border: 1px solid rgba(255, 107, 107, 0.16);
+  border-radius: 999px;
+  color: #ff9a9a;
+  padding: 5px 8px;
+}
+
+.unified-insights {
+  border-top: 1px solid var(--border);
+  grid-column: 1 / -1;
+  padding-top: 14px;
+}
+
+.unified-insights h3,
+.field-comparison h3 {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+
+.unified-insights p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 6px 0;
+}
+
+.field-comparison > div:first-child {
+  padding: 17px 18px 8px;
+}
+
+.field-table-wrap {
+  overflow-x: auto;
+}
+
+.field-comparison table {
+  border-collapse: collapse;
+  min-width: 760px;
+  width: 100%;
+}
+
+.field-comparison th,
+.field-comparison td {
+  border-top: 1px solid var(--border);
+  font-size: 10px;
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.field-comparison th {
+  color: var(--muted);
+  font-size: 9px;
+  text-transform: uppercase;
+}
+
+.field-comparison td code {
+  font-family: var(--font-geist-mono), monospace;
+  overflow-wrap: anywhere;
+}
+
+.field-comparison td small {
+  color: var(--muted);
+  display: block;
+  margin-top: 3px;
+}
+
+.field-comparison tr.has-problem {
+  background: rgba(255, 107, 107, 0.035);
+}
+
 .summary-grid {
   display: grid;
   gap: 10px;
@@ -836,6 +947,17 @@ select:focus {
   .split-files,
   .audit-grid {
     grid-template-columns: 1fr;
+  }
+
+  .diagnostic-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .diagnostic-count {
+    border-bottom: 1px solid var(--border);
+    border-right: 0;
+    padding-bottom: 12px;
+    padding-right: 0;
   }
 
   .results-heading,

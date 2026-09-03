@@ -125,9 +125,18 @@ Every plan case appears exactly once in one primary outcome:
 `NOT_TESTABLE` is retained only as a backwards-compatible machine status; it
 must not appear as the human-facing verdict.
 
-Field-level causes (`wrong event`, `missing`, `wrong value`,
-`invalid placeholder`) explain an implementation issue. They are not extra
-outcome categories.
+Field-level causes (`wrong event`, `not captured`, `wrong value`,
+`invalid value`, `unexpected`) explain an implementation issue. `Invalid
+value` means the site sent a placeholder such as `N/A`; `not captured` means
+the required field was empty or absent. They are not extra outcome categories.
+
+The canonical report groups comparisons by field before listing cases. A field
+that fails in two or more cases produces a cross-cutting insight; this is a
+triage recommendation, not proof of a shared root cause.
+
+`Could not run` always includes a secondary execution label and owner, such as
+`Component not on page · Plan`, `Timeout · Infrastructure`, or
+`Access blocked · Environment`.
 
 A plan issue may remain attached as a secondary finding when a valid portion
 of the same case also proves an implementation issue. In that situation the
