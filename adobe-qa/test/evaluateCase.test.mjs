@@ -146,7 +146,7 @@ test("an anchor planned as CTA stays event1 and event2 is a real FAIL", () => {
   );
 });
 
-test("a confirmed click with no tracking is an implementation failure", () => {
+test("a confirmed click with no tracking keeps the legacy engine bucket", () => {
   const [item] = preparePlan(
     {
       cases: [
@@ -173,9 +173,9 @@ test("a confirmed click with no tracking is an implementation failure", () => {
     suite
   );
 
-  assert.equal(result.status, "FAIL");
-  assert.equal(result.qaResult, "FAIL");
-  assert.equal(result.checks.length, 2);
+  assert.equal(result.status, "NOT_TESTABLE");
+  assert.equal(result.qaResult, null);
+  assert.equal(result.checks.length, 0);
   assert.equal(
     result.findings.some((finding) => finding.code === "NO_TRACKING_FIRED"),
     true

@@ -155,28 +155,12 @@ export function evaluateCanonicalCase(
       !sdr.byReportSuite?.[reportSuite]?.dictionary?.events?.[id]
   );
 
-  // Once the target was resolved and clicked, no tracking is implementation
-  // evidence: the expected interaction measurement is missing.
+  // Keep engine buckets stable. The presentation layer distinguishes a
+  // confirmed interaction with no tracking from technical execution blockers.
   if (!capture.dataLayerEvents.length && !observedEvents.length) {
-    const noTrackingChecks = [
-      {
-        key: "dataLayer.event",
-        kind: "event",
-        expected: canonical.event?.canonicalName || canonical.eventId,
-        actual: null,
-        pass: false,
-      },
-      {
-        key: "beacon.events",
-        kind: "event",
-        expected: canonical.eventId,
-        actual: null,
-        pass: false,
-      },
-    ];
     return {
-      status: "FAIL",
-      qaResult: "FAIL",
+      status: "NOT_TESTABLE",
+      qaResult: null,
       canonical,
       findings: [
         ...findings,
@@ -186,8 +170,8 @@ export function evaluateCanonicalCase(
             "Element was clicked but produced no data layer push and no Adobe interaction hit",
         },
       ],
-      reason: "The interaction ran, but no tracking was captured",
-      checks: noTrackingChecks,
+      reason: "Nothing was captured — cannot verify this component",
+      checks: [],
       observedEvents,
       reservedEvents,
       undocumentedEvents,

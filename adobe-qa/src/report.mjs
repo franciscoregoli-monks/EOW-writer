@@ -9,6 +9,13 @@ export const OUTCOME_LABELS = {
 };
 
 function outcomeFor(evaluation) {
+  if (
+    evaluation.findings?.some(
+      (finding) => finding.code === "NO_TRACKING_FIRED"
+    )
+  ) {
+    return "IMPLEMENTATION_ISSUE";
+  }
   if (evaluation.status === "PASS") return "CORRECT";
   if (evaluation.status === "PLAN_FAIL") return "PLAN_ISSUE";
   if (evaluation.status === "NOT_TESTABLE") {
@@ -29,15 +36,218 @@ function outcomeFor(evaluation) {
 function classifyCheck(check) {
   if (check.pass) return { ...check, issueType: null };
   if (/placeholder/i.test(check.note || "")) {
-    return { ...check, issueType: "INVALID_PLACEHOLDER" };
+    return { ...check, issueType: "INVALID_VALUE" };
   }
   if (check.actual == null || check.actual === "") {
-    return { ...check, issueType: "MISSING" };
+    return { ...check, issueType: "NOT_CAPTURED" };
   }
   if (check.key === "beacon.events" || check.key === "dataLayer.event") {
     return { ...check, issueType: "WRONG_EVENT" };
   }
   return { ...check, issueType: "WRONG_VALUE" };
+}
+
+function presentedChecks(evaluation) {
+  if (
+    evaluation.findings?.some(
+      (finding) => finding.code === "NO_TRACKING_FIRED"
+    )
+  ) {
+    return [
+      {
+        key: "dataLayer.event",
+        kind: "event",
+        expected:
+          evaluation.canonical.event?.canonicalName ||
+          evaluation.canonical.eventId,
+        actual: null,
+        pass: false,
+      },
+      {
+        key: "beacon.events",
+        kind: "event",
+        expected: evaluation.canonical.eventId,
+        actual: null,
+        pass: false,
+      },
+    ];
+  }
+  return evaluation.checks || [];
+}
+
+function executionIssueFor(evaluation, capture) {
+  if (outcomeFor(evaluation) !== "COULD_NOT_RUN") return null;
+  const reason = `${evaluation.reason || ""} ${capture?.error?.message || ""}`;
+  if (
+    evaluation.findings?.some(
+      (finding) => finding.code === "TARGET_NOT_RESOLVED"
+    )
+  ) {
+    return {
+      code: "COMPONENT_NOT_ON_PAGE",
+      label: "Component not on page",
+      owner: "Plan",
+    };
+  }
+  if (/timeout|timed out/i.test(reason)) {
+    return { code: "TIMEOUT", label: "Timeout", owner: "Infrastructure" };
+  }
+  if (/401|403|unauthori[sz]ed|forbidden|access denied/i.test(reason)) {
+    return {
+      code: "ACCESS_BLOCKED",
+      label: "Access blocked",
+      owner: "Environment",
+    };
+  }
+  return {
+    code: "TECHNICAL_ERROR",
+    label: "Technical error",
+    owner: "Infrastructure",
+  };
+}
+
+function uniqueValues(values) {
+  const seen = new Map();
+  for (const value of values) {
+    const key = JSON.stringify(value);
+    if (!seen.has(key)) seen.set(key, value);
+  }
+  return [...seen.values()];
+}
+
+function fieldComparison(cases) {
+  const fields = new Map();
+  const add = (testCase, layer, check) => {
+    if (!fields.has(check.key)) {
+      fields.set(check.key, {
+        key: check.key,
+        layer,
+        checks: 0,
+        correct: 0,
+        problems: 0,
+        expected: [],
+        actual: [],
+        affectedCases: [],
+        issueTypes: {},
+        occurrences: [],
+      });
+    }
+    const field = fields.get(check.key);
+    field.checks += 1;
+    field.correct += check.pass ? 1 : 0;
+    field.problems += check.pass ? 0 : 1;
+    field.expected.push(check.expected);
+    field.actual.push(check.actual);
+    if (!check.pass) field.affectedCases.push(testCase.id);
+    if (check.issueType) {
+      field.issueTypes[check.issueType] =
+        (field.issueTypes[check.issueType] || 0) + 1;
+    }
+    field.occurrences.push({
+      caseId: testCase.id,
+      caseName: testCase.name,
+      expected: check.expected,
+      actual: check.actual,
+      pass: check.pass,
+      issueType: check.issueType,
+      reference: Boolean(check.reference),
+    });
+  };
+
+  for (const testCase of cases) {
+    for (const check of testCase.tests.dataLayer.checks) {
+      add(testCase, "Data Layer", check);
+    }
+    for (const check of testCase.tests.debugger.checks) {
+      add(testCase, "Adobe Debugger", check);
+    }
+    for (const check of testCase.tests.debugger.propChecks || []) {
+      add(testCase, "Adobe Debugger · reference", check);
+    }
+    const audit = testCase.tests.dataLayer.audit;
+    for (const key of audit?.missing || []) {
+      add(testCase, "Data Layer payload", classifyCheck({
+        key,
+        expected: "Declared in plan push",
+        actual: null,
+        pass: false,
+      }));
+    }
+    for (const key of audit?.undeclared || []) {
+      add(testCase, "Data Layer payload", {
+        key,
+        expected: "Not declared in plan push",
+        actual: "Present",
+        pass: false,
+        issueType: "UNEXPECTED",
+      });
+    }
+  }
+
+  return [...fields.values()]
+    .map((field) => ({
+      ...field,
+      expected: uniqueValues(field.expected),
+      actual: uniqueValues(field.actual),
+      affectedCases: [...new Set(field.affectedCases)],
+    }))
+    .sort((a, b) => {
+      if (a.problems !== b.problems) return b.problems - a.problems;
+      return a.key.localeCompare(b.key, undefined, { numeric: true });
+    });
+}
+
+function unifiedInsights(fields, pageFindings) {
+  const insights = [];
+  for (const field of fields.filter((item) => item.problems >= 2)) {
+    const issue = Object.entries(field.issueTypes).sort(
+      (a, b) => b[1] - a[1]
+    )[0]?.[0];
+    const behavior = {
+      NOT_CAPTURED: "was not captured",
+      INVALID_VALUE: "sent analytically invalid values",
+      WRONG_EVENT: "sent a different event",
+      WRONG_VALUE: "sent values that did not match the plan",
+      UNEXPECTED: "appeared without being declared by the plan",
+    }[issue] || "failed comparison";
+    insights.push({
+      code: "CROSS_CUTTING_FIELD_PATTERN",
+      scope: "cross-cutting",
+      field: field.key,
+      affectedCases: field.affectedCases,
+      message:
+        `${field.key} ${behavior} in ${field.problems}/${field.checks} ` +
+        `comparisons across ${field.affectedCases.length} cases. This is a ` +
+        "likely shared tracking pattern rather than an isolated component bug; " +
+        "review the common data-layer/Launch mapping first.",
+    });
+  }
+
+  if (pageFindings?.length) {
+    insights.push({
+      code: "PAGE_PLAN_PATTERN",
+      scope: "plan",
+      fields: pageFindings.map((finding) => finding.key),
+      message:
+        `${pageFindings.map((finding) => finding.key).join(", ")} differ ` +
+        "consistently across the page. Treat them as one page-level plan " +
+        "correction, not repeated component defects.",
+    });
+  }
+
+  const isolated = fields.filter((field) => field.problems === 1);
+  if (isolated.length) {
+    insights.push({
+      code: "ISOLATED_FIELD_ISSUES",
+      scope: "isolated",
+      fields: isolated.map((field) => field.key),
+      message:
+        `${isolated.length} field problem${isolated.length === 1 ? "" : "s"} ` +
+        `occurred in only one case (${isolated.map((field) => field.key).join(", ")}). ` +
+        "Investigate these at component level.",
+    });
+  }
+  return insights;
 }
 
 // The plan text box is the contract, so the report states how many of its
@@ -129,7 +339,7 @@ export function buildCanonicalReport(
 ) {
   const cases = plan.cases.map((testCase, index) => {
     const evaluation = evaluations[index];
-    const checks = (evaluation.checks || []).map(classifyCheck);
+    const checks = presentedChecks(evaluation).map(classifyCheck);
     const dataLayerChecks = checks.filter((check) =>
       check.key.startsWith("dataLayer.")
     );
@@ -145,6 +355,7 @@ export function buildCanonicalReport(
       interactionType: testCase.interactionType || null,
       status: evaluation.status,
       outcome: outcomeFor(evaluation),
+      executionIssue: executionIssueFor(evaluation, captures[index]),
       qaResult: evaluation.qaResult,
       canonicalEvent: evaluation.canonical.eventId,
       canonicalName: evaluation.canonical.event?.canonicalName || null,
@@ -198,6 +409,18 @@ export function buildCanonicalReport(
       cases.filter((testCase) => testCase.outcome === outcome).length,
     ])
   );
+  const fields = fieldComparison(cases);
+  const fieldProblemsByType = {};
+  for (const field of fields) {
+    for (const [type, count] of Object.entries(field.issueTypes)) {
+      fieldProblemsByType[type] = (fieldProblemsByType[type] || 0) + count;
+    }
+  }
+  const fieldProblems = {
+    total: fields.reduce((sum, field) => sum + field.problems, 0),
+    byType: fieldProblemsByType,
+  };
+  const insights = unifiedInsights(fields, pageFindings);
   const undocumentedEvents = [
     ...new Set(evaluations.flatMap((item) => item.undocumentedEvents || [])),
   ].sort();
@@ -213,7 +436,9 @@ export function buildCanonicalReport(
     reservedEvents,
     undocumentedEvents,
     ranAt: new Date().toISOString(),
-    summary: { total: cases.length, buckets, outcomes },
+    summary: { total: cases.length, fieldProblems, buckets, outcomes },
+    fields,
+    insights,
     cases,
   };
 }
@@ -246,10 +471,17 @@ function auditLine(label, values) {
 }
 
 export function toCanonicalText(report) {
-  const { outcomes } = report.summary;
+  const { fieldProblems, outcomes } = report.summary;
+  const problemBreakdown = Object.entries(fieldProblems.byType)
+    .map(
+      ([type, count]) =>
+        `${type.replaceAll("_", " ").toLowerCase()} ${count}`
+    )
+    .join(" | ");
   const lines = [
     `Adobe QA — ${report.plan}`,
     `URL cases: ${report.summary.total} | Report suite dictionary: ${report.reportSuite}`,
+    `FIELD-LEVEL PROBLEMS ${fieldProblems.total}${problemBreakdown ? ` | ${problemBreakdown}` : ""}`,
     Object.entries(OUTCOME_LABELS)
       .map(([key, label]) => `${label.toUpperCase()} ${outcomes[key]}`)
       .join(" | "),
@@ -257,6 +489,32 @@ export function toCanonicalText(report) {
   if (report.planStats) {
     lines.push(
       `Plan cases: ${report.planStats.totalItems} | Pushes matched: ${report.planStats.matched} | Unmatched: ${report.planStats.unmatched}`
+    );
+  }
+  lines.push("");
+
+  if (report.insights?.length) {
+    lines.push("=== UNIFIED DIAGNOSIS ===");
+    for (const insight of report.insights) {
+      lines.push(`- ${insight.message}`);
+    }
+    lines.push("");
+  }
+
+  lines.push(`=== FIELD COMPARISON (${report.fields.length}) ===`);
+  for (const field of report.fields) {
+    const issues = Object.entries(field.issueTypes)
+      .map(
+        ([type, count]) =>
+          `${type.replaceAll("_", " ").toLowerCase()} ${count}`
+      )
+      .join(", ");
+    lines.push(
+      `${field.key} · ${field.layer} | problems ${field.problems}/${field.checks}` +
+        (issues ? ` | ${issues}` : " | correct"),
+      `  expected: ${JSON.stringify(field.expected)}`,
+      `  actual: ${JSON.stringify(field.actual)}`,
+      `  affected cases: ${field.affectedCases.length ? field.affectedCases.join(", ") : "none"}`
     );
   }
   lines.push("");
@@ -322,6 +580,11 @@ export function toCanonicalText(report) {
       }
       if (testCase.qaResult) lines.push(`    overall implementation QA: ${testCase.qaResult}`);
       if (testCase.reason) lines.push(`    reason: ${testCase.reason}`);
+      if (testCase.executionIssue) {
+        lines.push(
+          `    blocker: ${testCase.executionIssue.label} | owner: ${testCase.executionIssue.owner}`
+        );
+      }
 
       const dataLayerTest = testCase.tests?.dataLayer || {
         result: checkResult(
@@ -438,6 +701,26 @@ function htmlChecks(checks = []) {
 
 export function toCanonicalHtml(report) {
   const outcomes = report.summary.outcomes;
+  const fieldProblemBreakdown = Object.entries(
+    report.summary.fieldProblems.byType
+  )
+    .map(
+      ([type, count]) =>
+        `${count} ${type.replaceAll("_", " ").toLowerCase()}`
+    )
+    .join(" · ");
+  const fieldRows = report.fields
+    .map(
+      (field) => `
+        <tr class="${field.problems ? "problem-row" : ""}">
+          <td><code>${escapeHtml(field.key)}</code><small>${escapeHtml(field.layer)}</small></td>
+          <td>${field.problems}/${field.checks}<small>${escapeHtml(Object.entries(field.issueTypes).map(([type, count]) => `${count} ${type.replaceAll("_", " ").toLowerCase()}`).join(", ") || "correct")}</small></td>
+          <td><code>${htmlValue(field.expected)}</code></td>
+          <td><code>${htmlValue(field.actual)}</code></td>
+          <td>${escapeHtml(field.affectedCases.join(", ") || "—")}</td>
+        </tr>`
+    )
+    .join("");
   const caseCards = report.cases
     .map((testCase) => {
       const dataLayer = testCase.tests?.dataLayer || {};
@@ -484,6 +767,7 @@ export function toCanonicalHtml(report) {
             testCase.reason || testCase.findings?.length
               ? `<div class="findings"><strong>Findings</strong>
                   ${testCase.reason ? `<p>${escapeHtml(testCase.reason)}</p>` : ""}
+                  ${testCase.executionIssue ? `<p><code>${escapeHtml(testCase.executionIssue.label)}</code> · owner: ${escapeHtml(testCase.executionIssue.owner)}</p>` : ""}
                   ${(testCase.findings || []).map((finding) => `<p><code>${escapeHtml(finding.code)}</code> ${escapeHtml(finding.message)}</p>`).join("")}
                 </div>`
               : ""
@@ -502,11 +786,28 @@ export function toCanonicalHtml(report) {
     :root{color-scheme:dark;--bg:#0b0d10;--surface:#12151a;--soft:#1b2027;--border:#2a3039;--text:#f4f6f8;--muted:#98a1ad;--pass:#43c78a;--fail:#ff6b6b;--plan:#f3b95f;--unknown:#94a0b0}
     *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Arial,sans-serif}.wrap{max-width:1280px;margin:auto;padding:48px 24px 80px}h1{font-size:36px;letter-spacing:-.04em;margin:0}.sub{color:var(--muted);margin:8px 0 28px}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px}.metric,.case{background:var(--surface);border:1px solid var(--border);border-radius:12px}.metric{padding:16px}.metric strong{display:block;font-size:28px}.metric span{color:var(--muted);font-size:12px}.case{margin:12px 0;overflow:hidden}.case>header{display:flex;justify-content:space-between;gap:16px;padding:20px}.case h2{font-size:17px;margin:5px 0 0}.case header p{color:var(--muted);margin:2px 0 0}.case-id,code{font-family:ui-monospace,monospace}.case-id{color:var(--muted);font-size:11px}.badge{border:1px solid currentColor;border-radius:999px;font-size:10px;font-weight:700;padding:4px 8px;white-space:nowrap}.badge-pass,.badge-correct{color:var(--pass)}.badge-fail,.badge-implementation_issue{color:var(--fail)}.badge-plan_fail,.badge-plan_issue{color:var(--plan)}.badge-not_testable,.badge-manual_check_required,.badge-could_not_run{color:var(--unknown)}.contract{display:flex;flex-wrap:wrap;gap:9px;background:#0e1115;border-block:1px solid var(--border);color:var(--muted);font-size:12px;padding:10px 20px}.contract strong{color:var(--text)}.coverage{color:var(--muted);font-size:11px;margin:0;padding:10px 20px;border-bottom:1px solid var(--border)}.evidence{display:grid;grid-template-columns:1fr 1fr;gap:0}.evidence>section{padding:18px 20px}.evidence>section+section{border-left:1px solid var(--border)}h3{align-items:center;display:flex;font-size:13px;justify-content:space-between;margin:0 0 10px}h4{color:var(--muted);font-size:11px;margin:20px 0 8px;text-transform:uppercase}.check{border-top:1px solid var(--border);display:grid;gap:8px;grid-template-columns:18px 1fr;padding:10px 0}.check-mark{font-size:18px}.check-pass .check-mark{color:var(--pass)}.check-fail .check-mark{color:var(--fail)}.check strong{font-family:ui-monospace,monospace;font-size:11px}.check p{color:var(--muted);font-size:11px;margin:3px 0}.reference{background:var(--soft);border-radius:4px;color:var(--muted);font-size:9px;margin-left:7px;padding:2px 5px}.note{color:var(--plan)!important}.empty{color:var(--muted);font-size:12px}.findings{background:rgba(243,185,95,.06);border-top:1px solid var(--border);color:var(--muted);font-size:11px;padding:14px 20px}.findings p{margin:5px 0}.page-finds{background:rgba(243,185,95,.07);border:1px solid rgba(243,185,95,.3);border-radius:10px;color:var(--plan);margin-bottom:20px;padding:14px}.page-finds p{margin:5px 0}@media(max-width:760px){.summary{grid-template-columns:1fr 1fr}.evidence{grid-template-columns:1fr}.evidence>section+section{border-left:0;border-top:1px solid var(--border)}}@media print{body{background:#fff;color:#111}.metric,.case{break-inside:avoid;background:#fff;border-color:#ccc}.contract{background:#f5f5f5}.sub,.case header p,.contract,.coverage,.check p,.findings{color:#555}}
   </style>
+  <style>
+    .diagnostic{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:20px;padding:18px}
+    .diagnostic h2,.fields h2{font-size:17px;margin:0 0 8px}.diagnostic>strong{display:block;font-size:28px}.diagnostic>.breakdown{color:var(--muted);margin:0 0 16px}.insight{border-top:1px solid var(--border);padding:10px 0}.insight:last-child{padding-bottom:0}.insight strong{color:var(--muted);font-size:10px;text-transform:uppercase}.insight p{margin:3px 0}.fields{margin-bottom:28px;overflow:auto}.fields table{border-collapse:collapse;width:100%}.fields th,.fields td{border-bottom:1px solid var(--border);font-size:11px;padding:10px;text-align:left;vertical-align:top}.fields th{color:var(--muted);font-size:9px;text-transform:uppercase}.fields td small{color:var(--muted);display:block;margin-top:3px}.fields .problem-row{background:rgba(255,107,107,.035)}
+  </style>
 </head>
 <body>
   <main class="wrap">
     <h1>Adobe QA</h1>
     <p class="sub">${escapeHtml(report.plan)} · ${report.summary.total} tests · ${escapeHtml(report.reportSuite)}</p>
+    <section class="diagnostic">
+      <h2>Field-level problems</h2>
+      <strong>${report.summary.fieldProblems.total}</strong>
+      <p class="breakdown">${escapeHtml(fieldProblemBreakdown || "No field problems")}</p>
+      ${(report.insights || []).map((insight) => `<div class="insight"><strong>${escapeHtml(insight.scope)} insight</strong><p>${escapeHtml(insight.message)}</p></div>`).join("")}
+    </section>
+    <section class="fields">
+      <h2>Comparison by field</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Problems</th><th>Expected from plan</th><th>Actual captured</th><th>Affected cases</th></tr></thead>
+        <tbody>${fieldRows}</tbody>
+      </table>
+    </section>
     <section class="summary">
       ${Object.keys(OUTCOME_LABELS).map((outcome) => `<div class="metric"><strong>${outcomes[outcome]}</strong><span>${OUTCOME_LABELS[outcome]}</span></div>`).join("")}
     </section>

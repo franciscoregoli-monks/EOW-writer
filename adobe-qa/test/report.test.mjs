@@ -18,7 +18,14 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
     {
       status: "NOT_TESTABLE",
       reason: "Target not resolved — nothing was measured",
+      findings: [
+        {
+          code: "TARGET_NOT_RESOLVED",
+          message: "No element matched this component",
+        },
+      ],
     },
+    { status: "FAIL", reason: "Navigation timeout", findings: [] },
   ];
   const plan = {
     name: "Bucket test",
@@ -33,7 +40,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
     targetMatch: null,
     launch: null,
   }));
-  const evaluations = definitions.map(({ status, reason }, index) => ({
+  const evaluations = definitions.map(({ status, reason, findings = [] }, index) => ({
     status,
     qaResult: status === "PASS" || status === "FAIL" ? status : null,
     canonical: {
@@ -42,7 +49,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
       claimedId: "event1",
       claimedName: "CTA Click",
     },
-    findings: [],
+    findings,
     reason,
     checks: [],
     propsReference: {},
@@ -55,10 +62,10 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
     evaluations,
     "amznsproduction"
   );
-  assert.equal(report.summary.total, 5);
+  assert.equal(report.summary.total, 6);
   assert.deepEqual(report.summary.buckets, {
     PASS: 1,
-    FAIL: 1,
+    FAIL: 2,
     PLAN_FAIL: 1,
     NOT_TESTABLE: 2,
   });
@@ -67,7 +74,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
     IMPLEMENTATION_ISSUE: 1,
     PLAN_ISSUE: 1,
     MANUAL_CHECK_REQUIRED: 1,
-    COULD_NOT_RUN: 1,
+    COULD_NOT_RUN: 2,
   });
   assert.equal(
     Object.values(report.summary.buckets).reduce((sum, count) => sum + count, 0),
@@ -82,7 +89,8 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
     "MANUAL CHECK REQUIRED",
     "COULD NOT RUN",
   ]) {
-    assert.match(output, new RegExp(`=== ${label} \\(1\\) ===`));
+    const count = label === "COULD NOT RUN" ? 2 : 1;
+    assert.match(output, new RegExp(`=== ${label} \\(${count}\\) ===`));
   }
   for (const testCase of plan.cases) {
     assert.match(output, new RegExp(testCase.id));
@@ -90,6 +98,13 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
   assert.deepEqual(report.reservedEvents, ["event89"]);
   assert.match(output, /RESERVED WEB VITALS EVENTS/);
   assert.match(output, /reserved for the Web Vitals implementation/);
+  assert.equal(
+    report.cases[4].executionIssue.code,
+    "COMPONENT_NOT_ON_PAGE"
+  );
+  assert.equal(report.cases[4].executionIssue.owner, "Plan");
+  assert.equal(report.cases[5].executionIssue.code, "TIMEOUT");
+  assert.equal(report.cases[5].executionIssue.owner, "Infrastructure");
 });
 
 test("canonical report separates the data layer and debugger tests", () => {
@@ -194,6 +209,11 @@ test("canonical report separates the data layer and debugger tests", () => {
     report.cases[0].tests.debugger.checks[0].issueType,
     "WRONG_EVENT"
   );
+  assert.equal(report.summary.fieldProblems.total, 2);
+  assert.deepEqual(report.summary.fieldProblems.byType, {
+    NOT_CAPTURED: 1,
+    WRONG_EVENT: 1,
+  });
 
   const output = toCanonicalText(report);
   const testAt = output.indexOf("  TEST");
@@ -229,4 +249,80 @@ test("canonical report separates the data layer and debugger tests", () => {
   assert.match(html, /Implementation issue/);
   assert.match(html, /eVars 1\/1 · props 1\/1/);
   assert.match(html, /reference · not scored/);
+});
+
+test("field comparison unifies cross-cutting issues by variable", () => {
+  const plan = {
+    name: "Cross-cutting fields",
+    cases: ["one", "two"].map((id) => ({
+      id,
+      name: `Case ${id}`,
+      url: "https://example.com",
+      expected: { eVars: { eVar2: "<Previous page>", eVar17: "<Link title>" } },
+    })),
+  };
+  const evaluations = plan.cases.map((_, index) => ({
+    status: "FAIL",
+    qaResult: "FAIL",
+    canonical: {
+      eventId: "event2",
+      event: { canonicalName: "Link Clicks" },
+      claimedId: "event2",
+      claimedName: "Link Clicks",
+    },
+    findings: [],
+    reason: null,
+    checks: [
+      {
+        key: "beacon.events",
+        kind: "event",
+        expected: "event2",
+        actual: "event2",
+        pass: true,
+      },
+      {
+        key: "eVar2",
+        kind: "dynamic",
+        expected: "<Previous page>",
+        actual: null,
+        pass: false,
+      },
+      {
+        key: "eVar17",
+        kind: "dynamic",
+        expected: "<Link title>",
+        actual: index === 0 ? "N/A" : "Read more",
+        pass: index !== 0,
+        ...(index === 0
+          ? { note: 'Placeholder value "N/A" carries no data' }
+          : {}),
+      },
+    ],
+    observedEvents: ["event2"],
+    propsReference: {},
+  }));
+  const captures = plan.cases.map(() => ({
+    dataLayerEvents: [],
+    targetMatch: null,
+    launch: null,
+  }));
+
+  const report = buildCanonicalReport(
+    plan,
+    captures,
+    evaluations,
+    "amznsproduction"
+  );
+  const eVar2 = report.fields.find((field) => field.key === "eVar2");
+  assert.equal(eVar2.problems, 2);
+  assert.deepEqual(eVar2.affectedCases, ["one", "two"]);
+  assert.equal(eVar2.issueTypes.NOT_CAPTURED, 2);
+  assert.equal(
+    report.fields.find((field) => field.key === "eVar17").issueTypes
+      .INVALID_VALUE,
+    1
+  );
+  assert.match(report.insights[0].message, /likely shared tracking pattern/);
+  assert.match(toCanonicalText(report), /UNIFIED DIAGNOSIS/);
+  assert.match(toCanonicalHtml(report), /Comparison by field/);
 });
