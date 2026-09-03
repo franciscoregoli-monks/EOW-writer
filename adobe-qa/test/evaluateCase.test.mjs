@@ -145,3 +145,39 @@ test("an anchor planned as CTA stays event1 and event2 is a real FAIL", () => {
     false
   );
 });
+
+test("a confirmed click with no tracking is an implementation failure", () => {
+  const [item] = preparePlan(
+    {
+      cases: [
+        {
+          id: "silent-cta",
+          interactionType: "cta",
+          planEvent: { id: "event1", name: "CTA Clicks" },
+          expected: { eVars: { eVar12: "<CTA label>" } },
+        },
+      ],
+    },
+    sdr,
+    suite
+  ).cases;
+  const result = evaluateCanonicalCase(
+    item,
+    {
+      error: null,
+      targetMatch: { source: "selector", confidence: "confirmed" },
+      dataLayerEvents: [],
+      beacons: [{ events: "event89" }],
+    },
+    sdr,
+    suite
+  );
+
+  assert.equal(result.status, "FAIL");
+  assert.equal(result.qaResult, "FAIL");
+  assert.equal(result.checks.length, 2);
+  assert.equal(
+    result.findings.some((finding) => finding.code === "NO_TRACKING_FIRED"),
+    true
+  );
+});

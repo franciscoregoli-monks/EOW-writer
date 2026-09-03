@@ -7,21 +7,33 @@ import {
 } from "../src/report.mjs";
 
 test("canonical report assigns every case to exactly one visible bucket", () => {
-  const statuses = ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"];
+  const definitions = [
+    { status: "PASS", reason: null },
+    { status: "FAIL", reason: null },
+    { status: "PLAN_FAIL", reason: null },
+    {
+      status: "NOT_TESTABLE",
+      reason: "Multi-step video sequences are not supported",
+    },
+    {
+      status: "NOT_TESTABLE",
+      reason: "Target not resolved — nothing was measured",
+    },
+  ];
   const plan = {
     name: "Bucket test",
-    cases: statuses.map((status, index) => ({
+    cases: definitions.map(({ status }, index) => ({
       id: `case-${index}`,
       name: status,
       url: "https://example.com",
       planEvent: { id: "event1", name: "CTA Click" },
     })),
   };
-  const captures = statuses.map(() => ({
+  const captures = definitions.map(() => ({
     targetMatch: null,
     launch: null,
   }));
-  const evaluations = statuses.map((status, index) => ({
+  const evaluations = definitions.map(({ status, reason }, index) => ({
     status,
     qaResult: status === "PASS" || status === "FAIL" ? status : null,
     canonical: {
@@ -31,7 +43,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
       claimedName: "CTA Click",
     },
     findings: [],
-    reason: status === "NOT_TESTABLE" ? "unsupported" : null,
+    reason,
     checks: [],
     propsReference: {},
     reservedEvents: index === 0 ? ["event89"] : [],
@@ -43,12 +55,19 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
     evaluations,
     "amznsproduction"
   );
-  assert.equal(report.summary.total, 4);
+  assert.equal(report.summary.total, 5);
   assert.deepEqual(report.summary.buckets, {
     PASS: 1,
     FAIL: 1,
     PLAN_FAIL: 1,
-    NOT_TESTABLE: 1,
+    NOT_TESTABLE: 2,
+  });
+  assert.deepEqual(report.summary.outcomes, {
+    CORRECT: 1,
+    IMPLEMENTATION_ISSUE: 1,
+    PLAN_ISSUE: 1,
+    MANUAL_CHECK_REQUIRED: 1,
+    COULD_NOT_RUN: 1,
   });
   assert.equal(
     Object.values(report.summary.buckets).reduce((sum, count) => sum + count, 0),
@@ -56,11 +75,14 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
   );
 
   const output = toCanonicalText(report);
-  for (const status of statuses) {
-    assert.match(
-      output,
-      new RegExp(`=== ${status.replaceAll("_", " ")} \\(1\\) ===`)
-    );
+  for (const label of [
+    "CORRECT",
+    "IMPLEMENTATION ISSUE",
+    "PLAN ISSUE",
+    "MANUAL CHECK REQUIRED",
+    "COULD NOT RUN",
+  ]) {
+    assert.match(output, new RegExp(`=== ${label} \\(1\\) ===`));
   }
   for (const testCase of plan.cases) {
     assert.match(output, new RegExp(testCase.id));
@@ -165,8 +187,13 @@ test("canonical report separates the data layer and debugger tests", () => {
   );
   assert.equal(report.cases[0].tests.dataLayer.result, "PASS");
   assert.equal(report.cases[0].tests.debugger.result, "FAIL");
+  assert.equal(report.cases[0].outcome, "IMPLEMENTATION_ISSUE");
   assert.equal(report.cases[0].tests.dataLayer.checks.length, 1);
   assert.equal(report.cases[0].tests.debugger.checks.length, 2);
+  assert.equal(
+    report.cases[0].tests.debugger.checks[0].issueType,
+    "WRONG_EVENT"
+  );
 
   const output = toCanonicalText(report);
   const testAt = output.indexOf("  TEST");
@@ -199,6 +226,7 @@ test("canonical report separates the data layer and debugger tests", () => {
   assert.match(html, /<!doctype html>/);
   assert.match(html, /Data Layer/);
   assert.match(html, /Adobe Debugger/);
+  assert.match(html, /Implementation issue/);
   assert.match(html, /eVars 1\/1 · props 1\/1/);
   assert.match(html, /reference · not scored/);
 });

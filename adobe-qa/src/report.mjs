@@ -1,5 +1,45 @@
 import { planEvars, planProps } from "./valueSemantics.mjs";
 
+export const OUTCOME_LABELS = {
+  CORRECT: "Correct",
+  IMPLEMENTATION_ISSUE: "Implementation issue",
+  PLAN_ISSUE: "Plan issue",
+  MANUAL_CHECK_REQUIRED: "Manual check required",
+  COULD_NOT_RUN: "Could not run",
+};
+
+function outcomeFor(evaluation) {
+  if (evaluation.status === "PASS") return "CORRECT";
+  if (evaluation.status === "PLAN_FAIL") return "PLAN_ISSUE";
+  if (evaluation.status === "NOT_TESTABLE") {
+    return /not supported|multi-step/i.test(evaluation.reason || "")
+      ? "MANUAL_CHECK_REQUIRED"
+      : "COULD_NOT_RUN";
+  }
+  if (
+    evaluation.status === "FAIL" &&
+    !evaluation.checks?.length &&
+    evaluation.reason
+  ) {
+    return "COULD_NOT_RUN";
+  }
+  return "IMPLEMENTATION_ISSUE";
+}
+
+function classifyCheck(check) {
+  if (check.pass) return { ...check, issueType: null };
+  if (/placeholder/i.test(check.note || "")) {
+    return { ...check, issueType: "INVALID_PLACEHOLDER" };
+  }
+  if (check.actual == null || check.actual === "") {
+    return { ...check, issueType: "MISSING" };
+  }
+  if (check.key === "beacon.events" || check.key === "dataLayer.event") {
+    return { ...check, issueType: "WRONG_EVENT" };
+  }
+  return { ...check, issueType: "WRONG_VALUE" };
+}
+
 // The plan text box is the contract, so the report states how many of its
 // declared fields were actually compared instead of only the headline event.
 function planCoverage(testCase, checks, propChecks) {
@@ -89,14 +129,14 @@ export function buildCanonicalReport(
 ) {
   const cases = plan.cases.map((testCase, index) => {
     const evaluation = evaluations[index];
-    const checks = evaluation.checks || [];
+    const checks = (evaluation.checks || []).map(classifyCheck);
     const dataLayerChecks = checks.filter((check) =>
       check.key.startsWith("dataLayer.")
     );
     const debuggerChecks = checks.filter(
       (check) => !check.key.startsWith("dataLayer.")
     );
-    const propChecks = evaluation.propChecks || [];
+    const propChecks = (evaluation.propChecks || []).map(classifyCheck);
     return {
       id: testCase.id,
       name: testCase.name || testCase.id,
@@ -104,6 +144,7 @@ export function buildCanonicalReport(
       action: testCase.action || "click",
       interactionType: testCase.interactionType || null,
       status: evaluation.status,
+      outcome: outcomeFor(evaluation),
       qaResult: evaluation.qaResult,
       canonicalEvent: evaluation.canonical.eventId,
       canonicalName: evaluation.canonical.event?.canonicalName || null,
@@ -151,6 +192,12 @@ export function buildCanonicalReport(
       cases.filter((testCase) => testCase.status === status).length,
     ])
   );
+  const outcomes = Object.fromEntries(
+    Object.keys(OUTCOME_LABELS).map((outcome) => [
+      outcome,
+      cases.filter((testCase) => testCase.outcome === outcome).length,
+    ])
+  );
   const undocumentedEvents = [
     ...new Set(evaluations.flatMap((item) => item.undocumentedEvents || [])),
   ].sort();
@@ -166,7 +213,7 @@ export function buildCanonicalReport(
     reservedEvents,
     undocumentedEvents,
     ranAt: new Date().toISOString(),
-    summary: { total: cases.length, buckets },
+    summary: { total: cases.length, buckets, outcomes },
     cases,
   };
 }
@@ -189,6 +236,7 @@ function checkLine(check) {
     `    ${marker} ${check.key}${semantics}` +
     ` | expected: ${JSON.stringify(check.expected)}` +
     ` | actual: ${JSON.stringify(check.actual)}` +
+    (check.issueType ? ` | issue: ${check.issueType.replaceAll("_", " ").toLowerCase()}` : "") +
     (check.note ? ` | ${check.note}` : "")
   );
 }
@@ -198,11 +246,13 @@ function auditLine(label, values) {
 }
 
 export function toCanonicalText(report) {
-  const { buckets } = report.summary;
+  const { outcomes } = report.summary;
   const lines = [
     `Adobe QA — ${report.plan}`,
     `URL cases: ${report.summary.total} | Report suite dictionary: ${report.reportSuite}`,
-    `PASS ${buckets.PASS} | FAIL ${buckets.FAIL} | PLAN FAIL ${buckets.PLAN_FAIL} | NOT TESTABLE ${buckets.NOT_TESTABLE}`,
+    Object.entries(OUTCOME_LABELS)
+      .map(([key, label]) => `${label.toUpperCase()} ${outcomes[key]}`)
+      .join(" | "),
   ];
   if (report.planStats) {
     lines.push(
@@ -247,10 +297,10 @@ export function toCanonicalText(report) {
     );
   }
 
-  for (const status of ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"]) {
-    const cases = report.cases.filter((testCase) => testCase.status === status);
+  for (const outcome of Object.keys(OUTCOME_LABELS)) {
+    const cases = report.cases.filter((testCase) => testCase.outcome === outcome);
     if (!cases.length) continue;
-    const label = status.replaceAll("_", " ");
+    const label = OUTCOME_LABELS[outcome].toUpperCase();
     lines.push(`=== ${label} (${cases.length}) ===`);
     for (const testCase of cases) {
       lines.push(
@@ -375,6 +425,7 @@ function htmlChecks(checks = []) {
               <div>
                 <strong>${escapeHtml(check.key)}</strong>
                 ${check.reference ? '<span class="reference">reference · not scored</span>' : ""}
+                ${check.issueType ? `<span class="reference">${escapeHtml(check.issueType.replaceAll("_", " ").toLowerCase())}</span>` : ""}
                 <p>Expected: <code>${htmlValue(check.expected)}</code></p>
                 <p>Actual: <code>${htmlValue(check.actual)}</code></p>
                 ${check.note ? `<p class="note">${escapeHtml(check.note)}</p>` : ""}
@@ -386,13 +437,7 @@ function htmlChecks(checks = []) {
 }
 
 export function toCanonicalHtml(report) {
-  const labels = {
-    PASS: "PASS",
-    FAIL: "FAIL",
-    PLAN_FAIL: "PLAN FAIL",
-    NOT_TESTABLE: "NOT TESTABLE",
-  };
-  const buckets = report.summary.buckets;
+  const outcomes = report.summary.outcomes;
   const caseCards = report.cases
     .map((testCase) => {
       const dataLayer = testCase.tests?.dataLayer || {};
@@ -406,7 +451,7 @@ export function toCanonicalHtml(report) {
               <h2>${escapeHtml(testCase.name)}</h2>
               <p>${escapeHtml(testCase.action)}${testCase.interactionType ? ` · ${escapeHtml(testCase.interactionType)}` : ""}</p>
             </div>
-            <span class="badge badge-${testCase.status.toLowerCase()}">${labels[testCase.status]}</span>
+            <span class="badge badge-${testCase.outcome.toLowerCase()}">${OUTCOME_LABELS[testCase.outcome]}</span>
           </header>
           <div class="contract">
             <span>Expected event</span>
@@ -455,7 +500,7 @@ export function toCanonicalHtml(report) {
   <title>Adobe QA — ${escapeHtml(report.plan)}</title>
   <style>
     :root{color-scheme:dark;--bg:#0b0d10;--surface:#12151a;--soft:#1b2027;--border:#2a3039;--text:#f4f6f8;--muted:#98a1ad;--pass:#43c78a;--fail:#ff6b6b;--plan:#f3b95f;--unknown:#94a0b0}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Arial,sans-serif}.wrap{max-width:1280px;margin:auto;padding:48px 24px 80px}h1{font-size:36px;letter-spacing:-.04em;margin:0}.sub{color:var(--muted);margin:8px 0 28px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}.metric,.case{background:var(--surface);border:1px solid var(--border);border-radius:12px}.metric{padding:16px}.metric strong{display:block;font-size:28px}.metric span{color:var(--muted);font-size:12px}.case{margin:12px 0;overflow:hidden}.case>header{display:flex;justify-content:space-between;gap:16px;padding:20px}.case h2{font-size:17px;margin:5px 0 0}.case header p{color:var(--muted);margin:2px 0 0}.case-id,code{font-family:ui-monospace,monospace}.case-id{color:var(--muted);font-size:11px}.badge{border:1px solid currentColor;border-radius:999px;font-size:10px;font-weight:700;padding:4px 8px;white-space:nowrap}.badge-pass{color:var(--pass)}.badge-fail{color:var(--fail)}.badge-plan_fail{color:var(--plan)}.badge-not_testable{color:var(--unknown)}.contract{display:flex;flex-wrap:wrap;gap:9px;background:#0e1115;border-block:1px solid var(--border);color:var(--muted);font-size:12px;padding:10px 20px}.contract strong{color:var(--text)}.coverage{color:var(--muted);font-size:11px;margin:0;padding:10px 20px;border-bottom:1px solid var(--border)}.evidence{display:grid;grid-template-columns:1fr 1fr;gap:0}.evidence>section{padding:18px 20px}.evidence>section+section{border-left:1px solid var(--border)}h3{align-items:center;display:flex;font-size:13px;justify-content:space-between;margin:0 0 10px}h4{color:var(--muted);font-size:11px;margin:20px 0 8px;text-transform:uppercase}.check{border-top:1px solid var(--border);display:grid;gap:8px;grid-template-columns:18px 1fr;padding:10px 0}.check-mark{font-size:18px}.check-pass .check-mark{color:var(--pass)}.check-fail .check-mark{color:var(--fail)}.check strong{font-family:ui-monospace,monospace;font-size:11px}.check p{color:var(--muted);font-size:11px;margin:3px 0}.reference{background:var(--soft);border-radius:4px;color:var(--muted);font-size:9px;margin-left:7px;padding:2px 5px}.note{color:var(--plan)!important}.empty{color:var(--muted);font-size:12px}.findings{background:rgba(243,185,95,.06);border-top:1px solid var(--border);color:var(--muted);font-size:11px;padding:14px 20px}.findings p{margin:5px 0}.page-finds{background:rgba(243,185,95,.07);border:1px solid rgba(243,185,95,.3);border-radius:10px;color:var(--plan);margin-bottom:20px;padding:14px}.page-finds p{margin:5px 0}@media(max-width:760px){.summary{grid-template-columns:1fr 1fr}.evidence{grid-template-columns:1fr}.evidence>section+section{border-left:0;border-top:1px solid var(--border)}}@media print{body{background:#fff;color:#111}.metric,.case{break-inside:avoid;background:#fff;border-color:#ccc}.contract{background:#f5f5f5}.sub,.case header p,.contract,.coverage,.check p,.findings{color:#555}}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Arial,sans-serif}.wrap{max-width:1280px;margin:auto;padding:48px 24px 80px}h1{font-size:36px;letter-spacing:-.04em;margin:0}.sub{color:var(--muted);margin:8px 0 28px}.summary{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:28px}.metric,.case{background:var(--surface);border:1px solid var(--border);border-radius:12px}.metric{padding:16px}.metric strong{display:block;font-size:28px}.metric span{color:var(--muted);font-size:12px}.case{margin:12px 0;overflow:hidden}.case>header{display:flex;justify-content:space-between;gap:16px;padding:20px}.case h2{font-size:17px;margin:5px 0 0}.case header p{color:var(--muted);margin:2px 0 0}.case-id,code{font-family:ui-monospace,monospace}.case-id{color:var(--muted);font-size:11px}.badge{border:1px solid currentColor;border-radius:999px;font-size:10px;font-weight:700;padding:4px 8px;white-space:nowrap}.badge-pass,.badge-correct{color:var(--pass)}.badge-fail,.badge-implementation_issue{color:var(--fail)}.badge-plan_fail,.badge-plan_issue{color:var(--plan)}.badge-not_testable,.badge-manual_check_required,.badge-could_not_run{color:var(--unknown)}.contract{display:flex;flex-wrap:wrap;gap:9px;background:#0e1115;border-block:1px solid var(--border);color:var(--muted);font-size:12px;padding:10px 20px}.contract strong{color:var(--text)}.coverage{color:var(--muted);font-size:11px;margin:0;padding:10px 20px;border-bottom:1px solid var(--border)}.evidence{display:grid;grid-template-columns:1fr 1fr;gap:0}.evidence>section{padding:18px 20px}.evidence>section+section{border-left:1px solid var(--border)}h3{align-items:center;display:flex;font-size:13px;justify-content:space-between;margin:0 0 10px}h4{color:var(--muted);font-size:11px;margin:20px 0 8px;text-transform:uppercase}.check{border-top:1px solid var(--border);display:grid;gap:8px;grid-template-columns:18px 1fr;padding:10px 0}.check-mark{font-size:18px}.check-pass .check-mark{color:var(--pass)}.check-fail .check-mark{color:var(--fail)}.check strong{font-family:ui-monospace,monospace;font-size:11px}.check p{color:var(--muted);font-size:11px;margin:3px 0}.reference{background:var(--soft);border-radius:4px;color:var(--muted);font-size:9px;margin-left:7px;padding:2px 5px}.note{color:var(--plan)!important}.empty{color:var(--muted);font-size:12px}.findings{background:rgba(243,185,95,.06);border-top:1px solid var(--border);color:var(--muted);font-size:11px;padding:14px 20px}.findings p{margin:5px 0}.page-finds{background:rgba(243,185,95,.07);border:1px solid rgba(243,185,95,.3);border-radius:10px;color:var(--plan);margin-bottom:20px;padding:14px}.page-finds p{margin:5px 0}@media(max-width:760px){.summary{grid-template-columns:1fr 1fr}.evidence{grid-template-columns:1fr}.evidence>section+section{border-left:0;border-top:1px solid var(--border)}}@media print{body{background:#fff;color:#111}.metric,.case{break-inside:avoid;background:#fff;border-color:#ccc}.contract{background:#f5f5f5}.sub,.case header p,.contract,.coverage,.check p,.findings{color:#555}}
   </style>
 </head>
 <body>
@@ -463,7 +508,7 @@ export function toCanonicalHtml(report) {
     <h1>Adobe QA</h1>
     <p class="sub">${escapeHtml(report.plan)} · ${report.summary.total} tests · ${escapeHtml(report.reportSuite)}</p>
     <section class="summary">
-      ${Object.keys(labels).map((status) => `<div class="metric"><strong>${buckets[status]}</strong><span>${labels[status]}</span></div>`).join("")}
+      ${Object.keys(OUTCOME_LABELS).map((outcome) => `<div class="metric"><strong>${outcomes[outcome]}</strong><span>${OUTCOME_LABELS[outcome]}</span></div>`).join("")}
     </section>
     ${
       report.pageFindings?.length
