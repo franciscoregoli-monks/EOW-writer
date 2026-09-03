@@ -37,6 +37,77 @@ test("video and scroll are explicit NOT_TESTABLE cases", () => {
   }
 });
 
+test("a planned component absent from the page is a PLAN_DEFECT", () => {
+  const [item] = preparePlan(
+    {
+      cases: [
+        {
+          id: "missing-c38",
+          url: "https://example.com",
+          interactionType: "link",
+          planEvent: { id: "event2", name: "Link Clicks" },
+          target: { component: "C38.1" },
+        },
+      ],
+    },
+    sdr,
+    suite
+  ).cases;
+
+  const result = evaluateCanonicalCase(
+    item,
+    {
+      error: {
+        code: "COMPONENT_NOT_PRESENT",
+        message: "component C38.1 not present",
+      },
+    },
+    sdr,
+    suite
+  );
+
+  assert.equal(result.status, "PLAN_DEFECT");
+  assert.equal(result.qaResult, null);
+  assert.equal(result.reason, "Component not present on page");
+  assert.equal(result.findings[0].code, "PLAN_COMPONENT_NOT_PRESENT");
+});
+
+test("an underspecified target is NOT_TESTABLE with a plan finding", () => {
+  const [item] = preparePlan(
+    {
+      cases: [
+        {
+          id: "ambiguous-c43",
+          interactionType: "cta",
+          planEvent: { id: "event1", name: "CTA Clicks" },
+          target: { component: "C43" },
+        },
+      ],
+    },
+    sdr,
+    suite
+  ).cases;
+
+  const result = evaluateCanonicalCase(
+    item,
+    {
+      error: {
+        code: "PLAN_UNDERSPECIFIED_TARGET",
+        message:
+          "The plan identifies C43/CTA but does not distinguish among the 5 clickables in the component",
+      },
+    },
+    sdr,
+    suite
+  );
+
+  assert.equal(result.status, "NOT_TESTABLE");
+  assert.equal(result.qaResult, null);
+  assert.equal(result.reason, "Plan does not uniquely identify a target");
+  assert.equal(result.findings[0].code, "PLAN_UNDERSPECIFIED_TARGET");
+  assert.match(result.findings[0].message, /5 clickables/);
+});
+
 test("events and eVars score; props remain reference-only", () => {
   const [item] = preparePlan(
     {

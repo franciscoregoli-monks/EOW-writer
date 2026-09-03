@@ -68,7 +68,7 @@ test("data layer audit reports missing and undeclared keys with their eVars", ()
   );
 });
 
-test("asking Page Section for a component name is a plan fail, not a site failure", () => {
+test("asking Page Section for a component name is a plan defect, not a site failure", () => {
   const checks = [
     {
       key: "eVar28",

@@ -71,6 +71,13 @@ depend on the supplied CommonJS PPTX parser.
 PPTX plans can also run directly:
 
 ```bash
+npm run qa:energy
+```
+
+The command above runs the committed Energy Spotlight plan against production.
+For another PPTX:
+
+```bash
 npm run qa:pptx -- \
   --pptx "/path/to/Measurement Plan.pptx" \
   --url "https://sustainability.aboutamazon.com/..." \
@@ -152,7 +159,7 @@ pageSection, label, href and card variant. Video and scroll cases appear as
 
 ## Output
 
-`reports/<timestamp>.txt` — PASS/FAIL/PLAN_FAIL/NOT_TESTABLE
+`reports/<timestamp>.txt` — PASS/FAIL/PLAN_DEFECT/NOT_TESTABLE
 `reports/<timestamp>.json` — full data layer events and decoded beacons
 
 Every plan case appears exactly once. See

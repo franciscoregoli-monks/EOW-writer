@@ -6,7 +6,7 @@ import {
 } from "../src/report.mjs";
 
 test("canonical report assigns every case to exactly one visible bucket", () => {
-  const statuses = ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"];
+  const statuses = ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"];
   const plan = {
     name: "Bucket test",
     cases: statuses.map((status, index) => ({
@@ -46,7 +46,7 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
   assert.deepEqual(report.summary.buckets, {
     PASS: 1,
     FAIL: 1,
-    PLAN_FAIL: 1,
+    PLAN_DEFECT: 1,
     NOT_TESTABLE: 1,
   });
   assert.equal(
@@ -67,6 +67,62 @@ test("canonical report assigns every case to exactly one visible bucket", () => 
   assert.deepEqual(report.reservedEvents, ["event89"]);
   assert.match(output, /RESERVED WEB VITALS EVENTS/);
   assert.match(output, /reserved for the Web Vitals implementation/);
+});
+
+test("page-level defects are counted once in PLAN_DEFECT", () => {
+  const plan = {
+    name: "Page defect accounting",
+    cases: [
+      {
+        id: "case-1",
+        url: "https://example.com",
+        planEvent: { id: "event1", name: "CTA Click" },
+      },
+    ],
+  };
+  const evaluations = [
+    {
+      status: "PASS",
+      qaResult: "PASS",
+      canonical: {
+        eventId: "event1",
+        event: { canonicalName: "CTA Click" },
+        claimedId: "event1",
+        claimedName: "CTA Click",
+      },
+      findings: [],
+      checks: [],
+      propsReference: {},
+    },
+  ];
+  const pageFindings = [
+    {
+      code: "PLAN_PAGE_METADATA_MISMATCH",
+      key: "eVar3",
+      expected: "Planned page",
+      actual: "Actual page",
+      cases: 1,
+    },
+  ];
+
+  const report = buildCanonicalReport(
+    plan,
+    [{ dataLayerEvents: [] }],
+    evaluations,
+    "amznsproduction",
+    pageFindings
+  );
+
+  assert.equal(report.summary.planCases, 1);
+  assert.equal(report.summary.pageFindings, 1);
+  assert.equal(report.summary.total, 2);
+  assert.deepEqual(report.summary.buckets, {
+    PASS: 1,
+    FAIL: 0,
+    PLAN_DEFECT: 1,
+    NOT_TESTABLE: 0,
+  });
+  assert.match(toCanonicalText(report), /PAGE-LEVEL PLAN DEFECTS \(1\)/);
 });
 
 test("canonical report separates the data layer and debugger tests", () => {

@@ -4,7 +4,10 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { strToU8, zipSync } from "fflate";
-import { loadPptxPlan } from "../src/pptxPlanParser.mjs";
+import {
+  loadPptxPlan,
+  markUnderspecifiedTargets,
+} from "../src/pptxPlanParser.mjs";
 
 function slide(lines) {
   const shapes = lines
@@ -45,6 +48,8 @@ test("PPTX parser pairs spec/push slides and keeps sequence cases visible", asyn
         "var adobeDataLayer = adobeDataLayer || [];",
         "adobeDataLayer.push({",
         'event: "CTA Clicks",',
+        'linkTitle: "8M",',
+        'destinationLink: "https://example.com/eu",',
         "component: <C40>",
         "});",
       ])
@@ -90,10 +95,46 @@ test("PPTX parser pairs spec/push slides and keeps sequence cases visible", asyn
   assert.equal(click.target.component, "C40");
   assert.equal(click.target.variant, "large");
   assert.equal(click.target.mediaType, "image");
+  assert.equal(click.target.dataTitle, "8M");
+  assert.equal(click.target.href, "https://example.com/eu");
 
   assert.equal(plan.cases[1].interactionType, "scroll");
   assert.equal(plan.cases[1].planEvent.id, "event15");
   assert.equal(plan.cases[1].milestone, "25");
   assert.equal(plan.cases[2].interactionType, "video");
   assert.equal(plan.cases[2].planEvent.id, null);
+});
+
+test("duplicate component controls with different eVar12 expectations require an instance locator", () => {
+  const cases = markUnderspecifiedTargets([
+    {
+      id: "slide-19",
+      target: {
+        component: "C43",
+        controlType: "cta",
+        label: "Highlight Slider",
+      },
+      expected: {
+        eVars: {
+          eVar12: { kind: "fixed", value: "Slide Card CTA button" },
+        },
+      },
+    },
+    {
+      id: "slide-23",
+      target: {
+        component: "C43",
+        controlType: "cta",
+        label: "Highlight Slider",
+      },
+      expected: {
+        eVars: {
+          eVar12: { kind: "dynamic", raw: "<CTA Button Label>" },
+        },
+      },
+    },
+  ]);
+
+  assert.equal(cases[0].target.planUnderspecified, true);
+  assert.equal(cases[1].target.planUnderspecified, true);
 });

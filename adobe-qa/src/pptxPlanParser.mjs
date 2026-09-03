@@ -154,6 +154,8 @@ function parsePush(lines, slide) {
   const componentMatch = value("component");
   const eventMatch = value("event");
   const component = componentMatch?.[1] || componentMatch?.[2] || null;
+  const linkTitle = value("linkTitle")?.[1] || null;
+  const destinationLink = value("destinationLink")?.[1] || null;
   return {
     slide,
     section: lines[1] || null,
@@ -162,6 +164,8 @@ function parsePush(lines, slide) {
       .trim(),
     eventName: eventMatch?.[1] || eventMatch?.[2] || null,
     component,
+    linkTitle,
+    destinationLink,
     rawPushCode,
   };
 }
@@ -187,10 +191,18 @@ function candidateSelectors(component) {
 function targetMetadata(spec, push) {
   const feature = spec.feature || "";
   const lower = feature.toLowerCase();
+  const plannedCta = spec.eVars?.eVar12;
   return {
     component: push?.component || null,
     pageSection: spec.section,
     label: feature,
+    dataTitle: push?.linkTitle || null,
+    href: push?.destinationLink || null,
+    scope:
+      plannedCta?.kind === "fixed" &&
+      /slide\s*card/i.test(plannedCta.value || "")
+        ? "slider-card"
+        : null,
     variant: lower.includes("large")
       ? "large"
       : lower.includes("small")
@@ -207,6 +219,53 @@ function targetMetadata(spec, push) {
             : null,
     controlType: spec.interactionType,
   };
+}
+
+export function markUnderspecifiedTargets(cases) {
+  const groups = new Map();
+  for (const testCase of cases) {
+    const target = testCase.target || {};
+    const key = [
+      target.component,
+      target.controlType,
+      target.label,
+    ]
+      .map((value) => String(value || "").trim().toLowerCase())
+      .join("::");
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(testCase);
+  }
+
+  const underspecifiedIds = new Set();
+  for (const group of groups.values()) {
+    if (group.length < 2) continue;
+    if (group.some((item) => item.target?.href || item.target?.dataTitle)) {
+      continue;
+    }
+    const eVar12Values = new Set(
+      group.map((item) => {
+        const expected = item.expected?.eVars?.eVar12;
+        return JSON.stringify({
+          kind: expected?.kind || null,
+          value: expected?.value || expected?.raw || null,
+        });
+      })
+    );
+    if (eVar12Values.size < 2) continue;
+    for (const item of group) underspecifiedIds.add(item.id);
+  }
+
+  return cases.map((testCase) =>
+    underspecifiedIds.has(testCase.id)
+      ? {
+          ...testCase,
+          target: {
+            ...testCase.target,
+            planUnderspecified: true,
+          },
+        }
+      : testCase
+  );
 }
 
 export async function loadPptxPlan({ filePath, url }) {
@@ -246,7 +305,7 @@ export async function loadPptxPlan({ filePath, url }) {
     if (!fallbackPushes.has(fallback)) fallbackPushes.set(fallback, push);
   }
 
-  const cases = specs.map((spec) => {
+  const cases = markUnderspecifiedTargets(specs.map((spec) => {
     const exact = exactPushes.get(key(spec.section, spec.feature, spec.eventName));
     const push = exact || fallbackPushes.get(key(spec.section, spec.feature));
     const parserWarnings = [];
@@ -285,7 +344,7 @@ export async function loadPptxPlan({ filePath, url }) {
         parserWarnings,
       },
     };
-  });
+  }));
 
   return {
     name: path.basename(filePath),

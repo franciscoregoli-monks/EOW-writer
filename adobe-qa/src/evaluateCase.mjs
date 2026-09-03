@@ -20,6 +20,7 @@ const WEB_VITALS_EVENTS = new Set([
   "event88",
   "event89",
 ]);
+const PAGE_LEVEL_VARIABLES = new Set(["eVar3", "eVar4"]);
 
 function eventIdsInBeacon(beacon) {
   return String(beacon?.events || "")
@@ -102,11 +103,35 @@ export function evaluateCanonicalCase(
 
   if (capture?.error) {
     const unresolved = capture.error.code === "TARGET_NOT_FOUND";
+    const componentAbsent = capture.error.code === "COMPONENT_NOT_PRESENT";
+    const underspecified =
+      capture.error.code === "PLAN_UNDERSPECIFIED_TARGET";
     return {
-      status: unresolved ? "NOT_TESTABLE" : "FAIL",
-      qaResult: unresolved ? null : "FAIL",
+      status: componentAbsent
+        ? "PLAN_DEFECT"
+        : unresolved || underspecified
+          ? "NOT_TESTABLE"
+          : "FAIL",
+      qaResult: unresolved || componentAbsent || underspecified ? null : "FAIL",
       canonical,
-      findings: unresolved
+      findings: componentAbsent
+        ? [
+            ...findings,
+            {
+              code: "PLAN_COMPONENT_NOT_PRESENT",
+              message:
+                `${testCase.target?.component || "Planned component"} is not present on ${testCase.url}`,
+            },
+          ]
+        : underspecified
+          ? [
+              ...findings,
+              {
+                code: "PLAN_UNDERSPECIFIED_TARGET",
+                message: capture.error.message,
+              },
+            ]
+        : unresolved
         ? [
             ...findings,
             {
@@ -115,9 +140,13 @@ export function evaluateCanonicalCase(
             },
           ]
         : findings,
-      reason: unresolved
-        ? "Target not resolved — nothing was measured"
-        : capture.error.message,
+      reason: componentAbsent
+        ? "Component not present on page"
+        : underspecified
+          ? "Plan does not uniquely identify a target"
+        : unresolved
+          ? "Target not resolved — nothing was measured"
+          : capture.error.message,
       checks: [],
       propsReference: testCase.expected?.props || {},
     };
@@ -238,7 +267,7 @@ export function evaluateCanonicalCase(
       qaResult === "FAIL"
         ? "FAIL"
         : planDefect || roleDefects.findings.length
-          ? "PLAN_FAIL"
+          ? "PLAN_DEFECT"
           : "PASS",
     qaResult,
     canonical,
@@ -262,7 +291,7 @@ export function evaluateCanonicalCase(
 // never swept up.
 export function rollUpPageLevelFindings(evaluations) {
   const measured = evaluations.filter((item) => item.checks.length);
-  if (measured.length < 2) return { evaluations, pageFindings: [] };
+  if (!measured.length) return { evaluations, pageFindings: [] };
 
   const byKey = new Map();
   for (const evaluation of measured) {
@@ -276,6 +305,7 @@ export function rollUpPageLevelFindings(evaluations) {
   const pageLevelKeys = new Set();
   const pageFindings = [];
   for (const [key, checks] of byKey) {
+    if (measured.length < 2 && !PAGE_LEVEL_VARIABLES.has(key)) continue;
     if (checks.length !== measured.length) continue;
     if (checks.some((check) => check.pass)) continue;
     // A placeholder is missing data, not an outdated plan, so it keeps failing
@@ -317,7 +347,7 @@ export function rollUpPageLevelFindings(evaluations) {
         checks,
         qaResult,
         status:
-          evaluation.status === "PLAN_FAIL" ? "PLAN_FAIL" : qaResult,
+          evaluation.status === "PLAN_DEFECT" ? "PLAN_DEFECT" : qaResult,
       };
     }),
   };

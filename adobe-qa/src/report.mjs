@@ -146,11 +146,14 @@ export function buildCanonicalReport(
   });
 
   const buckets = Object.fromEntries(
-    ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"].map((status) => [
+    ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"].map((status) => [
       status,
       cases.filter((testCase) => testCase.status === status).length,
     ])
   );
+  // Page-scoped defects are first-class outcomes. They are reported once for
+  // the page and counted once here instead of being copied into every case.
+  buckets.PLAN_DEFECT += pageFindings.length;
   const undocumentedEvents = [
     ...new Set(evaluations.flatMap((item) => item.undocumentedEvents || [])),
   ].sort();
@@ -166,7 +169,12 @@ export function buildCanonicalReport(
     reservedEvents,
     undocumentedEvents,
     ranAt: new Date().toISOString(),
-    summary: { total: cases.length, buckets },
+    summary: {
+      total: cases.length + pageFindings.length,
+      planCases: cases.length,
+      pageFindings: pageFindings.length,
+      buckets,
+    },
     cases,
   };
 }
@@ -201,8 +209,9 @@ export function toCanonicalText(report) {
   const { buckets } = report.summary;
   const lines = [
     `Adobe QA — ${report.plan}`,
-    `URL cases: ${report.summary.total} | Report suite dictionary: ${report.reportSuite}`,
-    `PASS ${buckets.PASS} | FAIL ${buckets.FAIL} | PLAN FAIL ${buckets.PLAN_FAIL} | NOT TESTABLE ${buckets.NOT_TESTABLE}`,
+    `Plan cases: ${report.summary.planCases} | Page-level findings: ${report.summary.pageFindings} | Accounted outcomes: ${report.summary.total}`,
+    `Report suite dictionary: ${report.reportSuite}`,
+    `PASS ${buckets.PASS} | FAIL ${buckets.FAIL} | PLAN DEFECT ${buckets.PLAN_DEFECT} | NOT TESTABLE ${buckets.NOT_TESTABLE}`,
   ];
   if (report.planStats) {
     lines.push(
@@ -213,8 +222,8 @@ export function toCanonicalText(report) {
 
   if (report.pageFindings?.length) {
     lines.push(
-      `=== PAGE-LEVEL PLAN FAILS (${report.pageFindings.length}) ===`,
-      "Reported once for the whole page. Excluded from per-component scoring.",
+      `=== PAGE-LEVEL PLAN DEFECTS (${report.pageFindings.length}) ===`,
+      "Reported and counted once for the whole page. Excluded from per-component scoring.",
       ""
     );
     for (const finding of report.pageFindings) {
@@ -232,7 +241,7 @@ export function toCanonicalText(report) {
       `=== RESERVED WEB VITALS EVENTS (${report.reservedEvents.length}) ===`,
       `${report.reservedEvents.join(", ")} are part of the event85–event89 ` +
         "range reserved for the Web Vitals implementation currently in progress.",
-      "They are expected housekeeping events and do not affect component QA.",
+      "They are global housekeeping events, not component-specific, and do not affect component QA.",
       ""
     );
   }
@@ -247,7 +256,7 @@ export function toCanonicalText(report) {
     );
   }
 
-  for (const status of ["PASS", "FAIL", "PLAN_FAIL", "NOT_TESTABLE"]) {
+  for (const status of ["PASS", "FAIL", "PLAN_DEFECT", "NOT_TESTABLE"]) {
     const cases = report.cases.filter((testCase) => testCase.status === status);
     if (!cases.length) continue;
     const label = status.replaceAll("_", " ");
