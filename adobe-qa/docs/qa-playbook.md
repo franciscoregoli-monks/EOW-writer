@@ -109,15 +109,26 @@ every check, including dynamic presence checks. They are also never absorbed
 into a page-level plan finding: missing data is an implementation defect, not
 an outdated plan.
 
-## Output buckets
+## Human outcomes
 
-Every plan case appears exactly once:
+Every plan case appears exactly once in one primary outcome:
 
-- `PASS`
-- `FAIL`
-- `PLAN_FAIL`
-- `NOT_TESTABLE`
+- `CORRECT` — the action ran and every scored requirement matched.
+- `IMPLEMENTATION_ISSUE` — the action ran but tracking is missing or wrong.
+- `PLAN_ISSUE` — the plan conflicts with the SDR or assigns a value to the
+  wrong variable role.
+- `MANUAL_CHECK_REQUIRED` — the requirement is valid but the runner does not
+  yet automate the interaction sequence, such as video or scroll milestones.
+- `COULD_NOT_RUN` — a technical obstacle prevented execution, such as an
+  unresolved target, inaccessible page, or browser error.
 
-A `PLAN_FAIL` may also show the implementation QA result. An unsupported
-video/scroll case remains `NOT_TESTABLE` and carries plan-defect findings as
-secondary details.
+`NOT_TESTABLE` is retained only as a backwards-compatible machine status; it
+must not appear as the human-facing verdict.
+
+Field-level causes (`wrong event`, `missing`, `wrong value`,
+`invalid placeholder`) explain an implementation issue. They are not extra
+outcome categories.
+
+A plan issue may remain attached as a secondary finding when a valid portion
+of the same case also proves an implementation issue. In that situation the
+primary outcome is `IMPLEMENTATION_ISSUE`.

@@ -17,18 +17,30 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
-const STATUS_META = {
-  PASS: { label: "Pass", icon: CheckCircle2 },
-  FAIL: { label: "Fail", icon: XCircle },
-  PLAN_FAIL: { label: "Plan fail", icon: AlertCircle },
-  NOT_TESTABLE: { label: "Not testable", icon: CircleSlash2 },
+const OUTCOME_META = {
+  CORRECT: { label: "Correct", icon: CheckCircle2 },
+  IMPLEMENTATION_ISSUE: { label: "Implementation issue", icon: XCircle },
+  PLAN_ISSUE: { label: "Plan issue", icon: AlertCircle },
+  MANUAL_CHECK_REQUIRED: { label: "Manual check required", icon: CircleSlash2 },
+  COULD_NOT_RUN: { label: "Could not run", icon: CircleSlash2 },
+};
+
+const TEST_RESULT_META = {
+  PASS: { label: "Correct", icon: CheckCircle2 },
+  FAIL: { label: "Issue", icon: XCircle },
+  "NOT TESTABLE": { label: "No evidence", icon: CircleSlash2 },
 };
 
 function StatusBadge({ status }) {
-  const meta = STATUS_META[status] || STATUS_META.NOT_TESTABLE;
+  const meta =
+    OUTCOME_META[status] ||
+    TEST_RESULT_META[status] ||
+    OUTCOME_META.COULD_NOT_RUN;
   const Icon = meta.icon;
   return (
-    <span className={`status status-${status.toLowerCase()}`}>
+    <span
+      className={`status status-${status.toLowerCase().replaceAll(" ", "_")}`}
+    >
       <Icon size={14} aria-hidden="true" />
       {meta.label}
     </span>
@@ -52,6 +64,11 @@ function CheckRow({ check }) {
             <span className="kind">{check.kind}</span>
           )}
           {check.reference && <span className="kind">not scored</span>}
+          {check.issueType && (
+            <span className="issue-type">
+              {check.issueType.replaceAll("_", " ").toLowerCase()}
+            </span>
+          )}
         </div>
         <div className="comparison">
           <span>Expected: {JSON.stringify(check.expected)}</span>
@@ -107,7 +124,7 @@ function TestCard({ testCase }) {
             </p>
           </div>
         </div>
-        <StatusBadge status={testCase.status} />
+        <StatusBadge status={testCase.outcome} />
       </header>
 
       <div className="event-contract">
@@ -198,11 +215,11 @@ function TestCard({ testCase }) {
 function Results({ report, runId }) {
   const [filter, setFilter] = useState("ALL");
   const [query, setQuery] = useState("");
-  const buckets = report.summary?.buckets || {};
+  const outcomes = report.summary?.outcomes || {};
   const cases = useMemo(
     () =>
       (report.cases || []).filter((testCase) => {
-        const matchesStatus = filter === "ALL" || testCase.status === filter;
+        const matchesStatus = filter === "ALL" || testCase.outcome === filter;
         const haystack = [
           testCase.id,
           testCase.name,
@@ -257,7 +274,7 @@ function Results({ report, runId }) {
       </div>
 
       <div className="summary-grid">
-        {Object.entries(STATUS_META).map(([status, meta]) => {
+        {Object.entries(OUTCOME_META).map(([status, meta]) => {
           const Icon = meta.icon;
           return (
             <button
@@ -267,7 +284,7 @@ function Results({ report, runId }) {
               onClick={() => setFilter(filter === status ? "ALL" : status)}
             >
               <Icon size={20} />
-              <strong>{buckets[status] || 0}</strong>
+              <strong>{outcomes[status] || 0}</strong>
               <span>{meta.label}</span>
             </button>
           );
@@ -308,8 +325,8 @@ function Results({ report, runId }) {
         </button>
         <button
           type="button"
-          className={filter === "FAIL" ? "filter active" : "filter"}
-          onClick={() => setFilter("FAIL")}
+          className={filter === "IMPLEMENTATION_ISSUE" ? "filter active" : "filter"}
+          onClick={() => setFilter("IMPLEMENTATION_ISSUE")}
         >
           Errors to fix
         </button>

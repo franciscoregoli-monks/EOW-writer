@@ -86,7 +86,7 @@ npm run qa:pptx -- \
 
 The parser reads text boxes in visual Y order, pairs specification and
 DataLayer Push slides, and uses the same shared value semantics as the Sheet
-parser. Scroll/video slides are included but reported as `NOT_TESTABLE`. See
+parser. Scroll/video slides are included as `Manual check required`. See
 the committed direct-PPTX production run at
 [`examples/energy-pptx.report.txt`](examples/energy-pptx.report.txt).
 
@@ -155,11 +155,11 @@ Value semantics:
 
 Click targets resolve via explicit selector/domHints, then component,
 pageSection, label, href and card variant. Video and scroll cases appear as
-`NOT_TESTABLE` with a reason.
+`Manual check required` with a reason.
 
 ## Output
 
-`reports/<timestamp>.txt` — PASS/FAIL/PLAN_FAIL/NOT_TESTABLE
+`reports/<timestamp>.txt` — five human outcomes plus expected/actual details
 `reports/<timestamp>.json` — full data layer events and decoded beacons
 `reports/<timestamp>.html` — standalone graphical canonical report
 

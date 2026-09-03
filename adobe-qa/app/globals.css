@@ -431,7 +431,7 @@ select:focus {
 .summary-grid {
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   margin-bottom: 16px;
 }
 
@@ -472,10 +472,11 @@ select:focus {
   box-shadow: inset 0 0 0 1px currentColor;
 }
 
-.summary-pass { color: var(--pass); }
-.summary-fail { color: var(--fail); }
-.summary-plan_fail { color: var(--plan); }
-.summary-not_testable { color: var(--unknown); }
+.summary-correct { color: var(--pass); }
+.summary-implementation_issue { color: var(--fail); }
+.summary-plan_issue { color: var(--plan); }
+.summary-manual_check_required,
+.summary-could_not_run { color: var(--unknown); }
 
 .page-findings {
   align-items: flex-start;
@@ -584,10 +585,15 @@ select:focus {
   white-space: nowrap;
 }
 
-.status-pass { color: var(--pass); background: rgba(67, 199, 138, 0.07); }
-.status-fail { color: var(--fail); background: rgba(255, 107, 107, 0.07); }
-.status-plan_fail { color: var(--plan); background: rgba(243, 185, 95, 0.07); }
-.status-not_testable { color: var(--unknown); background: rgba(148, 160, 176, 0.07); }
+.status-pass,
+.status-correct { color: var(--pass); background: rgba(67, 199, 138, 0.07); }
+.status-fail,
+.status-implementation_issue { color: var(--fail); background: rgba(255, 107, 107, 0.07); }
+.status-plan_fail,
+.status-plan_issue { color: var(--plan); background: rgba(243, 185, 95, 0.07); }
+.status-not_testable,
+.status-manual_check_required,
+.status-could_not_run { color: var(--unknown); background: rgba(148, 160, 176, 0.07); }
 
 .event-contract {
   background: #0d1014;
@@ -698,6 +704,15 @@ select:focus {
   background: var(--surface-soft);
   border-radius: 4px;
   color: var(--muted);
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: 9px;
+  padding: 2px 5px;
+}
+
+.issue-type {
+  background: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
+  color: #ff9a9a;
   font-family: var(--font-geist-sans), sans-serif;
   font-size: 9px;
   padding: 2px 5px;

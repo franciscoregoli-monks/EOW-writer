@@ -34,8 +34,9 @@ Implemented and unit-tested:
 - Fixed/options/dynamic/removed eVar semantics. Props are reference-only.
 - Canonical event resolution and plan-defect findings.
 - Secondary click target resolution.
-- Four exclusive report buckets: PASS, FAIL, PLAN_FAIL, NOT_TESTABLE.
-- Explicit NOT_TESTABLE branch for video/scroll.
+- Five human outcomes: Correct, Implementation issue, Plan issue, Manual check
+  required, Could not run. Legacy machine statuses remain available.
+- Explicit manual-check outcome for unsupported video/scroll sequences.
 - Live WWS CLI plan at `examples/wws-energy.plan.json`.
 - Google Sheet parser for exact `Order` joins across Events + Pushes. It uses
   `valueSemantics.mjs` directly; the supplied PPTX parser is not a dependency.
