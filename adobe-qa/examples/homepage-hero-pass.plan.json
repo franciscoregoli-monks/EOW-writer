@@ -1,0 +1,38 @@
+{
+  "name": "Homepage hero CTA — PASS-path proof",
+  "adobe": {
+    "dataLayer": "adobeDataLayer",
+    "reportSuite": "amznsproduction"
+  },
+  "cases": [
+    {
+      "id": "HOME-HERO-2025-REPORT",
+      "name": "2025 Amazon Sustainability Report hero CTA",
+      "url": "https://sustainability.aboutamazon.com/",
+      "action": "click",
+      "interactionType": "cta",
+      "selector": "[data-component=\"c01-main-hero\"] .slide[data-title=\"2025 Amazon Sustainability Report\"] a.slide-link",
+      "target": {
+        "component": "c01-main-hero",
+        "label": "2025 Amazon Sustainability Report",
+        "href": "/2025-report"
+      },
+      "planEvent": {
+        "id": "event1",
+        "name": "CTA Click"
+      },
+      "expected": {
+        "eVars": {
+          "eVar1": "<website domain>",
+          "eVar3": "\"Amazon Sustainability: Home\"",
+          "eVar4": "\"Homepage\"",
+          "eVar10": "\"Full Website\"",
+          "eVar11": "\"document\"",
+          "eVar12": "\"2025 Amazon Sustainability Report\"",
+          "eVar15": "<Page URL>",
+          "eVar31": "<Clean URL of the current page>"
+        }
+      }
+    }
+  ]
+}

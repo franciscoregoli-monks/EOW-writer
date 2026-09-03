@@ -1,0 +1,60 @@
+{
+  "name": "TCP UTM page load — Climate Pledge home",
+  "adobe": {
+    "dataLayer": "adobeDataLayer",
+    "reportSuite": "amznclimatepledgeproduction",
+    "trackingServer": "theclimatepledge.sc.omtrdc.net"
+  },
+  "cases": [
+    {
+      "id": "TCP-UTM-001",
+      "name": "LinkedIn social with content and term",
+      "url": "https://theclimatepledge.com/?utm_source=linkedin&utm_medium=social&utm_campaign=sustainability-report-paid&utm_content=carousel-slide-1&utm_term=net-zero-2040",
+      "action": "page_load",
+      "expected": {
+        "dataLayer": {
+          "event": "pageload",
+          "userInteraction": {
+            "pageName": "Home"
+          }
+        },
+        "beacon": {
+          "reportSuite": "amznclimatepledgeproduction",
+          "hitType": "pageview",
+          "pageName": "Home",
+          "eVar41": "linkedin",
+          "eVar42": "social",
+          "eVar43": "sustainability-report-paid",
+          "eVar44": "carousel-slide-1",
+          "eVar46": "net-zero-2040",
+          "eVar45": "sustainability-report-paid|social|linkedin|carousel-slide-1|net-zero-2040"
+        }
+      }
+    },
+    {
+      "id": "TCP-UTM-002",
+      "name": "Google CPC with content and term",
+      "url": "https://theclimatepledge.com/?utm_source=google&utm_medium=cpc&utm_campaign=brand-search-sustainability&utm_content=headline-a&utm_term=climate%20pledge",
+      "action": "page_load",
+      "expected": {
+        "dataLayer": {
+          "event": "pageload",
+          "userInteraction": {
+            "pageName": "Home"
+          }
+        },
+        "beacon": {
+          "reportSuite": "amznclimatepledgeproduction",
+          "hitType": "pageview",
+          "pageName": "Home",
+          "eVar41": "google",
+          "eVar42": "cpc",
+          "eVar43": "brand-search-sustainability",
+          "eVar44": "headline-a",
+          "eVar46": "climate pledge",
+          "eVar45": "brand-search-sustainability|cpc|google|headline-a|climate pledge"
+        }
+      }
+    }
+  ]
+}
