@@ -45,9 +45,17 @@ Still not implemented:
 - Authenticated Google Sheets API. Public/link-shared Sheets can be fetched
   directly; private Sheets currently require two CSV exports.
 - Multi-step video and scroll (deliberately post-MVP).
-- Upload page, HTML report and hosting.
 
-Run `npm test`, `npm run qa:wws`, or the legacy TCP `npm run qa:tcp`.
+Now implemented:
+
+- Internal Next.js upload page with PPTX, Sheet, CSV, and JSON inputs.
+- Queued browser execution with polled run status.
+- Graphical Data Layer / Adobe Debugger results and standalone `report.html`.
+- Chrome-enabled Docker image plus a private single-instance Cloud Run learning
+  deployment guide. Durable Cloud Tasks/storage remain a later hosting phase.
+
+Run `npm test`, `npm run build`, `npm run dev`, `npm run qa:wws`, or the legacy
+TCP `npm run qa:tcp`.
 
 ## Provenance of this branch
 
@@ -76,7 +84,9 @@ each case: event, eVars, expected vs actual
 Knowledge on disk: `docs/qa-playbook.md`, `knowledge/wws-sdr.json`, example
 plans. Not in the system prompt.
 
-Host later: Cloud Run + Chrome (not Vercel-only). AI Studio = optional cosmetics only.
+Host: start with the documented private Cloud Run + Chrome learning deployment
+(not Vercel-only). AI Studio remains optional cosmetics only. Move queue state
+to Cloud Tasks/storage before relying on the host as durable infrastructure.
 
 ## Do not
 

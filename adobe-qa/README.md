@@ -34,6 +34,13 @@ npm run qa:wws
 
 Chrome is required (`google-chrome-stable`, or set `CHROME_PATH`).
 
+## Internal hosting
+
+The repository includes a Chrome-enabled multi-stage `Dockerfile`. The
+step-by-step private Cloud Run learning deployment, resource settings, IAM
+access, cost warning, and durable Cloud Tasks upgrade are documented in
+[`deploy/cloud-run/README.md`](deploy/cloud-run/README.md).
+
 The WWS command exits `1` only for implementation `FAIL` cases. Plan fails
 and unsupported cases stay visible without independently failing the process.
 
@@ -154,6 +161,10 @@ pageSection, label, href and card variant. Video and scroll cases appear as
 
 `reports/<timestamp>.txt` — PASS/FAIL/PLAN_FAIL/NOT_TESTABLE
 `reports/<timestamp>.json` — full data layer events and decoded beacons
+`reports/<timestamp>.html` — standalone graphical canonical report
+
+The web interface offers the same standalone HTML report as a download after
+each completed canonical run.
 
 Every plan case appears exactly once. See
 [`docs/qa-playbook.md`](docs/qa-playbook.md) for precedence and event-family

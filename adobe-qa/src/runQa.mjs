@@ -17,8 +17,8 @@ import {
 import { loadSheetPlan } from "./sheetPlanParser.mjs";
 
 const PROJECT_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  ".."
+  process.env.ADOBE_QA_ROOT ||
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 );
 
 function projectPath(relativePath) {
