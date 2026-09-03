@@ -195,7 +195,7 @@ function TestCard({ testCase }) {
   );
 }
 
-function Results({ report }) {
+function Results({ report, runId }) {
   const [filter, setFilter] = useState("ALL");
   const [query, setQuery] = useState("");
   const buckets = report.summary?.buckets || {};
@@ -238,10 +238,22 @@ function Results({ report }) {
           <h2>{report.plan}</h2>
           <p>{report.summary.total} implementation tests</p>
         </div>
-        <button className="secondary-button" type="button" onClick={downloadReport}>
-          <Download size={17} />
-          Export JSON
-        </button>
+        <div className="export-actions">
+          {runId && (
+            <a
+              className="secondary-button"
+              href={`/api/qa/${runId}/report.html`}
+              download
+            >
+              <Download size={17} />
+              Report HTML
+            </a>
+          )}
+          <button className="secondary-button" type="button" onClick={downloadReport}>
+            <Download size={17} />
+            JSON
+          </button>
+        </div>
       </div>
 
       <div className="summary-grid">
@@ -319,6 +331,7 @@ function Results({ report }) {
 export default function Home() {
   const [sourceType, setSourceType] = useState("pptx");
   const [report, setReport] = useState(null);
+  const [runId, setRunId] = useState("");
   const [error, setError] = useState("");
   const [running, setRunning] = useState(false);
   const [runStatus, setRunStatus] = useState("");
@@ -337,6 +350,7 @@ export default function Home() {
       if (!response.ok) throw new Error(payload.error || "The QA run failed");
       const runId = payload.run?.id;
       if (!runId) throw new Error("The server did not return a run ID");
+      setRunId(runId);
 
       let run = payload.run;
       while (["queued", "running"].includes(run.status)) {
@@ -509,7 +523,7 @@ export default function Home() {
           </aside>
 
           {report ? (
-            <Results report={report} />
+            <Results report={report} runId={runId} />
           ) : (
             <section className="empty-state">
               <div className="empty-icon">

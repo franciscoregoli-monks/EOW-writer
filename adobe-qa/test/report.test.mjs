@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildCanonicalReport,
+  toCanonicalHtml,
   toCanonicalText,
 } from "../src/report.mjs";
 
@@ -193,4 +194,11 @@ test("canonical report separates the data layer and debugger tests", () => {
     output,
     /plan coverage: event compared \| eVars 1\/1 \| props 1\/1/
   );
+
+  const html = toCanonicalHtml(report);
+  assert.match(html, /<!doctype html>/);
+  assert.match(html, /Data Layer/);
+  assert.match(html, /Adobe Debugger/);
+  assert.match(html, /eVars 1\/1 · props 1\/1/);
+  assert.match(html, /reference · not scored/);
 });

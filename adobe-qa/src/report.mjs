@@ -347,3 +347,131 @@ export function toCanonicalText(report) {
   }
   return lines.join("\n");
 }
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function htmlValue(value) {
+  return escapeHtml(JSON.stringify(value));
+}
+
+function htmlChecks(checks = []) {
+  if (!checks.length) {
+    return '<p class="empty">No comparable evidence was captured.</p>';
+  }
+  return `
+    <div class="checks">
+      ${checks
+        .map(
+          (check) => `
+            <div class="check ${check.pass ? "check-pass" : "check-fail"}">
+              <span class="check-mark">${check.pass ? "✓" : "×"}</span>
+              <div>
+                <strong>${escapeHtml(check.key)}</strong>
+                ${check.reference ? '<span class="reference">reference · not scored</span>' : ""}
+                <p>Expected: <code>${htmlValue(check.expected)}</code></p>
+                <p>Actual: <code>${htmlValue(check.actual)}</code></p>
+                ${check.note ? `<p class="note">${escapeHtml(check.note)}</p>` : ""}
+              </div>
+            </div>`
+        )
+        .join("")}
+    </div>`;
+}
+
+export function toCanonicalHtml(report) {
+  const labels = {
+    PASS: "PASS",
+    FAIL: "FAIL",
+    PLAN_FAIL: "PLAN FAIL",
+    NOT_TESTABLE: "NOT TESTABLE",
+  };
+  const buckets = report.summary.buckets;
+  const caseCards = report.cases
+    .map((testCase) => {
+      const dataLayer = testCase.tests?.dataLayer || {};
+      const debuggerTest = testCase.tests?.debugger || {};
+      const coverage = testCase.coverage;
+      return `
+        <article class="case">
+          <header>
+            <div>
+              <span class="case-id">${escapeHtml(testCase.id)}</span>
+              <h2>${escapeHtml(testCase.name)}</h2>
+              <p>${escapeHtml(testCase.action)}${testCase.interactionType ? ` · ${escapeHtml(testCase.interactionType)}` : ""}</p>
+            </div>
+            <span class="badge badge-${testCase.status.toLowerCase()}">${labels[testCase.status]}</span>
+          </header>
+          <div class="contract">
+            <span>Expected event</span>
+            <strong>${escapeHtml(testCase.canonicalEvent || "unresolved")}</strong>
+            <span>${escapeHtml(testCase.canonicalName || "unknown")}</span>
+            <span>Observed</span>
+            <strong>${escapeHtml(testCase.observedEvents?.join(", ") || "none")}</strong>
+          </div>
+          ${
+            coverage
+              ? `<p class="coverage">Plan coverage · event ${coverage.eventChecked ? "compared" : "not compared"} · eVars ${coverage.eVars.compared}/${coverage.eVars.declared} · props ${coverage.props.compared}/${coverage.props.declared}${coverage.notCompared.length ? ` · not compared: ${escapeHtml(coverage.notCompared.join(", "))}` : ""}</p>`
+              : ""
+          }
+          <div class="evidence">
+            <section>
+              <h3>Data Layer <span class="badge badge-${String(dataLayer.result || "NOT_TESTABLE").toLowerCase().replaceAll(" ", "_")}">${escapeHtml(dataLayer.result || "NOT TESTABLE")}</span></h3>
+              ${htmlChecks(dataLayer.checks)}
+            </section>
+            <section>
+              <h3>Adobe Debugger <span class="badge badge-${String(debuggerTest.result || "NOT_TESTABLE").toLowerCase().replaceAll(" ", "_")}">${escapeHtml(debuggerTest.result || "NOT TESTABLE")}</span></h3>
+              ${htmlChecks(debuggerTest.checks)}
+              ${
+                debuggerTest.propChecks?.length
+                  ? `<h4>Props (reference only)</h4>${htmlChecks(debuggerTest.propChecks)}`
+                  : ""
+              }
+            </section>
+          </div>
+          ${
+            testCase.reason || testCase.findings?.length
+              ? `<div class="findings"><strong>Findings</strong>
+                  ${testCase.reason ? `<p>${escapeHtml(testCase.reason)}</p>` : ""}
+                  ${(testCase.findings || []).map((finding) => `<p><code>${escapeHtml(finding.code)}</code> ${escapeHtml(finding.message)}</p>`).join("")}
+                </div>`
+              : ""
+          }
+        </article>`;
+    })
+    .join("");
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Adobe QA — ${escapeHtml(report.plan)}</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b0d10;--surface:#12151a;--soft:#1b2027;--border:#2a3039;--text:#f4f6f8;--muted:#98a1ad;--pass:#43c78a;--fail:#ff6b6b;--plan:#f3b95f;--unknown:#94a0b0}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Arial,sans-serif}.wrap{max-width:1280px;margin:auto;padding:48px 24px 80px}h1{font-size:36px;letter-spacing:-.04em;margin:0}.sub{color:var(--muted);margin:8px 0 28px}.summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}.metric,.case{background:var(--surface);border:1px solid var(--border);border-radius:12px}.metric{padding:16px}.metric strong{display:block;font-size:28px}.metric span{color:var(--muted);font-size:12px}.case{margin:12px 0;overflow:hidden}.case>header{display:flex;justify-content:space-between;gap:16px;padding:20px}.case h2{font-size:17px;margin:5px 0 0}.case header p{color:var(--muted);margin:2px 0 0}.case-id,code{font-family:ui-monospace,monospace}.case-id{color:var(--muted);font-size:11px}.badge{border:1px solid currentColor;border-radius:999px;font-size:10px;font-weight:700;padding:4px 8px;white-space:nowrap}.badge-pass{color:var(--pass)}.badge-fail{color:var(--fail)}.badge-plan_fail{color:var(--plan)}.badge-not_testable{color:var(--unknown)}.contract{display:flex;flex-wrap:wrap;gap:9px;background:#0e1115;border-block:1px solid var(--border);color:var(--muted);font-size:12px;padding:10px 20px}.contract strong{color:var(--text)}.coverage{color:var(--muted);font-size:11px;margin:0;padding:10px 20px;border-bottom:1px solid var(--border)}.evidence{display:grid;grid-template-columns:1fr 1fr;gap:0}.evidence>section{padding:18px 20px}.evidence>section+section{border-left:1px solid var(--border)}h3{align-items:center;display:flex;font-size:13px;justify-content:space-between;margin:0 0 10px}h4{color:var(--muted);font-size:11px;margin:20px 0 8px;text-transform:uppercase}.check{border-top:1px solid var(--border);display:grid;gap:8px;grid-template-columns:18px 1fr;padding:10px 0}.check-mark{font-size:18px}.check-pass .check-mark{color:var(--pass)}.check-fail .check-mark{color:var(--fail)}.check strong{font-family:ui-monospace,monospace;font-size:11px}.check p{color:var(--muted);font-size:11px;margin:3px 0}.reference{background:var(--soft);border-radius:4px;color:var(--muted);font-size:9px;margin-left:7px;padding:2px 5px}.note{color:var(--plan)!important}.empty{color:var(--muted);font-size:12px}.findings{background:rgba(243,185,95,.06);border-top:1px solid var(--border);color:var(--muted);font-size:11px;padding:14px 20px}.findings p{margin:5px 0}.page-finds{background:rgba(243,185,95,.07);border:1px solid rgba(243,185,95,.3);border-radius:10px;color:var(--plan);margin-bottom:20px;padding:14px}.page-finds p{margin:5px 0}@media(max-width:760px){.summary{grid-template-columns:1fr 1fr}.evidence{grid-template-columns:1fr}.evidence>section+section{border-left:0;border-top:1px solid var(--border)}}@media print{body{background:#fff;color:#111}.metric,.case{break-inside:avoid;background:#fff;border-color:#ccc}.contract{background:#f5f5f5}.sub,.case header p,.contract,.coverage,.check p,.findings{color:#555}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Adobe QA</h1>
+    <p class="sub">${escapeHtml(report.plan)} · ${report.summary.total} tests · ${escapeHtml(report.reportSuite)}</p>
+    <section class="summary">
+      ${Object.keys(labels).map((status) => `<div class="metric"><strong>${buckets[status]}</strong><span>${labels[status]}</span></div>`).join("")}
+    </section>
+    ${
+      report.pageFindings?.length
+        ? `<section class="page-finds"><strong>Page-level plan corrections</strong>${report.pageFindings.map((finding) => `<p>${escapeHtml(finding.key)}: plan ${htmlValue(finding.expected)} · page ${htmlValue(finding.actual)}</p>`).join("")}</section>`
+        : ""
+    }
+    ${caseCards}
+  </main>
+</body>
+</html>`;
+}

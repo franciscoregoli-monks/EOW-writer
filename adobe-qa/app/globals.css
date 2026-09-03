@@ -416,10 +416,16 @@ select:focus {
   gap: 8px;
   min-height: 38px;
   padding: 0 13px;
+  text-decoration: none;
 }
 
 .secondary-button:hover {
   border-color: var(--border-strong);
+}
+
+.export-actions {
+  display: flex;
+  gap: 8px;
 }
 
 .summary-grid {
