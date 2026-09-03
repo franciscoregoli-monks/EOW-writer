@@ -13,10 +13,10 @@ Browser → private Cloud Run service
               └── Chrome QA runner
 ```
 
-This is suitable for learning and controlled team use. A container restart
-loses queued/completed in-memory jobs. Before treating the service as durable
-production infrastructure, replace that queue with Cloud Tasks and persist
-reports/plans in Cloud Storage or a database.
+This is suitable for learning and controlled team use. Uploaded plans are
+temporary working files: the service deletes them when the QA finishes and
+does not build a historical plan library. A container restart can lose an
+active in-memory job; that tradeoff is acceptable for the current scope.
 
 ## 1. Prerequisites
 
@@ -108,7 +108,7 @@ To stop all service cost after a learning exercise:
 gcloud run services delete "$SERVICE" --region "$REGION"
 ```
 
-## Durable split after the learning deployment
+## Optional durable split later
 
 ```text
 Next.js UI/API (Cloud Run)
@@ -123,5 +123,7 @@ Chrome worker (Cloud Run, max instances controlled)
         └── Firestore/SQL: run status and searchable metadata
 ```
 
-This keeps GitHub as the source of truth while moving runtime files and job
-state to services designed for persistence.
+This is not required for the current product. Add it only if losing an active
+run during a container restart becomes a real operational problem, or if the
+team later decides it needs report/plan history. GitHub remains the source of
+truth either way.

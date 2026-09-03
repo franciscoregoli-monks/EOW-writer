@@ -52,7 +52,8 @@ Now implemented:
 - Queued browser execution with polled run status.
 - Graphical Data Layer / Adobe Debugger results and standalone `report.html`.
 - Chrome-enabled Docker image plus a private single-instance Cloud Run learning
-  deployment guide. Durable Cloud Tasks/storage remain a later hosting phase.
+  deployment guide. Plans remain temporary QA inputs; durable Cloud
+  Tasks/storage are optional future infrastructure, not current scope.
 
 Run `npm test`, `npm run build`, `npm run dev`, `npm run qa:wws`, or the legacy
 TCP `npm run qa:tcp`.
