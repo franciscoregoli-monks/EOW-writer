@@ -34,6 +34,12 @@ function outcomeFor(evaluation) {
 }
 
 function classifyCheck(check) {
+  if (check.pageLevel) {
+    return { ...check, issueType: "PLAN_VALUE_MISMATCH" };
+  }
+  if (check.planLevel) {
+    return { ...check, issueType: "PLAN_VARIABLE_ROLE" };
+  }
   if (check.pass) return { ...check, issueType: null };
   if (/placeholder/i.test(check.note || "")) {
     return { ...check, issueType: "INVALID_VALUE" };
@@ -133,12 +139,13 @@ function fieldComparison(cases) {
       });
     }
     const field = fields.get(check.key);
+    const diagnosticPass = !check.issueType;
     field.checks += 1;
-    field.correct += check.pass ? 1 : 0;
-    field.problems += check.pass ? 0 : 1;
+    field.correct += diagnosticPass ? 1 : 0;
+    field.problems += diagnosticPass ? 0 : 1;
     field.expected.push(check.expected);
     field.actual.push(check.actual);
-    if (!check.pass) field.affectedCases.push(testCase.id);
+    if (!diagnosticPass) field.affectedCases.push(testCase.id);
     if (check.issueType) {
       field.issueTypes[check.issueType] =
         (field.issueTypes[check.issueType] || 0) + 1;
@@ -148,7 +155,7 @@ function fieldComparison(cases) {
       caseName: testCase.name,
       expected: check.expected,
       actual: check.actual,
-      pass: check.pass,
+      pass: diagnosticPass,
       issueType: check.issueType,
       reference: Boolean(check.reference),
     });
@@ -203,23 +210,33 @@ function unifiedInsights(fields, pageFindings) {
     const issue = Object.entries(field.issueTypes).sort(
       (a, b) => b[1] - a[1]
     )[0]?.[0];
+    if (
+      issue === "PLAN_VALUE_MISMATCH" &&
+      pageFindings?.some((finding) => finding.key === field.key)
+    ) {
+      continue;
+    }
     const behavior = {
       NOT_CAPTURED: "was not captured",
       INVALID_VALUE: "sent analytically invalid values",
       WRONG_EVENT: "sent a different event",
       WRONG_VALUE: "sent values that did not match the plan",
       UNEXPECTED: "appeared without being declared by the plan",
+      PLAN_VALUE_MISMATCH: "contains a repeated plan/page mismatch",
+      PLAN_VARIABLE_ROLE: "is assigned the wrong semantic role by the plan",
     }[issue] || "failed comparison";
+    const planPattern = issue?.startsWith("PLAN_");
     insights.push({
       code: "CROSS_CUTTING_FIELD_PATTERN",
-      scope: "cross-cutting",
+      scope: planPattern ? "plan" : "cross-cutting",
       field: field.key,
       affectedCases: field.affectedCases,
       message:
         `${field.key} ${behavior} in ${field.problems}/${field.checks} ` +
         `comparisons across ${field.affectedCases.length} cases. This is a ` +
-        "likely shared tracking pattern rather than an isolated component bug; " +
-        "review the common data-layer/Launch mapping first.",
+        (planPattern
+          ? "repeated plan pattern rather than separate implementation bugs; correct the plan once."
+          : "likely shared tracking pattern rather than an isolated component bug; review the common data-layer/Launch mapping first."),
     });
   }
 

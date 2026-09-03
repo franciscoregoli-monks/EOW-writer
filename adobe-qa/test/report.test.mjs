@@ -258,7 +258,13 @@ test("field comparison unifies cross-cutting issues by variable", () => {
       id,
       name: `Case ${id}`,
       url: "https://example.com",
-      expected: { eVars: { eVar2: "<Previous page>", eVar17: "<Link title>" } },
+      expected: {
+        eVars: {
+          eVar2: "<Previous page>",
+          eVar3: '"Planned page name"',
+          eVar17: "<Link title>",
+        },
+      },
     })),
   };
   const evaluations = plan.cases.map((_, index) => ({
@@ -288,6 +294,14 @@ test("field comparison unifies cross-cutting issues by variable", () => {
         pass: false,
       },
       {
+        key: "eVar3",
+        kind: "fixed",
+        expected: "Planned page name",
+        actual: "Actual page name",
+        pass: true,
+        pageLevel: true,
+      },
+      {
         key: "eVar17",
         kind: "dynamic",
         expected: "<Link title>",
@@ -311,7 +325,16 @@ test("field comparison unifies cross-cutting issues by variable", () => {
     plan,
     captures,
     evaluations,
-    "amznsproduction"
+    "amznsproduction",
+    [
+      {
+        code: "PLAN_PAGE_METADATA_MISMATCH",
+        key: "eVar3",
+        expected: "Planned page name",
+        actual: "Actual page name",
+        cases: 2,
+      },
+    ]
   );
   const eVar2 = report.fields.find((field) => field.key === "eVar2");
   assert.equal(eVar2.problems, 2);
@@ -322,7 +345,17 @@ test("field comparison unifies cross-cutting issues by variable", () => {
       .INVALID_VALUE,
     1
   );
+  assert.equal(
+    report.fields.find((field) => field.key === "eVar3").issueTypes
+      .PLAN_VALUE_MISMATCH,
+    2
+  );
   assert.match(report.insights[0].message, /likely shared tracking pattern/);
+  assert.match(
+    report.insights.find((insight) => insight.code === "PAGE_PLAN_PATTERN")
+      .message,
+    /one page-level plan correction/
+  );
   assert.match(toCanonicalText(report), /UNIFIED DIAGNOSIS/);
   assert.match(toCanonicalHtml(report), /Comparison by field/);
 });
