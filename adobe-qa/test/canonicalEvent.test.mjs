@@ -113,3 +113,21 @@ test("uses scroll milestone context when the plan mislabeled 100% as video compl
   assert.equal(result.eventId, "event8");
   assert.equal(isPlanDefect(result), true);
 });
+
+test("Energy executable fixture preserves planned CTA semantics", async () => {
+  const plan = JSON.parse(
+    await readFile(
+      new URL("../examples/wws-energy.plan.json", import.meta.url),
+      "utf8"
+    )
+  );
+  const imageCards = plan.cases.filter((item) =>
+    /IMAGE-(LARGE|SMALL)$/.test(item.id)
+  );
+  assert.equal(imageCards.length, 2);
+  for (const item of imageCards) {
+    assert.equal(item.interactionType, "cta");
+    assert.equal(item.planEvent.id, "event1");
+    assert.match(item.expected.eVars.eVar36, /^<C40>$/);
+  }
+});
