@@ -206,38 +206,54 @@ function fieldComparison(cases) {
 
 function unifiedInsights(fields, pageFindings) {
   const insights = [];
-  for (const field of fields.filter((item) => item.problems >= 2)) {
-    const issue = Object.entries(field.issueTypes).sort(
-      (a, b) => b[1] - a[1]
-    )[0]?.[0];
-    if (
-      issue === "PLAN_VALUE_MISMATCH" &&
-      pageFindings?.some((finding) => finding.key === field.key)
-    ) {
-      continue;
+  const isolated = [];
+  for (const field of fields) {
+    for (const [issue, count] of Object.entries(field.issueTypes)) {
+      if (
+        issue === "PLAN_VALUE_MISMATCH" &&
+        pageFindings?.some((finding) => finding.key === field.key)
+      ) {
+        continue;
+      }
+      const issueCases = [
+        ...new Set(
+          field.occurrences
+            .filter((occurrence) => occurrence.issueType === issue)
+            .map((occurrence) => occurrence.caseId)
+        ),
+      ];
+      if (count < 2) {
+        isolated.push({
+          field: field.key,
+          issue,
+          affectedCases: issueCases,
+        });
+        continue;
+      }
+      const behavior = {
+        NOT_CAPTURED: "was not captured",
+        INVALID_VALUE: "sent analytically invalid values",
+        WRONG_EVENT: "sent a different event",
+        WRONG_VALUE: "sent values that did not match the plan",
+        UNEXPECTED: "appeared without being declared by the plan",
+        PLAN_VALUE_MISMATCH: "contains a repeated plan/page mismatch",
+        PLAN_VARIABLE_ROLE: "is assigned the wrong semantic role by the plan",
+      }[issue] || "failed comparison";
+      const planPattern = issue.startsWith("PLAN_");
+      insights.push({
+        code: "CROSS_CUTTING_FIELD_PATTERN",
+        scope: planPattern ? "plan" : "cross-cutting",
+        field: field.key,
+        issueType: issue,
+        affectedCases: issueCases,
+        message:
+          `${field.key} ${behavior} in ${count}/${field.checks} comparisons ` +
+          `across ${issueCases.length} cases. This is a ` +
+          (planPattern
+            ? "repeated plan pattern rather than separate implementation bugs; correct the plan once."
+            : "likely shared tracking pattern rather than an isolated component bug; review the common data-layer/Launch mapping first."),
+      });
     }
-    const behavior = {
-      NOT_CAPTURED: "was not captured",
-      INVALID_VALUE: "sent analytically invalid values",
-      WRONG_EVENT: "sent a different event",
-      WRONG_VALUE: "sent values that did not match the plan",
-      UNEXPECTED: "appeared without being declared by the plan",
-      PLAN_VALUE_MISMATCH: "contains a repeated plan/page mismatch",
-      PLAN_VARIABLE_ROLE: "is assigned the wrong semantic role by the plan",
-    }[issue] || "failed comparison";
-    const planPattern = issue?.startsWith("PLAN_");
-    insights.push({
-      code: "CROSS_CUTTING_FIELD_PATTERN",
-      scope: planPattern ? "plan" : "cross-cutting",
-      field: field.key,
-      affectedCases: field.affectedCases,
-      message:
-        `${field.key} ${behavior} in ${field.problems}/${field.checks} ` +
-        `comparisons across ${field.affectedCases.length} cases. This is a ` +
-        (planPattern
-          ? "repeated plan pattern rather than separate implementation bugs; correct the plan once."
-          : "likely shared tracking pattern rather than an isolated component bug; review the common data-layer/Launch mapping first."),
-    });
   }
 
   if (pageFindings?.length) {
@@ -252,15 +268,14 @@ function unifiedInsights(fields, pageFindings) {
     });
   }
 
-  const isolated = fields.filter((field) => field.problems === 1);
   if (isolated.length) {
     insights.push({
       code: "ISOLATED_FIELD_ISSUES",
       scope: "isolated",
-      fields: isolated.map((field) => field.key),
+      fields: isolated.map((item) => item.field),
       message:
         `${isolated.length} field problem${isolated.length === 1 ? "" : "s"} ` +
-        `occurred in only one case (${isolated.map((field) => field.key).join(", ")}). ` +
+        `occurred in only one case (${isolated.map((item) => `${item.field}: ${item.issue.replaceAll("_", " ").toLowerCase()}`).join(", ")}). ` +
         "Investigate these at component level.",
     });
   }
