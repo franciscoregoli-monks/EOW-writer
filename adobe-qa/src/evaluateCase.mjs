@@ -20,7 +20,7 @@ const WEB_VITALS_EVENTS = new Set([
   "event88",
   "event89",
 ]);
-const PAGE_LEVEL_VARIABLES = new Set(["eVar3", "eVar4"]);
+const PAGE_LEVEL_VARIABLES = new Set(["eVar2", "eVar3", "eVar4"]);
 
 function eventIdsInBeacon(beacon) {
   return String(beacon?.events || "")
@@ -184,6 +184,32 @@ export function evaluateCanonicalCase(
       !sdr.byReportSuite?.[reportSuite]?.dictionary?.events?.[id]
   );
 
+  const capturedOnlyNonInteractionEvents =
+    canonical.family === "click" &&
+    observedEvents.length > 0 &&
+    observedEvents.every((eventId) => eventFamily(eventId) !== "click");
+  if (capturedOnlyNonInteractionEvents) {
+    return {
+      status: "NOT_TESTABLE",
+      qaResult: null,
+      canonical,
+      findings: [
+        ...findings,
+        {
+          code: "INTERACTION_EVENT_NOT_CAPTURED",
+          message:
+            "Captured events do not match the planned interaction type",
+        },
+      ],
+      reason: "Captured events do not match interaction type",
+      checks: [],
+      observedEvents,
+      reservedEvents,
+      undocumentedEvents,
+      propsReference: testCase.expected?.props || {},
+    };
+  }
+
   // Clicking successfully but capturing nothing means the interaction was never
   // measured, so it cannot be judged as an implementation failure.
   if (!capture.dataLayerEvents.length && !observedEvents.length) {
@@ -296,7 +322,12 @@ export function rollUpPageLevelFindings(evaluations) {
   const byKey = new Map();
   for (const evaluation of measured) {
     for (const check of evaluation.checks) {
-      if (check.kind !== "fixed") continue;
+      if (
+        check.kind !== "fixed" &&
+        !PAGE_LEVEL_VARIABLES.has(check.key)
+      ) {
+        continue;
+      }
       if (!byKey.has(check.key)) byKey.set(check.key, []);
       byKey.get(check.key).push(check);
     }
@@ -313,18 +344,22 @@ export function rollUpPageLevelFindings(evaluations) {
     if (checks.some((check) => isSentinelValue(check.actual))) continue;
     const expected = new Set(checks.map((check) => JSON.stringify(check.expected)));
     const actual = new Set(checks.map((check) => JSON.stringify(check.actual)));
-    if (expected.size !== 1 || actual.size !== 1) continue;
+    if (expected.size !== 1) continue;
+    if (!PAGE_LEVEL_VARIABLES.has(key) && actual.size !== 1) continue;
+    const actualValues = [...actual].map((value) => JSON.parse(value));
+    const pageActual =
+      actualValues.length === 1 ? actualValues[0] : actualValues;
     pageLevelKeys.add(key);
     pageFindings.push({
       code: "PLAN_PAGE_METADATA_MISMATCH",
       key,
       expected: checks[0].expected,
-      actual: checks[0].actual,
+      actual: pageActual,
       cases: checks.length,
       message:
-        `${key} is identical on every measured component: plan expects ` +
+        `${key} is page-level across every measured component: plan expects ` +
         `${JSON.stringify(checks[0].expected)}, page sends ` +
-        `${JSON.stringify(checks[0].actual)}`,
+        `${JSON.stringify(pageActual)}`,
     });
   }
 

@@ -37,6 +37,41 @@ test("video and scroll are explicit NOT_TESTABLE cases", () => {
   }
 });
 
+test("a click with only scroll and Web Vitals events is NOT_TESTABLE", () => {
+  const [item] = preparePlan(
+    {
+      cases: [
+        {
+          id: "interactive-without-click-hit",
+          interactionType: "cta",
+          planEvent: { id: "event1", name: "CTA Clicks" },
+        },
+      ],
+    },
+    sdr,
+    suite
+  ).cases;
+
+  const result = evaluateCanonicalCase(
+    item,
+    {
+      error: null,
+      dataLayerEvents: [{ event: "Scroll Reach 25%" }],
+      beacons: [{ events: "event87,event5" }],
+    },
+    sdr,
+    suite
+  );
+
+  assert.equal(result.status, "NOT_TESTABLE");
+  assert.equal(result.qaResult, null);
+  assert.equal(
+    result.reason,
+    "Captured events do not match interaction type"
+  );
+  assert.equal(result.findings[0].code, "INTERACTION_EVENT_NOT_CAPTURED");
+});
+
 test("a planned component absent from the page is a PLAN_DEFECT", () => {
   const [item] = preparePlan(
     {

@@ -79,6 +79,48 @@ test("components pass once only page-level values disagreed", () => {
   }
 });
 
+test("missing previous page rolls up as one page-level plan defect", () => {
+  const previousPage = {
+    key: "eVar2",
+    kind: "dynamic",
+    expected: "<previous page>",
+    actual: null,
+    pass: false,
+  };
+  const { evaluations, pageFindings } = rollUpPageLevelFindings([
+    evaluation("a", [{ ...previousPage }]),
+    evaluation("b", [{ ...previousPage }]),
+  ]);
+
+  assert.deepEqual(pageFindings.map((finding) => finding.key), ["eVar2"]);
+  assert.ok(
+    evaluations.every(
+      (item) =>
+        item.status === "PASS" &&
+        item.checks[0].pageLevel === true
+    )
+  );
+});
+
+test("known page variables roll up when actual values are wrong or missing", () => {
+  const expected = {
+    key: "eVar3",
+    kind: "fixed",
+    expected: "Energy Spotlight",
+    pass: false,
+  };
+  const { evaluations, pageFindings } = rollUpPageLevelFindings([
+    evaluation("wrong", [{ ...expected, actual: "Actual page title" }]),
+    evaluation("missing", [{ ...expected, actual: null }]),
+  ]);
+
+  assert.deepEqual(pageFindings[0].actual, [
+    "Actual page title",
+    null,
+  ]);
+  assert.ok(evaluations.every((item) => item.status === "PASS"));
+});
+
 test("known page variables remain page defects with one measured component", () => {
   const { evaluations, pageFindings } = rollUpPageLevelFindings([
     evaluation("only-measured-case", [
