@@ -48,7 +48,7 @@ not send an empty email.
 The spreadsheet must contain:
 
 1. Tab `Control`, with checkbox `APPR_EOW_FOR_MAIL` in cell `B2`.
-2. Tab `Tasks`, the deduplicated task master, with these exact headers:
+2. Tab `Tasks`, the task master, with these exact headers:
 
 `Titulo de Tarea`, `Mes`, `Fecha`, `Propiedad`, `Status`, `Owner`, `Reporter`,
 `LOEE (hs)`, `Categoria`, `Deadline Estimado`, `Link Jira`,
@@ -59,15 +59,18 @@ The spreadsheet must contain:
 `Fecha`, `Titulo de Tarea`, `Status Anterior`, `Status Nuevo`.
 
 The weekly window is Saturday through the Friday named in the report. The
-reader takes status changes from `Log de Cambios`, keeps the latest event for
-each task, and joins it to `Tasks` by normalized task title.
+reader takes every status change from `Log de Cambios` for each task, reports
+the latest valid status, and also sends the week's progression. It then joins
+to `Tasks` by normalized task title. Repeated titles in `Tasks` are merged;
+conflicting fields become `[CONFIRMAR]`.
 
 Recognized account values in `Propiedad` are `WWS`, `TCP`, `Both`, `Ambas`, and
 `Ambos`. Missing accounts or `Categoria` values are sent to Gemini as
 `[CONFIRMAR]`; they are never guessed. Recognized status values are `Done`,
 `En progreso`, `In progress`, `Bloqueado`, `Bloqueada`, `Blocked`, and
-`Blocker`. Rows whose new value is not a status are ignored and logged as a
-warning.
+`Blocker`. Rows whose new value is not a reportable status are ignored, except
+`Backlog` and `To do`, which stay in the week's progression when a later
+valid status exists.
 
 ## Permission setup
 

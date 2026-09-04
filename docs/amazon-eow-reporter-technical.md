@@ -3,7 +3,7 @@
 ## Documentación técnica y operativa
 
 **Estado:** Implementado y probado  
-**Última actualización:** 2026-08-28  
+**Última actualización:** 2026-09-04  
 **Audiencia:** usuarios del tracker, responsables de Analytics y personas que
 mantienen la automatización
 
@@ -75,7 +75,7 @@ flowchart LR
 
 ### 5.1 `Tasks`
 
-Es la fuente maestra deduplicada. Los encabezados deben coincidir exactamente:
+Es la fuente maestra. Los encabezados deben coincidir exactamente:
 
 1. `Titulo de Tarea`
 2. `Mes`
@@ -98,7 +98,8 @@ Campos que utiliza el reporte:
 - `Referencias/Links y Comentarios`: aporta contexto y blockers.
 
 La unión normaliza mayúsculas, minúsculas y espacios. Si existen dos títulos
-equivalentes, el proceso se detiene para evitar una asociación incorrecta.
+equivalentes, las filas se combinan: los campos que coinciden se conservan y
+los que conflictúan se envían como `[CONFIRMAR]`. El run deja un warning.
 
 ### 5.2 `Log de Cambios`
 
@@ -109,8 +110,10 @@ Apps Script agrega una fila cada vez que cambia `Status`:
 3. `Status Anterior`
 4. `Status Nuevo`
 
-El lector toma la ventana sábado-viernes y conserva el último cambio válido de
-cada tarea.
+El lector toma la ventana sábado-viernes y conserva toda la cadena de cambios
+de cada tarea. El estado reportado es el último válido. Además se envían
+`status_at_week_start`, `status_progression` y `changes_this_week` para que
+Gemini describa la evolución, por ejemplo backlog a in progress a done.
 
 ### 5.3 `Control`
 
@@ -136,10 +139,12 @@ Después de una entrega correcta, Python lo devuelve a `FALSE` si estaba marcado
 | Done | DONE |
 | En progreso, In progress | IN PROGRESS |
 | Bloqueado, Bloqueada, Blocked, Blocker | BLOCKER |
-| Backlog, To do u otro valor | Se ignora |
+| Backlog, To do y equivalentes | No son estado reportado; sí entran en la evolución |
+| Otro valor (cuenta, basura) | Se ignora con warning |
 
-Si no queda ningún cambio válido, no se llama a Gemini ni se envía un correo
-vacío.
+Si una tarea sólo se movió entre estados de contexto (Backlog, To do), no entra
+al reporte. Si no queda ningún cambio válido en la semana, no se llama a Gemini
+ni se envía un correo vacío.
 
 ## 7. Redacción con Gemini
 
@@ -155,8 +160,11 @@ Reglas principales:
 - Inglés exclusivamente.
 - Secciones por workstream.
 - Separación WWS / TCP.
-- Cada bullet comienza con `[Analytics]`.
+- Cada bullet usa `- description - STATUS -`. No abre con un tag de equipo
+  como `[Analytics]`; la palabra Analytics sí puede aparecer en el texto.
 - Cada bullet termina con un estado permitido.
+- Si la tarea cambió más de una vez en la semana, el texto describe esa
+  evolución y el STATUS del bullet es el estado final.
 - No se permiten em dashes ni en dashes.
 - No se inventan datos.
 - Toda ambigüedad se marca `[CONFIRMAR]`.
@@ -172,7 +180,7 @@ como ante una respuesta que no pasa la validación.
 
 - Header con fecha `EOW Report - Week Ending YYYY-MM-DD`.
 - Al menos un workstream y un bullet.
-- Prefijo `[Analytics]`.
+- Bullet `- description - STATUS -` sin tag de equipo al inicio.
 - Status final válido.
 - Uso exclusivo de guion corto.
 - Una única sección `Needs confirmation`.
@@ -198,7 +206,9 @@ Python crea un mensaje MIME de texto plano:
 - Subject: `EOW Report - Week Ending YYYY-MM-DD`.
 - From: secret `EMAIL_USER`.
 - To: secret `EMAIL_TO`.
-- Autenticación: App Password almacenada en `EMAIL_PASSWORD`.
+- Autenticación: App Password almacenada en `EMAIL_PASSWORD`. Los espacios
+  internos se eliminan antes del login, porque Google muestra la clave en
+  grupos de cuatro caracteres.
 - Transporte: `smtp.gmail.com:587` con STARTTLS.
 
 El sistema no envía directamente al equipo. La revisión y el reenvío son un
@@ -284,13 +294,21 @@ Los valores secretos no aparecen en el código ni en los logs.
    y manejo de fallos.
 7. **Simplificación final:** se eliminó el envío autónomo del viernes. El jueves
    llega un borrador personal y la persona conserva la decisión editorial.
+8. **Prefijo de bullet:** se dejó de exigir `[Analytics]` al inicio de cada
+   línea; el validador rechaza un tag de equipo entre corchetes al abrir el
+   bullet, no la palabra Analytics.
+9. **Evolución semanal:** el join dejó de quedarse sólo con el último evento y
+   ahora envía la cadena completa de estados de la semana.
+10. **Títulos repetidos:** dejaron de ser un hard stop; se combinan o se marcan
+    `[CONFIRMAR]` si hay conflicto.
 
 ## 14. Limitaciones conocidas
 
 - SMTP no ofrece idempotency key; una interrupción inmediatamente después de
   aceptar el correo podría producir un duplicado al reintentar.
 - Cambiar sustancialmente el título rompe el join histórico.
-- `Backlog` y `To do` no se consideran avances para el EOW.
+- `Backlog` y `To do` no pueden ser el STATUS del bullet, pero sí aparecen en
+  la evolución de la semana.
 - El reporte refleja cambios de Status, no todas las ediciones de comentarios.
 - GitHub schedule puede comenzar algunos minutos después de la hora exacta.
 
@@ -374,6 +392,12 @@ STATUS_ALIASES = {
     "blocked": "BLOCKER",
     "blocker": "BLOCKER",
 }
+CONFIRM_TAG = "[CONFIRMAR]"
+# These never become a reported status, but they belong in the week's narrative
+# when a task was picked up from the backlog and advanced later.
+CONTEXT_ONLY_STATUSES = frozenset(
+    {"backlog", "to do", "to-do", "todo", "pendiente", "por hacer"}
+)
 GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_ATTEMPTS = 3
 GEMINI_RETRY_SECONDS = 5
@@ -407,7 +431,10 @@ Output rules:
    source row whose Account is `Both`, use `WWS / TCP:`. Keep account-specific
    work separate.
 5. Every work bullet must use exactly:
-   - [Analytics] description - STATUS -
+   - description - STATUS -
+   Start with the description itself. Do not open a bullet with a bracketed
+   team tag such as [Analytics]. The word Analytics remains fine inside normal
+   wording, including tool names such as Adobe Analytics.
 6. STATUS must be exactly one of:
    DONE
    IN PROGRESS
@@ -422,17 +449,26 @@ Output rules:
    visible in the relevant work bullet. For a missing workstream, use the
    header **Unclassified workstream [CONFIRMAR]**. For a missing account,
    include `Account [CONFIRMAR]` in the bullet instead of guessing WWS or TCP.
-10. Compare with the prior EOW. An ongoing prior task must be described as
+10. Each update carries `status_at_week_start`, `status_progression` and
+    `changes_this_week`. When a task moved more than once inside the week,
+    describe that movement rather than only its end state, for example work
+    that was picked up from the backlog and completed in the same week. Use
+    only the states listed in `status_progression` and never invent an
+    intermediate step. The bullet's STATUS is always the final `status`. An
+    empty `status_at_week_start` means the task had no recorded state before
+    this week, so treat it as new work rather than as missing data, and do not
+    tag it [CONFIRMAR] for that reason alone.
+11. Compare with the prior EOW. An ongoing prior task must be described as
     continuing, not as a fresh item. Use the continuing-next-week status when
     the supplied evidence supports it.
-11. Be professional, concise, client-facing, and free of internal jargon.
+12. Be professional, concise, client-facing, and free of internal jargon.
     Do not include human names unless explicit attribution is required.
-12. End with the exact bold header `**Needs confirmation**`.
+13. End with the exact bold header `**Needs confirmation**`.
     If there are no [CONFIRMAR] tags in the workstream body, put exactly `None.`
     below it. Otherwise, repeat every body tag once as numbered lines:
     `1. [CONFIRMAR] concise description`
     These are numbered lines, not hyphen bullets.
-13. Output markdown only, with no code fence and no commentary.
+14. Output markdown only, with no code fence and no commentary.
 """
 
 
@@ -531,6 +567,46 @@ def rows_as_dicts(
     return rows
 
 
+def merged_task_field(rows: list[dict[str, str]], column: str) -> str:
+    """Resolve one column across task rows that share a normalized title.
+
+    Repeated titles are tolerated so a data entry slip cannot stop the week's
+    report. Agreeing rows collapse to their single value, while genuinely
+    conflicting rows resolve to the confirmation tag instead of picking a
+    winner, leaving the decision to the person reviewing the draft.
+    """
+    values: list[str] = []
+    for row in rows:
+        value = row.get(column, "").strip()
+        if value and value not in values:
+            values.append(value)
+    if not values:
+        return ""
+    if len(values) > 1:
+        return CONFIRM_TAG
+    return values[0]
+
+
+def status_progression(
+    events: list[tuple[datetime, dict[str, str]]], week_start_status: str
+) -> list[str]:
+    """Return the ordered states a task walked through inside the week.
+
+    A task that moves several times keeps every step, so the report can tell
+    that work was picked up and finished instead of showing only its final
+    state. Consecutive repeats collapse, and the raw sheet wording is kept so
+    no state is invented.
+    """
+    chain: list[str] = []
+    if week_start_status:
+        chain.append(week_start_status)
+    for _, event in events:
+        value = event["Status Nuevo"].strip()
+        if value and (not chain or chain[-1].casefold() != value.casefold()):
+            chain.append(value)
+    return chain
+
+
 def weekly_updates(
     book: gspread.Spreadsheet, week_ending: date
 ) -> list[dict[str, str]]:
@@ -543,23 +619,28 @@ def weekly_updates(
     require_headers(TASKS_TAB, task_values[0], TASKS_HEADERS)
     require_headers(CHANGE_LOG_TAB, log_values[0], CHANGE_LOG_HEADERS)
 
-    tasks_by_title: dict[str, dict[str, str]] = {}
-    duplicate_titles: set[str] = set()
+    tasks_by_title: dict[str, list[dict[str, str]]] = {}
     for task in rows_as_dicts(task_values, TASKS_HEADERS):
         key = normalized_key(task["Titulo de Tarea"])
         if not key:
             continue
-        if key in tasks_by_title:
-            duplicate_titles.add(task["Titulo de Tarea"])
-        tasks_by_title[key] = task
+        tasks_by_title.setdefault(key, []).append(task)
+
+    duplicate_titles = sorted(
+        rows[0]["Titulo de Tarea"]
+        for rows in tasks_by_title.values()
+        if len(rows) > 1
+    )
     if duplicate_titles:
-        raise RuntimeError(
-            "Tasks contains duplicate titles: "
-            + ", ".join(sorted(duplicate_titles))
+        LOGGER.warning(
+            "Tasks holds repeated titles; their rows are merged and any "
+            "conflicting field is reported as %s: %s",
+            CONFIRM_TAG,
+            ", ".join(duplicate_titles),
         )
 
     period_start = week_ending - timedelta(days=6)
-    latest_events: dict[str, tuple[datetime, dict[str, str]]] = {}
+    events_by_title: dict[str, list[tuple[datetime, dict[str, str]]]] = {}
     ignored_invalid_statuses = 0
     for row_number, event in enumerate(
         rows_as_dicts(log_values, CHANGE_LOG_HEADERS), start=2
@@ -576,25 +657,20 @@ def weekly_updates(
         if not period_start <= event_date <= week_ending:
             continue
 
-        normalized_status = STATUS_ALIASES.get(
-            normalized_key(event["Status Nuevo"])
-        )
-        if not normalized_status:
+        status_key = normalized_key(event["Status Nuevo"])
+        reported_status = STATUS_ALIASES.get(status_key)
+        if reported_status is None and status_key not in CONTEXT_ONLY_STATUSES:
             ignored_invalid_statuses += 1
             continue
 
-        key = normalized_key(title)
         timestamp = datetime.combine(event_date, datetime.min.time())
         try:
             timestamp = datetime.strptime(event["Fecha"], "%m/%d/%Y %H:%M:%S")
         except ValueError:
             pass
-        previous = latest_events.get(key)
-        if previous is None or timestamp >= previous[0]:
-            latest_events[key] = (
-                timestamp,
-                {**event, "status": normalized_status},
-            )
+        events_by_title.setdefault(normalized_key(title), []).append(
+            (timestamp, {**event, "status": reported_status or ""})
+        )
 
     if ignored_invalid_statuses:
         LOGGER.warning(
@@ -603,27 +679,42 @@ def weekly_updates(
         )
 
     selected: list[dict[str, str]] = []
-    for key, (timestamp, event) in sorted(
-        latest_events.items(), key=lambda item: item[1][0]
+    for key, events in sorted(
+        events_by_title.items(),
+        key=lambda item: max(timestamp for timestamp, _ in item[1]),
     ):
-        task = tasks_by_title.get(key, {})
+        events.sort(key=lambda pair: pair[0])
+        reported = [event for _, event in events if event["status"]]
+        if not reported:
+            # The task only moved between backlog-style states this week, so
+            # there is no progress to report yet.
+            continue
+
+        week_start_status = events[0][1]["Status Anterior"].strip()
+        progression = status_progression(events, week_start_status)
+        task_rows = tasks_by_title.get(key, [])
         account = ACCOUNT_ALIASES.get(
-            normalized_key(task.get("Propiedad", "")), "[CONFIRMAR]"
+            normalized_key(merged_task_field(task_rows, "Propiedad")),
+            CONFIRM_TAG,
         )
-        workstream = task.get("Categoria", "") or "[CONFIRMAR]"
+        workstream = merged_task_field(task_rows, "Categoria") or CONFIRM_TAG
         selected.append(
             {
-                "changed_at": timestamp.isoformat(),
+                "changed_at": events[-1][0].isoformat(),
                 "account": account,
                 "workstream": workstream,
-                "task_name_description": event["Titulo de Tarea"],
-                "status_before": event["Status Anterior"] or "[CONFIRMAR]",
-                "status": event["status"],
+                "task_name_description": reported[-1]["Titulo de Tarea"],
+                "status_at_week_start": week_start_status,
+                "status_progression": " -> ".join(progression),
+                "changes_this_week": str(len(events)),
+                "status": reported[-1]["status"],
                 "notes_blockers": (
-                    task.get("Referencias/Links y Comentarios", "")
-                    or "[CONFIRMAR]"
+                    merged_task_field(
+                        task_rows, "Referencias/Links y Comentarios"
+                    )
+                    or CONFIRM_TAG
                 ),
-                "task_matched_in_master": "yes" if task else "no",
+                "task_matched_in_master": "yes" if task_rows else "no",
             }
         )
 
@@ -726,7 +817,9 @@ def generate_and_email() -> None:
 
 def send_email(report: str, week_ending: str) -> None:
     sender = required_env("EMAIL_USER")
-    password = required_env("EMAIL_PASSWORD")
+    # Google shows app passwords in four-character groups. Those spaces are
+    # presentational, so SMTP rejects the login if they survive.
+    password = "".join(required_env("EMAIL_PASSWORD").split())
     recipients = [
         item.strip() for item in required_env("EMAIL_TO").split(",") if item.strip()
     ]
@@ -783,7 +876,8 @@ ACCOUNT_HEADER_RE = re.compile(r"^(WWS|TCP|WWS / TCP):$")
 STATUS_RE = (
     r"(?:DONE|IN PROGRESS|BLOCKER|IN PROGRESS, continues next week)"
 )
-BULLET_RE = re.compile(rf"^- \[Analytics\] .+ - {STATUS_RE} -$")
+BULLET_RE = re.compile(rf"^- .+ - {STATUS_RE} -$")
+BULLET_PREFIX_RE = re.compile(r"^- \[(?!CONFIRMAR\])[^]]+\]\s")
 CONFIRM_SECTION_RE = re.compile(
     r"^\*\*Needs confirmation\*\*[ \t]*$", re.MULTILINE
 )
@@ -860,6 +954,11 @@ def validate_report(report: str) -> ValidationResult:
 
         if line.startswith("-"):
             bullet_count += 1
+            if BULLET_PREFIX_RE.match(line):
+                errors.append(
+                    f"Bullet on line {line_number} starts with a bracketed "
+                    "prefix; begin with the description instead."
+                )
             if not BULLET_RE.fullmatch(line):
                 errors.append(
                     f"Invalid bullet syntax or status on line {line_number}: {line}"
@@ -879,7 +978,7 @@ def validate_report(report: str) -> ValidationResult:
     if workstream_count == 0:
         errors.append("At least one bold workstream section is required.")
     if bullet_count == 0:
-        errors.append("At least one [Analytics] work bullet is required.")
+        errors.append("At least one work bullet is required.")
 
     body_confirmations = body.count("[CONFIRMAR]")
     confirmation_confirmations = confirmation_text.count("[CONFIRMAR]")
@@ -1043,18 +1142,23 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+
+      # Temporary diagnostic for the Gmail 535 failure. Prints only lengths,
+      # shapes and truncated hashes so secret values never reach the log.
+      - name: Fingerprint email credentials
+        run: python scripts/fingerprint_credentials.py
 
       - name: Generate and email personal draft
         id: eow

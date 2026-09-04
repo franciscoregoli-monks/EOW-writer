@@ -189,7 +189,9 @@ Las instrucciones principales son:
 - header `# EOW Report - Week Ending YYYY-MM-DD`;
 - secciones de workstream en negrita;
 - separación `WWS:`, `TCP:` o `WWS / TCP:`;
-- bullets con forma `- [Analytics] descripción - STATUS -`;
+- bullets con forma `- descripción - STATUS -`, sin tag de equipo al inicio;
+- si la tarea cambió más de una vez, describir la evolución y usar el estado
+  final en el bullet;
 - sólo estados permitidos;
 - sólo guion corto;
 - nombres de herramientas preservados;

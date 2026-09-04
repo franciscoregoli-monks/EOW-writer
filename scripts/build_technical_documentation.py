@@ -23,7 +23,7 @@ BODY = """# Amazon EOW Reporter
 ## Documentación técnica y operativa
 
 **Estado:** Implementado y probado  
-**Última actualización:** 2026-08-28  
+**Última actualización:** 2026-09-04  
 **Audiencia:** usuarios del tracker, responsables de Analytics y personas que
 mantienen la automatización
 
@@ -95,7 +95,7 @@ flowchart LR
 
 ### 5.1 `Tasks`
 
-Es la fuente maestra deduplicada. Los encabezados deben coincidir exactamente:
+Es la fuente maestra. Los encabezados deben coincidir exactamente:
 
 1. `Titulo de Tarea`
 2. `Mes`
@@ -118,7 +118,8 @@ Campos que utiliza el reporte:
 - `Referencias/Links y Comentarios`: aporta contexto y blockers.
 
 La unión normaliza mayúsculas, minúsculas y espacios. Si existen dos títulos
-equivalentes, el proceso se detiene para evitar una asociación incorrecta.
+equivalentes, las filas se combinan: los campos que coinciden se conservan y
+los que conflictúan se envían como `[CONFIRMAR]`. El run deja un warning.
 
 ### 5.2 `Log de Cambios`
 
@@ -129,8 +130,10 @@ Apps Script agrega una fila cada vez que cambia `Status`:
 3. `Status Anterior`
 4. `Status Nuevo`
 
-El lector toma la ventana sábado-viernes y conserva el último cambio válido de
-cada tarea.
+El lector toma la ventana sábado-viernes y conserva toda la cadena de cambios
+de cada tarea. El estado reportado es el último válido. Además se envían
+`status_at_week_start`, `status_progression` y `changes_this_week` para que
+Gemini describa la evolución, por ejemplo backlog a in progress a done.
 
 ### 5.3 `Control`
 
@@ -156,10 +159,12 @@ Después de una entrega correcta, Python lo devuelve a `FALSE` si estaba marcado
 | Done | DONE |
 | En progreso, In progress | IN PROGRESS |
 | Bloqueado, Bloqueada, Blocked, Blocker | BLOCKER |
-| Backlog, To do u otro valor | Se ignora |
+| Backlog, To do y equivalentes | No son estado reportado; sí entran en la evolución |
+| Otro valor (cuenta, basura) | Se ignora con warning |
 
-Si no queda ningún cambio válido, no se llama a Gemini ni se envía un correo
-vacío.
+Si una tarea sólo se movió entre estados de contexto (Backlog, To do), no entra
+al reporte. Si no queda ningún cambio válido en la semana, no se llama a Gemini
+ni se envía un correo vacío.
 
 ## 7. Redacción con Gemini
 
@@ -175,8 +180,11 @@ Reglas principales:
 - Inglés exclusivamente.
 - Secciones por workstream.
 - Separación WWS / TCP.
-- Cada bullet comienza con `[Analytics]`.
+- Cada bullet usa `- description - STATUS -`. No abre con un tag de equipo
+  como `[Analytics]`; la palabra Analytics sí puede aparecer en el texto.
 - Cada bullet termina con un estado permitido.
+- Si la tarea cambió más de una vez en la semana, el texto describe esa
+  evolución y el STATUS del bullet es el estado final.
 - No se permiten em dashes ni en dashes.
 - No se inventan datos.
 - Toda ambigüedad se marca `[CONFIRMAR]`.
@@ -192,7 +200,7 @@ como ante una respuesta que no pasa la validación.
 
 - Header con fecha `EOW Report - Week Ending YYYY-MM-DD`.
 - Al menos un workstream y un bullet.
-- Prefijo `[Analytics]`.
+- Bullet `- description - STATUS -` sin tag de equipo al inicio.
 - Status final válido.
 - Uso exclusivo de guion corto.
 - Una única sección `Needs confirmation`.
@@ -204,7 +212,7 @@ Hard stops:
 | --- | --- |
 | Secret faltante o inválido | Run rojo; no email |
 | Header de Sheet modificado | Run rojo; no Gemini |
-| Títulos duplicados | Run rojo; no Gemini |
+| Títulos duplicados | No detiene el run; campos en conflicto como `[CONFIRMAR]` |
 | Sin cambios de Status válidos | Run rojo; no email vacío |
 | Gemini falla tres veces | Run rojo; no email |
 | Markdown inválido tres veces | Run rojo; no email |
@@ -218,7 +226,9 @@ Python crea un mensaje MIME de texto plano:
 - Subject: `EOW Report - Week Ending YYYY-MM-DD`.
 - From: secret `EMAIL_USER`.
 - To: secret `EMAIL_TO`.
-- Autenticación: App Password almacenada en `EMAIL_PASSWORD`.
+- Autenticación: App Password almacenada en `EMAIL_PASSWORD`. Los espacios
+  internos se eliminan antes del login, porque Google muestra la clave en
+  grupos de cuatro caracteres.
 - Transporte: `smtp.gmail.com:587` con STARTTLS.
 
 El sistema no envía directamente al equipo. La revisión y el reenvío son un
@@ -304,13 +314,21 @@ Los valores secretos no aparecen en el código ni en los logs.
    y manejo de fallos.
 7. **Simplificación final:** se eliminó el envío autónomo del viernes. El jueves
    llega un borrador personal y la persona conserva la decisión editorial.
+8. **Prefijo de bullet:** se dejó de exigir `[Analytics]` al inicio de cada
+   línea; el validador rechaza un tag de equipo entre corchetes al abrir el
+   bullet, no la palabra Analytics.
+9. **Evolución semanal:** el join dejó de quedarse sólo con el último evento y
+   ahora envía la cadena completa de estados de la semana.
+10. **Títulos repetidos:** dejaron de ser un hard stop; se combinan o se marcan
+    `[CONFIRMAR]` si hay conflicto.
 
 ## 14. Limitaciones conocidas
 
 - SMTP no ofrece idempotency key; una interrupción inmediatamente después de
   aceptar el correo podría producir un duplicado al reintentar.
 - Cambiar sustancialmente el título rompe el join histórico.
-- `Backlog` y `To do` no se consideran avances para el EOW.
+- `Backlog` y `To do` no pueden ser el STATUS del bullet, pero sí aparecen en
+  la evolución de la semana.
 - El reporte refleja cambios de Status, no todas las ediciones de comentarios.
 - GitHub schedule puede comenzar algunos minutos después de la hora exacta.
 

@@ -26,8 +26,9 @@ Sheets → Apps Script → GitHub Actions → Python → Gemini → Validador �
 Disparadores: cron del jueves 16:00 ART, Run workflow manual, checkbox
 `Control!B2` opcional.
 
-Hard stops: sin cambios válidos, headers distintos, títulos duplicados, Gemini
-sin salida válida, validador rechazando el texto, o SMTP fallando.
+Hard stops: sin cambios válidos, headers distintos, Gemini sin salida válida,
+validador rechazando el texto, o SMTP fallando. Títulos repetidos en `Tasks` no
+detienen el run.
 
 ## 3. Diagrama Mermaid
 
