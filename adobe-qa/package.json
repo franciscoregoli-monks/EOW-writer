@@ -1,0 +1,34 @@
+{
+  "name": "adobe-qa",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MVP QA runner: measurement plan vs Adobe data layer and Launch beacons",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "start:api": "node src/server.mjs",
+    "qa": "node src/run.mjs",
+    "qa:tcp": "node src/run.mjs --plan examples/tcp-utm.plan.json",
+    "qa:wws": "node src/run.mjs --plan examples/wws-energy.plan.json --sdr knowledge/wws-sdr.json --suite amznsproduction --out reports/wws",
+    "qa:energy": "node src/run.mjs --pptx examples/energy-spotlights-measurement-plan.pptx --url https://sustainability.aboutamazon.com/stories/spotlight-on-energy --suite amznsproduction --out reports/energy",
+    "qa:sheet": "node src/run.mjs",
+    "qa:pptx": "node src/run.mjs",
+    "sdr:build": "node src/buildSdrArtifact.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20.9"
+  },
+  "dependencies": {
+    "csv-parse": "^7.0.2",
+    "fast-xml-parser": "^5.11.1",
+    "fflate": "^0.8.3",
+    "lucide-react": "^1.39.0",
+    "next": "^16.3.4",
+    "puppeteer-core": "^25.9.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}
