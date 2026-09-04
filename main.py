@@ -68,6 +68,12 @@ STATUS_ALIASES = {
     "blocked": "BLOCKER",
     "blocker": "BLOCKER",
 }
+CONFIRM_TAG = "[CONFIRMAR]"
+# These never become a reported status, but they belong in the week's narrative
+# when a task was picked up from the backlog and advanced later.
+CONTEXT_ONLY_STATUSES = frozenset(
+    {"backlog", "to do", "to-do", "todo", "pendiente", "por hacer"}
+)
 GEMINI_MODEL = "gemini-3.6-flash"
 GEMINI_ATTEMPTS = 3
 GEMINI_RETRY_SECONDS = 5
@@ -119,17 +125,26 @@ Output rules:
    visible in the relevant work bullet. For a missing workstream, use the
    header **Unclassified workstream [CONFIRMAR]**. For a missing account,
    include `Account [CONFIRMAR]` in the bullet instead of guessing WWS or TCP.
-10. Compare with the prior EOW. An ongoing prior task must be described as
+10. Each update carries `status_at_week_start`, `status_progression` and
+    `changes_this_week`. When a task moved more than once inside the week,
+    describe that movement rather than only its end state, for example work
+    that was picked up from the backlog and completed in the same week. Use
+    only the states listed in `status_progression` and never invent an
+    intermediate step. The bullet's STATUS is always the final `status`. An
+    empty `status_at_week_start` means the task had no recorded state before
+    this week, so treat it as new work rather than as missing data, and do not
+    tag it [CONFIRMAR] for that reason alone.
+11. Compare with the prior EOW. An ongoing prior task must be described as
     continuing, not as a fresh item. Use the continuing-next-week status when
     the supplied evidence supports it.
-11. Be professional, concise, client-facing, and free of internal jargon.
+12. Be professional, concise, client-facing, and free of internal jargon.
     Do not include human names unless explicit attribution is required.
-12. End with the exact bold header `**Needs confirmation**`.
+13. End with the exact bold header `**Needs confirmation**`.
     If there are no [CONFIRMAR] tags in the workstream body, put exactly `None.`
     below it. Otherwise, repeat every body tag once as numbered lines:
     `1. [CONFIRMAR] concise description`
     These are numbered lines, not hyphen bullets.
-13. Output markdown only, with no code fence and no commentary.
+14. Output markdown only, with no code fence and no commentary.
 """
 
 
@@ -228,6 +243,46 @@ def rows_as_dicts(
     return rows
 
 
+def merged_task_field(rows: list[dict[str, str]], column: str) -> str:
+    """Resolve one column across task rows that share a normalized title.
+
+    Repeated titles are tolerated so a data entry slip cannot stop the week's
+    report. Agreeing rows collapse to their single value, while genuinely
+    conflicting rows resolve to the confirmation tag instead of picking a
+    winner, leaving the decision to the person reviewing the draft.
+    """
+    values: list[str] = []
+    for row in rows:
+        value = row.get(column, "").strip()
+        if value and value not in values:
+            values.append(value)
+    if not values:
+        return ""
+    if len(values) > 1:
+        return CONFIRM_TAG
+    return values[0]
+
+
+def status_progression(
+    events: list[tuple[datetime, dict[str, str]]], week_start_status: str
+) -> list[str]:
+    """Return the ordered states a task walked through inside the week.
+
+    A task that moves several times keeps every step, so the report can tell
+    that work was picked up and finished instead of showing only its final
+    state. Consecutive repeats collapse, and the raw sheet wording is kept so
+    no state is invented.
+    """
+    chain: list[str] = []
+    if week_start_status:
+        chain.append(week_start_status)
+    for _, event in events:
+        value = event["Status Nuevo"].strip()
+        if value and (not chain or chain[-1].casefold() != value.casefold()):
+            chain.append(value)
+    return chain
+
+
 def weekly_updates(
     book: gspread.Spreadsheet, week_ending: date
 ) -> list[dict[str, str]]:
@@ -240,23 +295,28 @@ def weekly_updates(
     require_headers(TASKS_TAB, task_values[0], TASKS_HEADERS)
     require_headers(CHANGE_LOG_TAB, log_values[0], CHANGE_LOG_HEADERS)
 
-    tasks_by_title: dict[str, dict[str, str]] = {}
-    duplicate_titles: set[str] = set()
+    tasks_by_title: dict[str, list[dict[str, str]]] = {}
     for task in rows_as_dicts(task_values, TASKS_HEADERS):
         key = normalized_key(task["Titulo de Tarea"])
         if not key:
             continue
-        if key in tasks_by_title:
-            duplicate_titles.add(task["Titulo de Tarea"])
-        tasks_by_title[key] = task
+        tasks_by_title.setdefault(key, []).append(task)
+
+    duplicate_titles = sorted(
+        rows[0]["Titulo de Tarea"]
+        for rows in tasks_by_title.values()
+        if len(rows) > 1
+    )
     if duplicate_titles:
-        raise RuntimeError(
-            "Tasks contains duplicate titles: "
-            + ", ".join(sorted(duplicate_titles))
+        LOGGER.warning(
+            "Tasks holds repeated titles; their rows are merged and any "
+            "conflicting field is reported as %s: %s",
+            CONFIRM_TAG,
+            ", ".join(duplicate_titles),
         )
 
     period_start = week_ending - timedelta(days=6)
-    latest_events: dict[str, tuple[datetime, dict[str, str]]] = {}
+    events_by_title: dict[str, list[tuple[datetime, dict[str, str]]]] = {}
     ignored_invalid_statuses = 0
     for row_number, event in enumerate(
         rows_as_dicts(log_values, CHANGE_LOG_HEADERS), start=2
@@ -273,25 +333,20 @@ def weekly_updates(
         if not period_start <= event_date <= week_ending:
             continue
 
-        normalized_status = STATUS_ALIASES.get(
-            normalized_key(event["Status Nuevo"])
-        )
-        if not normalized_status:
+        status_key = normalized_key(event["Status Nuevo"])
+        reported_status = STATUS_ALIASES.get(status_key)
+        if reported_status is None and status_key not in CONTEXT_ONLY_STATUSES:
             ignored_invalid_statuses += 1
             continue
 
-        key = normalized_key(title)
         timestamp = datetime.combine(event_date, datetime.min.time())
         try:
             timestamp = datetime.strptime(event["Fecha"], "%m/%d/%Y %H:%M:%S")
         except ValueError:
             pass
-        previous = latest_events.get(key)
-        if previous is None or timestamp >= previous[0]:
-            latest_events[key] = (
-                timestamp,
-                {**event, "status": normalized_status},
-            )
+        events_by_title.setdefault(normalized_key(title), []).append(
+            (timestamp, {**event, "status": reported_status or ""})
+        )
 
     if ignored_invalid_statuses:
         LOGGER.warning(
@@ -300,27 +355,42 @@ def weekly_updates(
         )
 
     selected: list[dict[str, str]] = []
-    for key, (timestamp, event) in sorted(
-        latest_events.items(), key=lambda item: item[1][0]
+    for key, events in sorted(
+        events_by_title.items(),
+        key=lambda item: max(timestamp for timestamp, _ in item[1]),
     ):
-        task = tasks_by_title.get(key, {})
+        events.sort(key=lambda pair: pair[0])
+        reported = [event for _, event in events if event["status"]]
+        if not reported:
+            # The task only moved between backlog-style states this week, so
+            # there is no progress to report yet.
+            continue
+
+        week_start_status = events[0][1]["Status Anterior"].strip()
+        progression = status_progression(events, week_start_status)
+        task_rows = tasks_by_title.get(key, [])
         account = ACCOUNT_ALIASES.get(
-            normalized_key(task.get("Propiedad", "")), "[CONFIRMAR]"
+            normalized_key(merged_task_field(task_rows, "Propiedad")),
+            CONFIRM_TAG,
         )
-        workstream = task.get("Categoria", "") or "[CONFIRMAR]"
+        workstream = merged_task_field(task_rows, "Categoria") or CONFIRM_TAG
         selected.append(
             {
-                "changed_at": timestamp.isoformat(),
+                "changed_at": events[-1][0].isoformat(),
                 "account": account,
                 "workstream": workstream,
-                "task_name_description": event["Titulo de Tarea"],
-                "status_before": event["Status Anterior"] or "[CONFIRMAR]",
-                "status": event["status"],
+                "task_name_description": reported[-1]["Titulo de Tarea"],
+                "status_at_week_start": week_start_status,
+                "status_progression": " -> ".join(progression),
+                "changes_this_week": str(len(events)),
+                "status": reported[-1]["status"],
                 "notes_blockers": (
-                    task.get("Referencias/Links y Comentarios", "")
-                    or "[CONFIRMAR]"
+                    merged_task_field(
+                        task_rows, "Referencias/Links y Comentarios"
+                    )
+                    or CONFIRM_TAG
                 ),
-                "task_matched_in_master": "yes" if task else "no",
+                "task_matched_in_master": "yes" if task_rows else "no",
             }
         )
 

@@ -184,7 +184,7 @@ Hard stops:
 | --- | --- |
 | Secret faltante o inválido | Run rojo; no email |
 | Header de Sheet modificado | Run rojo; no Gemini |
-| Títulos duplicados | Run rojo; no Gemini |
+| Títulos duplicados | No detiene el run; campos en conflicto como `[CONFIRMAR]` |
 | Sin cambios de Status válidos | Run rojo; no email vacío |
 | Gemini falla tres veces | Run rojo; no email |
 | Markdown inválido tres veces | Run rojo; no email |

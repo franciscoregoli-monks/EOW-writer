@@ -145,9 +145,16 @@ provoca un hard stop antes de llamar a Gemini.
 La fecha de reporte es el viernes de la semana corriente. La ventana de eventos
 comprende ese viernes y los seis días anteriores.
 
-Por cada título se conserva el último cambio válido dentro de la ventana. Luego
-se une con `Tasks` usando el título con espacios normalizados y comparación
-case-insensitive.
+Por cada título se conserva la cadena completa de cambios dentro de la ventana.
+El estado reportado es el último válido, y además se envía la evolución de la
+semana: `status_at_week_start`, `status_progression` y `changes_this_week`. Así
+una tarea que pasó de backlog a in progress y a done se describe como progreso
+real y no solamente como su estado final. Luego se une con `Tasks` usando el
+título con espacios normalizados y comparación case-insensitive.
+
+`Backlog`, `To do` y equivalentes no pueden ser el estado reportado, pero sí
+forman parte de la evolución. Una tarea cuyos únicos movimientos de la semana
+fueron entre esos estados no entra al reporte.
 
 ### Estados aceptados
 
@@ -168,8 +175,10 @@ case-insensitive.
 | vacío o desconocido | `[CONFIRMAR]` |
 
 `Categoria` o comentarios ausentes también se convierten en `[CONFIRMAR]`.
-Los títulos duplicados en `Tasks` detienen la ejecución porque volverían
-ambigua la unión.
+Los títulos duplicados en `Tasks` no detienen la ejecución. Sus filas se
+combinan: si coinciden, se usa el valor único; si un campo tiene valores
+distintos, ese campo se reporta como `[CONFIRMAR]` en lugar de elegir uno. El
+run deja un warning con los títulos afectados.
 
 ## 7. Contrato del EOW
 
@@ -376,7 +385,7 @@ una acción del dueño.
 | --- | --- |
 | Secret faltante o JSON inválido | run rojo; sin email |
 | Pestaña vacía o headers diferentes | run rojo antes de Gemini |
-| Títulos duplicados | run rojo antes de Gemini |
+| Títulos duplicados | se combinan; los campos en conflicto van como `[CONFIRMAR]` |
 | Fecha del log ilegible | run rojo con número de fila |
 | Sin estados válidos en la semana | run rojo; sin email vacío |
 | Gemini/API o formato inválido | hasta tres intentos; luego run rojo |
