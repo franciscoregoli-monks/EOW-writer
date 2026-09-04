@@ -423,7 +423,9 @@ def generate_and_email() -> None:
 
 def send_email(report: str, week_ending: str) -> None:
     sender = required_env("EMAIL_USER")
-    password = required_env("EMAIL_PASSWORD")
+    # Google shows app passwords in four-character groups. Those spaces are
+    # presentational, so SMTP rejects the login if they survive.
+    password = "".join(required_env("EMAIL_PASSWORD").split())
     recipients = [
         item.strip() for item in required_env("EMAIL_TO").split(",") if item.strip()
     ]
