@@ -204,7 +204,10 @@ como ante una respuesta que no pasa la validación.
 - Status final válido.
 - Uso exclusivo de guion corto.
 - Una única sección `Needs confirmation`.
-- Correspondencia de cada `[CONFIRMAR]` con su listado final.
+- Cuenta permitida: `WWS:`, `TCP:`, `WWS / TCP:` o `Account [CONFIRMAR]:`.
+- Si el cuerpo tiene `[CONFIRMAR]`, el listado final no puede estar vacío ni
+  tener más entradas que tags en el cuerpo. Un tag repetido, como una cuenta
+  desconocida, se lista una sola vez.
 
 Hard stops:
 

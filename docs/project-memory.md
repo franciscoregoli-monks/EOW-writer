@@ -188,7 +188,8 @@ Las instrucciones principales son:
 - inglés únicamente;
 - header `# EOW Report - Week Ending YYYY-MM-DD`;
 - secciones de workstream en negrita;
-- separación `WWS:`, `TCP:` o `WWS / TCP:`;
+- separación `WWS:`, `TCP:`, `WWS / TCP:` o `Account [CONFIRMAR]:` cuando la
+  cuenta no se conoce;
 - bullets con forma `- descripción - STATUS -`, sin tag de equipo al inicio;
 - si la tarea cambió más de una vez, describir la evolución y usar el estado
   final en el bullet;
@@ -198,7 +199,9 @@ Las instrucciones principales son:
 - no inventar información;
 - usar `[CONFIRMAR]` ante toda ambigüedad;
 - distinguir carry-forward usando el reporte anterior;
-- terminar con una única sección `**Needs confirmation**`.
+- terminar con una única sección `**Needs confirmation**`, que no puede estar
+  vacía si el cuerpo tiene tags ni listar más entradas que tags; un tag
+  repetido, como una cuenta desconocida, se lista una sola vez.
 
 `validator.py` vuelve estas reglas comprobables. Si ninguna de las tres
 respuestas cumple, no se envía correo.

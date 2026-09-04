@@ -123,8 +123,9 @@ Output rules:
    exact tag [CONFIRMAR] inline whenever input is ambiguous or incomplete.
    A source value equal to [CONFIRMAR] is explicitly missing and must remain
    visible in the relevant work bullet. For a missing workstream, use the
-   header **Unclassified workstream [CONFIRMAR]**. For a missing account,
-   include `Account [CONFIRMAR]` in the bullet instead of guessing WWS or TCP.
+   header **Unclassified workstream [CONFIRMAR]**. For a missing account, use
+   the account label `Account [CONFIRMAR]:` exactly, in the same position where
+   `WWS:` or `TCP:` would go, instead of guessing an account.
 10. Each update carries `status_at_week_start`, `status_progression` and
     `changes_this_week`. When a task moved more than once inside the week,
     describe that movement rather than only its end state, for example work
@@ -141,9 +142,12 @@ Output rules:
     Do not include human names unless explicit attribution is required.
 13. End with the exact bold header `**Needs confirmation**`.
     If there are no [CONFIRMAR] tags in the workstream body, put exactly `None.`
-    below it. Otherwise, repeat every body tag once as numbered lines:
+    below it. Otherwise list each distinct thing that needs confirming once, as
+    numbered lines:
     `1. [CONFIRMAR] concise description`
-    These are numbered lines, not hyphen bullets.
+    A tag that repeats across bullets, such as an unknown account, needs a
+    single entry rather than one per bullet. Never list more entries than the
+    body contains. These are numbered lines, not hyphen bullets.
 14. Output markdown only, with no code fence and no commentary.
 """
 

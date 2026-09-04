@@ -184,7 +184,10 @@ como ante una respuesta que no pasa la validación.
 - Status final válido.
 - Uso exclusivo de guion corto.
 - Una única sección `Needs confirmation`.
-- Correspondencia de cada `[CONFIRMAR]` con su listado final.
+- Cuenta permitida: `WWS:`, `TCP:`, `WWS / TCP:` o `Account [CONFIRMAR]:`.
+- Si el cuerpo tiene `[CONFIRMAR]`, el listado final no puede estar vacío ni
+  tener más entradas que tags en el cuerpo. Un tag repetido, como una cuenta
+  desconocida, se lista una sola vez.
 
 Hard stops:
 
@@ -447,8 +450,9 @@ Output rules:
    exact tag [CONFIRMAR] inline whenever input is ambiguous or incomplete.
    A source value equal to [CONFIRMAR] is explicitly missing and must remain
    visible in the relevant work bullet. For a missing workstream, use the
-   header **Unclassified workstream [CONFIRMAR]**. For a missing account,
-   include `Account [CONFIRMAR]` in the bullet instead of guessing WWS or TCP.
+   header **Unclassified workstream [CONFIRMAR]**. For a missing account, use
+   the account label `Account [CONFIRMAR]:` exactly, in the same position where
+   `WWS:` or `TCP:` would go, instead of guessing an account.
 10. Each update carries `status_at_week_start`, `status_progression` and
     `changes_this_week`. When a task moved more than once inside the week,
     describe that movement rather than only its end state, for example work
@@ -465,9 +469,12 @@ Output rules:
     Do not include human names unless explicit attribution is required.
 13. End with the exact bold header `**Needs confirmation**`.
     If there are no [CONFIRMAR] tags in the workstream body, put exactly `None.`
-    below it. Otherwise, repeat every body tag once as numbered lines:
+    below it. Otherwise list each distinct thing that needs confirming once, as
+    numbered lines:
     `1. [CONFIRMAR] concise description`
-    These are numbered lines, not hyphen bullets.
+    A tag that repeats across bullets, such as an unknown account, needs a
+    single entry rather than one per bullet. Never list more entries than the
+    body contains. These are numbered lines, not hyphen bullets.
 14. Output markdown only, with no code fence and no commentary.
 """
 
@@ -872,7 +879,9 @@ HEADER_RE = re.compile(
     r"^# EOW Report - Week Ending \d{4}-\d{2}-\d{2}$", re.MULTILINE
 )
 WORKSTREAM_HEADER_RE = re.compile(r"^\*\*(?!Needs confirmation\*\*$).+\*\*$")
-ACCOUNT_HEADER_RE = re.compile(r"^(WWS|TCP|WWS / TCP):$")
+ACCOUNT_HEADER_RE = re.compile(
+    r"^(WWS|TCP|WWS / TCP|Account \[CONFIRMAR\]):$"
+)
 STATUS_RE = (
     r"(?:DONE|IN PROGRESS|BLOCKER|IN PROGRESS, continues next week)"
 )
@@ -982,9 +991,17 @@ def validate_report(report: str) -> ValidationResult:
 
     body_confirmations = body.count("[CONFIRMAR]")
     confirmation_confirmations = confirmation_text.count("[CONFIRMAR]")
-    if body_confirmations != confirmation_confirmations:
+    # A body tag repeated across bullets, such as an unknown account, needs one
+    # confirmation entry rather than one per occurrence. Requiring an exact
+    # count made the model miscount and discarded otherwise valid reports.
+    if body_confirmations > 0 and confirmation_confirmations == 0:
         errors.append(
-            "Needs confirmation must repeat each body [CONFIRMAR] tag exactly once "
+            "Needs confirmation must list the body [CONFIRMAR] items "
+            f"(body={body_confirmations}, section=0)."
+        )
+    if confirmation_confirmations > body_confirmations:
+        errors.append(
+            "Needs confirmation lists more items than the body contains "
             f"(body={body_confirmations}, section={confirmation_confirmations})."
         )
 
