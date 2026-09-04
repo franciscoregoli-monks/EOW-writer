@@ -42,11 +42,6 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      # Temporary diagnostic for the Gmail 535 failure. Prints only lengths,
-      # shapes and truncated hashes so secret values never reach the log.
-      - name: Fingerprint email credentials
-        run: python scripts/fingerprint_credentials.py
-
       - name: Generate and email personal draft
         id: eow
         run: python main.py
