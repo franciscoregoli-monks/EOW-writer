@@ -1,0 +1,2820 @@
+{
+  "source": "_INT__NEW__WWS_Amazon_Sustainability_-_SDR_e908.xlsx",
+  "sheetNames": [
+    "Cover",
+    "Events",
+    "Conversion Variables (eVars)",
+    "Traffic Variables (props)",
+    "Calculated MetricsSegments",
+    "Data Layer Pushes",
+    "Report Suites",
+    "Marketing Channels",
+    "Classifications"
+  ],
+  "counts": {
+    "events": 37,
+    "eVars": 52,
+    "props": 3,
+    "dataLayerPushRows": 37,
+    "dataLayerPushReferences": 23,
+    "reportSuites": 3
+  },
+  "headers": {
+    "events": {
+      "row": 4,
+      "literal": [
+        "#",
+        "Friendly Name",
+        "Event Type",
+        "Description",
+        "When to Set",
+        "Participation",
+        "Event Recording",
+        "Launch",
+        "Status"
+      ]
+    },
+    "eVars": {
+      "row": 4,
+      "literal": [
+        "#",
+        "Variable (Friendly Name)",
+        "Description",
+        "Validation Status",
+        "Example Values",
+        "When to set",
+        "Launch Data Source",
+        "Status",
+        "Allocation",
+        "Expires After",
+        "Type",
+        "Saint Enabled"
+      ]
+    },
+    "props": {
+      "row": 4,
+      "literal": [
+        "#",
+        "Variable (Friendly Name)",
+        "Description",
+        "Example Values",
+        "When to Set",
+        "Launch/DTM Data Source",
+        "Status",
+        "List Support",
+        "Participation",
+        "correlations",
+        "Unique Visitors",
+        "Pathing",
+        "Saint Enabled"
+      ]
+    },
+    "pushes": {
+      "row": 4,
+      "literal": [
+        "Variable (Friendly Name)",
+        "Reference",
+        "Description",
+        "When Set",
+        "Responsible for populating"
+      ]
+    },
+    "suites": {
+      "row": 6,
+      "literal": [
+        "RSID",
+        "Title",
+        "Description"
+      ]
+    }
+  },
+  "aliases": {
+    "cta clicks (e1)": "event1",
+    "cta clicks": "event1",
+    "link clicks (e2)": "event2",
+    "link clicks": "event2",
+    "year applied (e3)": "event3",
+    "year applied": "event3",
+    "topic applied (e4)": "event4",
+    "scroll reach 25% (e5)": "event5",
+    "scroll reach 25%": "event5",
+    "scroll reach 50% (e6)": "event6",
+    "scroll reach 50%": "event6",
+    "scroll reach 75% (e7)": "event7",
+    "scroll reach 75%": "event7",
+    "scroll reach 100% (e8)": "event8",
+    "scroll reach 100%": "event8",
+    "null search (e9)": "event9",
+    "null search": "event9",
+    "internal search click-through (e10)": "event10",
+    "click": "event22",
+    "error (e11)": "event11",
+    "page load time (e12)": "event12",
+    "page load": "event12",
+    "video start (e13)": "event13",
+    "video start": "event13",
+    "video complete (e14)": "event14",
+    "video complete": "event14",
+    "video 25% milestone (e15)": "event15",
+    "video 25% milestone": "event15",
+    "video 50% milestone (e16)": "event16",
+    "video 50% milestone": "event16",
+    "video 75% milestone (e17)": "event17",
+    "video 75% milestone": "event17",
+    "internal search (e18)": "event18",
+    "internal search": "event18",
+    "map filter applied (e19)": "event19",
+    "map filter applied": "event19",
+    "mapview (e20)": "event20",
+    "mapoutview (e21)": "event21",
+    "click (e20)": "event22",
+    "scroll (e23)": "event23",
+    "document type applied (e25)": "event25",
+    "sort by aplied (e26)": "event26",
+    "language applied (e27)": "event27",
+    "industry filter applied (e28)": "event28",
+    "pre prompt selected (e29)": "event29",
+    "query sent (e30)": "event30",
+    "ai query response (e31)": "event31",
+    "ai query response load time (e32)": "event32",
+    "copy ai query response (e33)": "event33",
+    "positive feedback (e34)": "event34",
+    "negative feedback (e35)": "event35",
+    "query ai reset (e36)": "event36",
+    "status filter applied (e37)": "event37",
+    "event1": "event1",
+    "cta click (e1)": "event1",
+    "cta click": "event1",
+    "event2": "event2",
+    "event3": "event3",
+    "event4": "event4",
+    "topic applied": "event4",
+    "event5": "event5",
+    "event6": "event6",
+    "event7": "event7",
+    "event8": "event8",
+    "event9": "event9",
+    "event10": "event10",
+    "internal search click-through": "event10",
+    "event11": "event11",
+    "error": "event11",
+    "event12": "event12",
+    "page load time": "event12",
+    "event13": "event13",
+    "event14": "event14",
+    "event15": "event15",
+    "event16": "event16",
+    "event17": "event17",
+    "event18": "event18",
+    "event19": "event19",
+    "event20": "event20",
+    "mapview": "event20",
+    "event21": "event21",
+    "mapoutview": "event21",
+    "event22": "event22",
+    "event23": "event23",
+    "scroll": "event23",
+    "event24": "event24",
+    "page views import - 2024": "event24",
+    "event25": "event25",
+    "document type applied": "event25",
+    "event26": "event26",
+    "sort by aplied": "event26",
+    "event27": "event27",
+    "language applied": "event27",
+    "event28": "event28",
+    "industry filter applied": "event28",
+    "event29": "event29",
+    "pre prompt selected": "event29",
+    "event30": "event30",
+    "query sent": "event30",
+    "event31": "event31",
+    "ai query response": "event31",
+    "event32": "event32",
+    "ai query response load time": "event32",
+    "event33": "event33",
+    "copy ai query response": "event33",
+    "event34": "event34",
+    "positive feedback": "event34",
+    "event35": "event35",
+    "negative feedback": "event35",
+    "event36": "event36",
+    "query ai reset": "event36",
+    "event37": "event37",
+    "status filter applied": "event37"
+  },
+  "dataLayerPushes": {
+    "event1": {
+      "eventId": "event1",
+      "label": "CTA Clicks (e1)",
+      "dataLayerEvent": "CTA Clicks",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n  event: \"CTA Clicks\",\n  userInteraction: {\n    timestamp: <Timestamp MM/DD/YYYY format>,\n    domain: <website domain>,\n    previousPage: <previous page>,\n    pageName: \"AI Insights\",\n    siteSection: “AI Insights Stories”,\n    fileName: <Name of the document file, e.g., \"Download-2025-Sustainability-Report\">,\n    fileType: <Type of file, e.g., \"PDF\" or \"XLS\">,\n    pageType: \"Full Website\",\n    ctaButton: \"Download\",\n    pageURL: <Page URL>,\n    pageSection: “Landing”,\n    cleanPageURL: <Clean URL of the current page>,\n    component: “HomeCtaCard”\n  }\n});",
+      "description": "Increments every time a user clicks on a CTA button",
+      "whenSet": "When clicking on any call to action",
+      "responsible": "Monks FE team",
+      "sourceRow": 5
+    },
+    "event2": {
+      "eventId": "event2",
+      "label": "Link Clicks (e2)",
+      "dataLayerEvent": "Link Clicks",
+      "reference": "var adobeDataLayer = adobeDataLayer || {};\nadobeDataLayer.push({\n    event: \"Link Clicks\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Homepage\",\n        pageType: \"Full Website\",\n        destinationLink: <Destination URL>,\n        pageURL: <Page URL>,\n        linkTitle: <Link Title>,\n        pageSection: \"Driving Climate Accountability\"\n    }\n});",
+      "description": "Increments every time a user clicks on a link",
+      "whenSet": "When clicking a link",
+      "responsible": "Monks FE team",
+      "sourceRow": 6
+    },
+    "event3": {
+      "eventId": "event3",
+      "label": "Year Applied (e3)",
+      "dataLayerEvent": "Year Applied",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Year Applied\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Reports\",\n        pageType: \"Full Website\",\n        pageURL: <Page URL>,\n        yearSelection: <Year selected>,\n        pageSection: <Featured News>,\n        cleanPageURL: \"clean page URL\",\n        component: <component>\n    }\n});",
+      "description": "Increments every time a user selects year for PDF browsing",
+      "whenSet": "-",
+      "responsible": "-",
+      "sourceRow": 7
+    },
+    "event4": {
+      "eventId": "event4",
+      "label": "Topic Applied (e4)",
+      "dataLayerEvent": "Year Applied",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Year Applied\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Reports\",\n        pageType: \"Full Website\",\n        pageURL: <Page URL>,\n        yearSelection: <Year selected>,\n        pageSection: <Featured News>,\n        cleanPageURL: \"clean page URL\",\n        component: <component>\n    }\n});",
+      "description": "Increments every time a user selects topic for PDF browsing",
+      "whenSet": "-",
+      "responsible": "-",
+      "sourceRow": 8
+    },
+    "event5": {
+      "eventId": "event5",
+      "label": "Scroll Reach 25% (e5)",
+      "dataLayerEvent": "Scroll Reach 25%",
+      "reference": "var adobeDataLayer = adobeDataLayer || {};\nadobeDataLayer.push( {\n    event: \"Scroll Reach 25%\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: <Section>,\n        pageType: <Full Website>,\n        pageURL: <Page URL>,\n        pageSection: <Page section>\n    }\n});",
+      "description": "Increments when a user reaches 25% of the page",
+      "whenSet": "When the the user reaches 25% scroll rate on any page",
+      "responsible": "Monks FE team",
+      "sourceRow": 9
+    },
+    "event6": {
+      "eventId": "event6",
+      "label": "Scroll Reach 50% (e6)",
+      "dataLayerEvent": "Scroll Reach 50%",
+      "reference": "var adobeDataLayer = adobeDataLayer || {};\nadobeDataLayer.push( {\n    event: \"Scroll Reach 50%\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: <Section>,\n        pageType: <Full Website>,\n        pageURL: <Page URL>,\n        pageSection: <Page section>\n    }\n});",
+      "description": "Increments when a user reaches 50% of the page",
+      "whenSet": "When the the user reaches 50% scroll rate on any page",
+      "responsible": "Monks FE team",
+      "sourceRow": 10
+    },
+    "event7": {
+      "eventId": "event7",
+      "label": "Scroll Reach 75% (e7)",
+      "dataLayerEvent": "Scroll Reach 75%",
+      "reference": "var adobeDataLayer = adobeDataLayer || {};\nadobeDataLayer.push( {\n    event: \"Scroll Reach 75%\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: <Section>,\n        pageType: <Full Website>,\n        pageURL: <Page URL>,\n        pageSection: <Page section>\n    }\n});",
+      "description": "Increments when a user reaches 75% of the page",
+      "whenSet": "When the the user reaches 75% scroll rate on any page",
+      "responsible": "Monks FE team",
+      "sourceRow": 11
+    },
+    "event8": {
+      "eventId": "event8",
+      "label": "Scroll Reach 100% (e8)",
+      "dataLayerEvent": "Scroll Reach 100%",
+      "reference": "var adobeDataLayer = adobeDataLayer || {};\nadobeDataLayer.push( {\n    event: \"Scroll Reach 100%\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: <Section>,\n        pageType: <Full Website>,\n        pageURL: <Page URL>,\n        pageSection: <Page section>\n    }\n});",
+      "description": "Increments when a user reaches 100% of the page",
+      "whenSet": "When the the user reaches 100% scroll rate on any page",
+      "responsible": "Monks FE team",
+      "sourceRow": 12
+    },
+    "event9": {
+      "eventId": "event9",
+      "label": "Null Search (e9)",
+      "dataLayerEvent": "Null search",
+      "reference": "var adobeDataLayer = adobeDataLayer || {};\nadobeDataLayer.push({\n    event: \"Null search\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: <Section>,\n        searchResultsPageType: “No Result”,\n        pageType: <Full Website>,\n        pageURL: <Page URL>,\n        topicSection: <Topic selection>\n        pageSection: <Page section>\n    }\n});",
+      "description": "Increments each time a search provides no results, allowing content managers to create content for terms users are searching",
+      "whenSet": "When a search provides no results",
+      "responsible": "Monks FE team",
+      "sourceRow": 13
+    },
+    "event10": {
+      "eventId": "event10",
+      "label": "Internal Search Click-through (e10)",
+      "dataLayerEvent": "Click",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Click\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Reports\",\n        pageType: \"Full Website\",\n        pageURL: <Page URL>,\n        pageSection: \"Explore our documents\",\n        clickName: \"Click Name\"\n    }\n});",
+      "description": "Increments each time the user clicks through search result pages (\"Next page\" button or arrows)",
+      "whenSet": "When performing a click to navigate through search results",
+      "responsible": "Monks FE team",
+      "sourceRow": 14
+    },
+    "event11": {
+      "eventId": "event11",
+      "label": "Error (e11)",
+      "dataLayerEvent": null,
+      "reference": "-",
+      "description": "Increments each time a validation error is presented",
+      "whenSet": "",
+      "responsible": "-",
+      "sourceRow": 15
+    },
+    "event12": {
+      "eventId": "event12",
+      "label": "Page Load Time (e12)",
+      "dataLayerEvent": "Page Load",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Page Load\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        pageURL: <Page URL>,\n        queryParameters: <Query parameters>,\n        pageLoadTime: <Page load time>\n    }\n});",
+      "description": "Captures the amount of time it takes for a page to load in milliseconds",
+      "whenSet": "When a pageview is triggered",
+      "responsible": "Monks FE team",
+      "sourceRow": 16
+    },
+    "event13": {
+      "eventId": "event13",
+      "label": "Video Start (e13)",
+      "dataLayerEvent": "Video Start",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Video Start\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Our Progress\",\n        pageType: \"Full Website\",\n        contentType: \"Video Inline/Video Modal\",\n        videoName: <video name>,\n        pageURL: <Page URL>,\n        pageSection: \"Reducing Waste And Packaging\"\n    }\n});",
+      "description": "Increments each time a video is started",
+      "whenSet": "When clicking play to a video",
+      "responsible": "Monks FE team",
+      "sourceRow": 17
+    },
+    "event14": {
+      "eventId": "event14",
+      "label": "Video Complete (e14)",
+      "dataLayerEvent": "Video Complete",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Video Complete\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Our Progress\",\n        pageType: \"Full Website\",\n        contentType: \"Video\",\n        videoName: <video name>,\n        pageURL: <Page URL>,\n        pageSection: \"Reducing Waste And Packaging\"\n    }\n});",
+      "description": "Increments each time a video is completed",
+      "whenSet": "When a video reaches 100% reproduction",
+      "responsible": "Monks FE team",
+      "sourceRow": 18
+    },
+    "event15": {
+      "eventId": "event15",
+      "label": "Video 25% Milestone (e15)",
+      "dataLayerEvent": "Video 25% Milestone",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Video 25% Milestone\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Our Progress\",\n        pageType: \"Full Website\",\n        contentType: \"Video\",\n        videoName: <video name>,\n        pageURL: <Page URL>,\n        pageSection: \"Reducing Waste And Packaging\"\n    }\n});",
+      "description": "Increments each time a video is watched to the 25% milestone",
+      "whenSet": "When clicking a video reaches 25% reproduction",
+      "responsible": "Monks FE team",
+      "sourceRow": 19
+    },
+    "event16": {
+      "eventId": "event16",
+      "label": "Video 50% Milestone (e16)",
+      "dataLayerEvent": "Video 50% Milestone",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Video 50% Milestone\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Our Progress\",\n        pageType: \"Full Website\",\n        contentType: \"Video\",\n        videoName: <video name>,\n        pageURL: <Page URL>,\n        pageSection: \"Reducing Waste And Packaging\"\n    }\n});",
+      "description": "Increments each time a video is watched to the 50% milestone",
+      "whenSet": "When clicking a video reaches 50% reproduction",
+      "responsible": "Monks FE team",
+      "sourceRow": 20
+    },
+    "event17": {
+      "eventId": "event17",
+      "label": "Video 75% Milestone (e17)",
+      "dataLayerEvent": "Video 75% Milestone",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Video 75% Milestone\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Our Progress\",\n        pageType: \"Full Website\",\n        contentType: \"Video\",\n        videoName: <video name>,\n        pageURL: <Page URL>,\n        pageSection: \"Reducing Waste And Packaging\"\n    }\n});",
+      "description": "Increments each time a video is watched to the 75% milestone",
+      "whenSet": "When clicking a video reaches 75% reproduction",
+      "responsible": "Monks FE team",
+      "sourceRow": 21
+    },
+    "event18": {
+      "eventId": "event18",
+      "label": "Internal Search (e18)",
+      "dataLayerEvent": "Internal Search",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Internal Search\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Reports\",\n        searchResultsPageType: \"Successful\",\n        pageType: \"Full Website\",\n        pageURL: <Page URL>,\n        internalSearchTerm: <Search Term>,\n        pageSection: \"Explore our documents\",\n        searchResultType: <PDF>\n    }\n});",
+      "description": "Increments every time a user does a search",
+      "whenSet": "When users perform a click that changes the results of a search",
+      "responsible": "Monks FE team",
+      "sourceRow": 22
+    },
+    "event19": {
+      "eventId": "event19",
+      "label": "Map Filter Applied (e19)",
+      "dataLayerEvent": "Map Filter Applied",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Map Filter Applied\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Reports/Search/Stories\",\n        pageType: \"Full Website\",\n        pageURL: <Page URL>,\n        mapFilter: <Map region/country selected>,\n        pageSection: <Page Section>,\n        cleanPageURL: \"clean page URL\",\n        component: <component>\n    }\n});",
+      "description": "Increments each time a filter item is un-checkmarked from map filter",
+      "whenSet": "",
+      "responsible": "Monks FE team",
+      "sourceRow": 23
+    },
+    "event20": {
+      "eventId": "event20",
+      "label": "Click (e20)",
+      "dataLayerEvent": "Click",
+      "reference": "var adobeDataLayer = adobeDataLayer || [];\nadobeDataLayer.push({\n    event: \"Click\",\n    userInteraction: {\n        timestamp: <Timestamp MM/DD/YYYY format>,\n        domain: <website domain>,\n        pageName: <page name>,\n        siteSection: \"Reports\",\n        pageType: \"Full Website\",\n        pageURL: <Page URL>,\n        pageSection: \"Explore our documents\",\n        clickName: \"Click Name\"\n    }\n});",
+      "description": "Increments every time you click on non-account buttons or link clicks",
+      "whenSet": "When user clicks a non CTA click nor Link click button",
+      "responsible": "Monks FE team",
+      "sourceRow": 26
+    },
+    "event21": {
+      "eventId": "event21",
+      "label": "mapOutView (e21)",
+      "dataLayerEvent": null,
+      "reference": "-",
+      "description": "-",
+      "whenSet": "-",
+      "responsible": "-",
+      "sourceRow": 25
+    },
+    "event23": {
+      "eventId": "event23",
+      "label": "Scroll (e23)",
+      "dataLayerEvent": null,
+      "reference": "-",
+      "description": "Increments every time a scroll is performed",
+      "whenSet": "-",
+      "responsible": "-",
+      "sourceRow": 27
+    },
+    "row28": {
+      "eventId": null,
+      "label": "Page Views Import - 2024",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 28
+    },
+    "event25": {
+      "eventId": "event25",
+      "label": "Document Type applied (e25)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 29
+    },
+    "event26": {
+      "eventId": "event26",
+      "label": "Sort by aplied (e26)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 30
+    },
+    "event27": {
+      "eventId": "event27",
+      "label": "Language Applied (e27)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 31
+    },
+    "event28": {
+      "eventId": "event28",
+      "label": "Industry Filter Applied (e28)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 32
+    },
+    "event29": {
+      "eventId": "event29",
+      "label": "Pre prompt selected (e29)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 33
+    },
+    "event30": {
+      "eventId": "event30",
+      "label": "Query Sent (e30)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 34
+    },
+    "event31": {
+      "eventId": "event31",
+      "label": "AI Query Response (e31)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 35
+    },
+    "event32": {
+      "eventId": "event32",
+      "label": "AI Query Response Load Time (e32)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 36
+    },
+    "event33": {
+      "eventId": "event33",
+      "label": "Copy AI Query Response (e33)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 37
+    },
+    "event34": {
+      "eventId": "event34",
+      "label": "Positive Feedback (e34)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 38
+    },
+    "event35": {
+      "eventId": "event35",
+      "label": "Negative feedback (e35)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 39
+    },
+    "event36": {
+      "eventId": "event36",
+      "label": "Query AI Reset (e36)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 40
+    },
+    "event37": {
+      "eventId": "event37",
+      "label": "Status Filter Applied (e37)",
+      "dataLayerEvent": null,
+      "reference": "",
+      "description": "",
+      "whenSet": "",
+      "responsible": "",
+      "sourceRow": 41
+    }
+  },
+  "byReportSuite": {
+    "amznsdevelopment": {
+      "rsid": "amznsdevelopment",
+      "title": "Sustainability Dev",
+      "description": "",
+      "sourceRow": 7,
+      "dictionary": {
+        "events": {
+          "event1": {
+            "id": "event1",
+            "canonicalName": "CTA Click",
+            "friendlyName": "CTA Click (e1)",
+            "description": "Increments every time a user clicks on a CTA button",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "event2": {
+            "id": "event2",
+            "canonicalName": "Link Clicks",
+            "friendlyName": "Link Clicks (e2)",
+            "description": "Increments every time a user clicks on a link",
+            "status": "Implemented",
+            "sourceRow": 6
+          },
+          "event3": {
+            "id": "event3",
+            "canonicalName": "Year Applied",
+            "friendlyName": "Year Applied (e3)",
+            "description": "Increments every time a user selects year for PDF browsing",
+            "status": "No implemented",
+            "sourceRow": 7
+          },
+          "event4": {
+            "id": "event4",
+            "canonicalName": "Topic Applied",
+            "friendlyName": "Topic Applied (e4)",
+            "description": "Increments every time a user selects topic for PDF browsing",
+            "status": "No implemented",
+            "sourceRow": 8
+          },
+          "event5": {
+            "id": "event5",
+            "canonicalName": "Scroll Reach 25%",
+            "friendlyName": "Scroll Reach 25% (e5)",
+            "description": "Increments when a user reaches 25% of the page",
+            "status": "Implemented",
+            "sourceRow": 9
+          },
+          "event6": {
+            "id": "event6",
+            "canonicalName": "Scroll Reach 50%",
+            "friendlyName": "Scroll Reach 50% (e6)",
+            "description": "Increments when a user reaches 50% of the page",
+            "status": "Implemented",
+            "sourceRow": 10
+          },
+          "event7": {
+            "id": "event7",
+            "canonicalName": "Scroll Reach 75%",
+            "friendlyName": "Scroll Reach 75% (e7)",
+            "description": "Increments when a user reaches 75% of the page",
+            "status": "Implemented",
+            "sourceRow": 11
+          },
+          "event8": {
+            "id": "event8",
+            "canonicalName": "Scroll Reach 100%",
+            "friendlyName": "Scroll Reach 100% (e8)",
+            "description": "Increments when a user reaches 100% of the page",
+            "status": "Implemented",
+            "sourceRow": 12
+          },
+          "event9": {
+            "id": "event9",
+            "canonicalName": "Null Search",
+            "friendlyName": "Null Search (e9)",
+            "description": "Increments each time a search provides no results, allowing content managers to create content for terms users are searching",
+            "status": "Implemented",
+            "sourceRow": 13
+          },
+          "event10": {
+            "id": "event10",
+            "canonicalName": "Internal Search Click-through",
+            "friendlyName": "Internal Search Click-through (e10)",
+            "description": "Increments each time the user clicks through search result pages (\"Next page\" button)",
+            "status": "Implemented",
+            "sourceRow": 14
+          },
+          "event11": {
+            "id": "event11",
+            "canonicalName": "Error",
+            "friendlyName": "Error (e11)",
+            "description": "Increments each time a validation error is presented",
+            "status": "No implemented",
+            "sourceRow": 15
+          },
+          "event12": {
+            "id": "event12",
+            "canonicalName": "Page Load Time",
+            "friendlyName": "Page Load Time (e12)",
+            "description": "Captures the amount of time it takes for a page to load in milliseconds",
+            "status": "No implemented",
+            "sourceRow": 16
+          },
+          "event13": {
+            "id": "event13",
+            "canonicalName": "Video Start",
+            "friendlyName": "Video Start (e13)",
+            "description": "Increments each time a video is started",
+            "status": "Implemented",
+            "sourceRow": 17
+          },
+          "event14": {
+            "id": "event14",
+            "canonicalName": "Video Complete",
+            "friendlyName": "Video Complete (e14)",
+            "description": "Increments each time a video is completed",
+            "status": "Implemented",
+            "sourceRow": 18
+          },
+          "event15": {
+            "id": "event15",
+            "canonicalName": "Video 25% Milestone",
+            "friendlyName": "Video 25% Milestone (e15)",
+            "description": "Increments each time a video is watched to the 25% milestone",
+            "status": "Implemented",
+            "sourceRow": 19
+          },
+          "event16": {
+            "id": "event16",
+            "canonicalName": "Video 50% Milestone",
+            "friendlyName": "Video 50% Milestone (e16)",
+            "description": "Increments each time a video is watched to the 50% milestone",
+            "status": "Implemented",
+            "sourceRow": 20
+          },
+          "event17": {
+            "id": "event17",
+            "canonicalName": "Video 75% Milestone",
+            "friendlyName": "Video 75% Milestone (e17)",
+            "description": "Increments each time a video is watched to the 75% milestone",
+            "status": "Implemented",
+            "sourceRow": 21
+          },
+          "event18": {
+            "id": "event18",
+            "canonicalName": "Internal Search",
+            "friendlyName": "Internal Search (e18)",
+            "description": "Increments every time a user does a search",
+            "status": "Implemented",
+            "sourceRow": 22
+          },
+          "event19": {
+            "id": "event19",
+            "canonicalName": "Map filter applied",
+            "friendlyName": "Map filter applied (e19)",
+            "description": "Increments each time a map filter item is selected",
+            "status": "Implemented",
+            "sourceRow": 23
+          },
+          "event20": {
+            "id": "event20",
+            "canonicalName": "MapView",
+            "friendlyName": "MapView (e20)",
+            "description": "-",
+            "status": "No implemented",
+            "sourceRow": 24
+          },
+          "event21": {
+            "id": "event21",
+            "canonicalName": "MapOutView",
+            "friendlyName": "MapOutView (e21)",
+            "description": "-",
+            "status": "No implemented",
+            "sourceRow": 25
+          },
+          "event22": {
+            "id": "event22",
+            "canonicalName": "Click",
+            "friendlyName": "Click (e20)",
+            "description": "Increments every time you click on non-account buttons or link clicks",
+            "status": "Implemented",
+            "sourceRow": 26
+          },
+          "event23": {
+            "id": "event23",
+            "canonicalName": "Scroll",
+            "friendlyName": "Scroll (e23)",
+            "description": "Increments every time a scroll is performed",
+            "status": "Implemented",
+            "sourceRow": 27
+          },
+          "event24": {
+            "id": "event24",
+            "canonicalName": "Page Views Import - 2024",
+            "friendlyName": "Page Views Import - 2024",
+            "description": "Page views import for 202",
+            "status": "",
+            "sourceRow": 28
+          },
+          "event25": {
+            "id": "event25",
+            "canonicalName": "Document Type applied",
+            "friendlyName": "Document Type applied (e25)",
+            "description": "Increments every time a user selects document type for PDF browsing",
+            "status": "",
+            "sourceRow": 29
+          },
+          "event26": {
+            "id": "event26",
+            "canonicalName": "Sort by aplied",
+            "friendlyName": "Sort by aplied (e26)",
+            "description": "Increments every time a user sorts by for PDF browsing",
+            "status": "",
+            "sourceRow": 30
+          },
+          "event27": {
+            "id": "event27",
+            "canonicalName": "Language Applied",
+            "friendlyName": "Language Applied (e27)",
+            "description": "Increments every time a user selects language for PDF browsing/downloading",
+            "status": "",
+            "sourceRow": 31
+          },
+          "event28": {
+            "id": "event28",
+            "canonicalName": "Industry Filter Applied",
+            "friendlyName": "Industry Filter Applied (e28)",
+            "description": "Increments every time a user filters by industry",
+            "status": "",
+            "sourceRow": 32
+          },
+          "event29": {
+            "id": "event29",
+            "canonicalName": "Pre prompt selected",
+            "friendlyName": "Pre prompt selected (e29)",
+            "description": "",
+            "status": "",
+            "sourceRow": 33
+          },
+          "event30": {
+            "id": "event30",
+            "canonicalName": "Query Sent",
+            "friendlyName": "Query Sent (e30)",
+            "description": "",
+            "status": "",
+            "sourceRow": 34
+          },
+          "event31": {
+            "id": "event31",
+            "canonicalName": "AI Query Response",
+            "friendlyName": "AI Query Response (e31)",
+            "description": "",
+            "status": "",
+            "sourceRow": 35
+          },
+          "event32": {
+            "id": "event32",
+            "canonicalName": "AI Query Response Load Time",
+            "friendlyName": "AI Query Response Load Time (e32)",
+            "description": "",
+            "status": "",
+            "sourceRow": 36
+          },
+          "event33": {
+            "id": "event33",
+            "canonicalName": "Copy AI Query Response",
+            "friendlyName": "Copy AI Query Response (e33)",
+            "description": "",
+            "status": "",
+            "sourceRow": 37
+          },
+          "event34": {
+            "id": "event34",
+            "canonicalName": "Positive Feedback",
+            "friendlyName": "Positive Feedback (e34)",
+            "description": "Captures Thumbs up",
+            "status": "",
+            "sourceRow": 38
+          },
+          "event35": {
+            "id": "event35",
+            "canonicalName": "Negative feedback",
+            "friendlyName": "Negative feedback (e35)",
+            "description": "Captures Thumbs down",
+            "status": "",
+            "sourceRow": 39
+          },
+          "event36": {
+            "id": "event36",
+            "canonicalName": "Query AI Reset",
+            "friendlyName": "Query AI Reset (e36)",
+            "description": "",
+            "status": "",
+            "sourceRow": 40
+          },
+          "event37": {
+            "id": "event37",
+            "canonicalName": "Status Filter Applied",
+            "friendlyName": "Status Filter Applied (e37)",
+            "description": "Increments every time a user filters by status",
+            "status": "",
+            "sourceRow": 41
+          }
+        },
+        "eVars": {
+          "eVar1": {
+            "id": "eVar1",
+            "canonicalName": "Domain",
+            "friendlyName": "Domain (v1)",
+            "description": "The website domain",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "eVar2": {
+            "id": "eVar2",
+            "canonicalName": "Previous Page",
+            "friendlyName": "Previous Page (v2)",
+            "description": "The name of the previous page viewed on the site, which can provide insight to the page from which a user initiated a success event.",
+            "status": "Implemented",
+            "sourceRow": 6
+          },
+          "eVar3": {
+            "id": "eVar3",
+            "canonicalName": "Page Name",
+            "friendlyName": "Page Name (v3)",
+            "description": "The name of the page viewed on the site.",
+            "status": "Implemented",
+            "sourceRow": 7
+          },
+          "eVar4": {
+            "id": "eVar4",
+            "canonicalName": "Site Section",
+            "friendlyName": "Site Section (v4)",
+            "description": "The name of the site section viewed",
+            "status": "Implemented",
+            "sourceRow": 8
+          },
+          "eVar5": {
+            "id": "eVar5",
+            "canonicalName": "File Name",
+            "friendlyName": "File Name (v5)",
+            "description": "The name of the file downloaded",
+            "status": "Implemented",
+            "sourceRow": 9
+          },
+          "eVar6": {
+            "id": "eVar6",
+            "canonicalName": "File Type",
+            "friendlyName": "File Type (v6)",
+            "description": "The type of file downloaded (PDF, CSV, etc.)",
+            "status": "Implemented",
+            "sourceRow": 10
+          },
+          "eVar7": {
+            "id": "eVar7",
+            "canonicalName": "Number of Search Results",
+            "friendlyName": "Number of Search Results (v7)",
+            "description": "The number of search results provided from a search.",
+            "status": "Implemented",
+            "sourceRow": 11
+          },
+          "eVar8": {
+            "id": "eVar8",
+            "canonicalName": "Module Name",
+            "friendlyName": "Module Name (v8)",
+            "description": "Captures the name of the module the user is interacting with",
+            "status": "Implemented",
+            "sourceRow": 12
+          },
+          "eVar9": {
+            "id": "eVar9",
+            "canonicalName": "Search Results Page Type",
+            "friendlyName": "Search Results Page Type (v9)",
+            "description": "Captures the different types of search results pages (successful, no result, redirect, did you mean, etc.) Pull success events or exit rate into this report to understand how effective the search results pages are in assisting with conversion.",
+            "status": "Implemented",
+            "sourceRow": 13
+          },
+          "eVar10": {
+            "id": "eVar10",
+            "canonicalName": "Page Type",
+            "friendlyName": "Page Type (v10)",
+            "description": "Ability to view the page type (Home, Approach, Progress, Impact Areas, People, Reporting & Downloads, 2022 Report) visited by the user",
+            "status": "Implemented",
+            "sourceRow": 14
+          },
+          "eVar11": {
+            "id": "eVar11",
+            "canonicalName": "Content Type",
+            "friendlyName": "Content Type (v11)",
+            "description": "Ability to track the type of content that is being viewed (Video, Article, Slide show, Navigation Page, Gallery)",
+            "status": "Implemented",
+            "sourceRow": 15
+          },
+          "eVar12": {
+            "id": "eVar12",
+            "canonicalName": "CTA Button",
+            "friendlyName": "CTA Button (v12)",
+            "description": "Captures the CTA button a user clicks on (such as arrows for galleries and modules, icon on the home page, etc.)",
+            "status": "Implemented",
+            "sourceRow": 16
+          },
+          "eVar13": {
+            "id": "eVar13",
+            "canonicalName": "Video Name",
+            "friendlyName": "Video Name (v13)",
+            "description": "Captures the name of the video viewed on the site",
+            "status": "Implemented",
+            "sourceRow": 17
+          },
+          "eVar14": {
+            "id": "eVar14",
+            "canonicalName": "Destination Link",
+            "friendlyName": "Destination Link (v14)",
+            "description": "Captures the destination link (URL) of link clicks",
+            "status": "Implemented",
+            "sourceRow": 18
+          },
+          "eVar15": {
+            "id": "eVar15",
+            "canonicalName": "Page URL",
+            "friendlyName": "Page URL (v15)",
+            "description": "Capture the page’s URL without a query string using JavaScript on every server call. Answers what are the URLs where my events are triggered? What URLs correspond to a particular page name?",
+            "status": "Implemented",
+            "sourceRow": 19
+          },
+          "eVar16": {
+            "id": "eVar16",
+            "canonicalName": "Page Query String",
+            "friendlyName": "Page Query String (v16)",
+            "description": "Capture everything in the page’s URL after the ? (including any hastags #) on every server call in a prop and an eVar.  Answers what query string parameters are being set on a particular page name or page URL? Can also be helpful for segmentation",
+            "status": "Implemented",
+            "sourceRow": 20
+          },
+          "eVar17": {
+            "id": "eVar17",
+            "canonicalName": "Link Title",
+            "friendlyName": "Link Title (v17)",
+            "description": "Captures the redirect link that a user clicks on",
+            "status": "Implemented",
+            "sourceRow": 21
+          },
+          "eVar18": {
+            "id": "eVar18",
+            "canonicalName": "ECID",
+            "friendlyName": "ECID (v18)",
+            "description": "Captures the ECID. In testing, it's helpful to segment on a particular visitor ID to understand how data appears in reporting",
+            "status": "No implemented",
+            "sourceRow": 22
+          },
+          "eVar19": {
+            "id": "eVar19",
+            "canonicalName": "Secondary Menu",
+            "friendlyName": "Secondary Menu (v19)",
+            "description": "Captures the menu item a user clicks on",
+            "status": "Implemented",
+            "sourceRow": 23
+          },
+          "eVar20": {
+            "id": "eVar20",
+            "canonicalName": "Year Selection",
+            "friendlyName": "Year Selection (v20)",
+            "description": "Captures the year a user selects when browsing PDFs",
+            "status": "Implemented",
+            "sourceRow": 24
+          },
+          "eVar21": {
+            "id": "eVar21",
+            "canonicalName": "Topic Selection",
+            "friendlyName": "Topic Selection (v21)",
+            "description": "Captures the topic a user selects when browsing PDFs",
+            "status": "Implemented",
+            "sourceRow": 25
+          },
+          "eVar22": {
+            "id": "eVar22",
+            "canonicalName": "Language Selection",
+            "friendlyName": "Language Selection (v22)",
+            "description": "Captures the language the user selects for downloading PDFs",
+            "status": "Implemented",
+            "sourceRow": 26
+          },
+          "eVar23": {
+            "id": "eVar23",
+            "canonicalName": "Scroll Depth",
+            "friendlyName": "Scroll Depth (v23)",
+            "description": "Captures a user's scroll depth",
+            "status": "Implemented",
+            "sourceRow": 27
+          },
+          "eVar24": {
+            "id": "eVar24",
+            "canonicalName": "Internal Search Term",
+            "friendlyName": "Internal Search Term (v24)",
+            "description": "Captures the term a user searches for",
+            "status": "Implemented",
+            "sourceRow": 28
+          },
+          "eVar25": {
+            "id": "eVar25",
+            "canonicalName": "Sort by",
+            "friendlyName": "Sort by (v25)",
+            "description": "Captures the sort by filter user selects",
+            "status": "Implemented",
+            "sourceRow": 29
+          },
+          "eVar26": {
+            "id": "eVar26",
+            "canonicalName": "Map Filter",
+            "friendlyName": "Map Filter (v26)",
+            "description": "Captures the selections for map filters (un-checkmarked) after user opens the filter menu",
+            "status": "Implemented",
+            "sourceRow": 30
+          },
+          "eVar27": {
+            "id": "eVar27",
+            "canonicalName": "Header Menu",
+            "friendlyName": "Header Menu (v27)",
+            "description": "Captures the menu item a user clicks on the header menu",
+            "status": "Implemented",
+            "sourceRow": 31
+          },
+          "eVar28": {
+            "id": "eVar28",
+            "canonicalName": "Page Section",
+            "friendlyName": "Page Section (v28)",
+            "description": "Captures the page section where the interaction takes place",
+            "status": "Implemented",
+            "sourceRow": 32
+          },
+          "eVar29": {
+            "id": "eVar29",
+            "canonicalName": "Generic Click Name",
+            "friendlyName": "Generic Click Name (v29)",
+            "description": "Captures the name of a click",
+            "status": "Implemented",
+            "sourceRow": 33
+          },
+          "eVar30": {
+            "id": "eVar30",
+            "canonicalName": "Search Result Type",
+            "friendlyName": "Search Result Type (v30)",
+            "description": "Captures type of result when users make a search",
+            "status": "No implemented",
+            "sourceRow": 34
+          },
+          "eVar31": {
+            "id": "eVar31",
+            "canonicalName": "Clean Page URL",
+            "friendlyName": "Clean Page URL (v31)",
+            "description": "Captures the URL up to the beginning of the utm parameters",
+            "status": "Implemented",
+            "sourceRow": 35
+          },
+          "eVar32": {
+            "id": "eVar32",
+            "canonicalName": "Document Type Selection",
+            "friendlyName": "Document Type Selection (v32)",
+            "description": "Captures the filter selected for document type",
+            "status": "No implemented",
+            "sourceRow": 36
+          },
+          "eVar33": {
+            "id": "eVar33",
+            "canonicalName": "Page Load Time",
+            "friendlyName": "Page Load Time (v33)",
+            "description": "When any page of the site is loaded",
+            "status": "No implemented",
+            "sourceRow": 37
+          },
+          "eVar34": {
+            "id": "eVar34",
+            "canonicalName": "Share Content",
+            "friendlyName": "Share Content (v34)",
+            "description": "When clicking on the social media icons to share an article",
+            "status": "",
+            "sourceRow": 38
+          },
+          "eVar35": {
+            "id": "eVar35",
+            "canonicalName": "User Agent",
+            "friendlyName": "User Agent (v35)",
+            "description": "Is added to the pageview hit and is used to identify Amazon Security test activity",
+            "status": "",
+            "sourceRow": 39
+          },
+          "eVar36": {
+            "id": "eVar36",
+            "canonicalName": "Component",
+            "friendlyName": "Component (v36)",
+            "description": "Component - frontend implementation",
+            "status": "",
+            "sourceRow": 40
+          },
+          "eVar37": {
+            "id": "eVar37",
+            "canonicalName": "Tooltip",
+            "friendlyName": "Tooltip (v37)",
+            "description": "Used to identify tooltip interactions. Boolean value for Yes or No.",
+            "status": "",
+            "sourceRow": 41
+          },
+          "eVar38": {
+            "id": "eVar38",
+            "canonicalName": "Hostname",
+            "friendlyName": "Hostname (v38)",
+            "description": "Log eVar for hostname",
+            "status": "",
+            "sourceRow": 42
+          },
+          "eVar39": {
+            "id": "eVar39",
+            "canonicalName": "Path",
+            "friendlyName": "Path (v39)",
+            "description": "Log eVar for path",
+            "status": "",
+            "sourceRow": 43
+          },
+          "eVar40": {
+            "id": "eVar40",
+            "canonicalName": "Industry Filter Selection",
+            "friendlyName": "Industry Filter Selection (v40)",
+            "description": "Captures the industry by filter user selects",
+            "status": "",
+            "sourceRow": 44
+          },
+          "eVar41": {
+            "id": "eVar41",
+            "canonicalName": "UTM Source",
+            "friendlyName": "UTM Source (v41)",
+            "description": "Captures UTM source from URL",
+            "status": "",
+            "sourceRow": 45
+          },
+          "eVar42": {
+            "id": "eVar42",
+            "canonicalName": "UTM Medium",
+            "friendlyName": "UTM Medium  (v42)",
+            "description": "Captures UTM medium from URL",
+            "status": "",
+            "sourceRow": 46
+          },
+          "eVar43": {
+            "id": "eVar43",
+            "canonicalName": "UTM Campaign",
+            "friendlyName": "UTM Campaign  (v43)",
+            "description": "Captures UTM campaign from URL",
+            "status": "",
+            "sourceRow": 47
+          },
+          "eVar44": {
+            "id": "eVar44",
+            "canonicalName": "UTM Content",
+            "friendlyName": "UTM Content  (v44)",
+            "description": "Captures UTM content from URL",
+            "status": "",
+            "sourceRow": 48
+          },
+          "eVar45": {
+            "id": "eVar45",
+            "canonicalName": "UTM Parameters",
+            "friendlyName": "UTM Parameters  (v45)",
+            "description": "Captures concatenated UTM parameters",
+            "status": "",
+            "sourceRow": 49
+          },
+          "eVar46": {
+            "id": "eVar46",
+            "canonicalName": "UTM Term",
+            "friendlyName": "UTM Term  (v46)",
+            "description": "Captures UTM term from URL",
+            "status": "",
+            "sourceRow": 50
+          },
+          "eVar47": {
+            "id": "eVar47",
+            "canonicalName": "Error Type",
+            "friendlyName": "Error Type (v47)",
+            "description": "Captures the type of error that interrumted the navigation",
+            "status": "",
+            "sourceRow": 51
+          },
+          "eVar48": {
+            "id": "eVar48",
+            "canonicalName": "AI Response Type",
+            "friendlyName": "AI Response Type (v48)",
+            "description": "Boolean variable “Regular” or “Moderated”",
+            "status": "",
+            "sourceRow": 52
+          },
+          "eVar49": {
+            "id": "eVar49",
+            "canonicalName": "Status Filter",
+            "friendlyName": "Status Filter (v49)",
+            "description": "Captures the filter selected for status type",
+            "status": "",
+            "sourceRow": 53
+          },
+          "eVar50": {
+            "id": "eVar50",
+            "canonicalName": "Prepromt text",
+            "friendlyName": "Prepromt text (v50)",
+            "description": "Captures the Prepromt text",
+            "status": "",
+            "sourceRow": 54
+          },
+          "eVar87": {
+            "id": "eVar87",
+            "canonicalName": "Web Vitals: Metric Name",
+            "friendlyName": "Web Vitals: Metric Name (v87)",
+            "description": "Web vitals metrics",
+            "status": "",
+            "sourceRow": 91
+          },
+          "eVar88": {
+            "id": "eVar88",
+            "canonicalName": "Web Vitals: Rating",
+            "friendlyName": "Web Vitals: Rating (v88)",
+            "description": "Web vitals metrics",
+            "status": "",
+            "sourceRow": 92
+          }
+        },
+        "props": {
+          "prop1": {
+            "id": "prop1",
+            "canonicalName": "Timestamp",
+            "friendlyName": "Timestamp (c1)",
+            "description": "Time stamp format is: MM/DD/YYYY HH:MM",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "prop2": {
+            "id": "prop2",
+            "canonicalName": "Page Document Title",
+            "friendlyName": "Page Document Title (c2)",
+            "description": "Capture the page's document title",
+            "status": "No implemented",
+            "sourceRow": 6
+          },
+          "prop75": {
+            "id": "prop75",
+            "canonicalName": "Web Vitals: Metric ID",
+            "friendlyName": "Web Vitals: Metric ID (c75)",
+            "description": "Web vitals: Metric ID",
+            "status": "",
+            "sourceRow": 10
+          }
+        }
+      }
+    },
+    "amznsproduction": {
+      "rsid": "amznsproduction",
+      "title": "Sustainability Production",
+      "description": "",
+      "sourceRow": 8,
+      "dictionary": {
+        "events": {
+          "event1": {
+            "id": "event1",
+            "canonicalName": "CTA Click",
+            "friendlyName": "CTA Click (e1)",
+            "description": "Increments every time a user clicks on a CTA button",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "event2": {
+            "id": "event2",
+            "canonicalName": "Link Clicks",
+            "friendlyName": "Link Clicks (e2)",
+            "description": "Increments every time a user clicks on a link",
+            "status": "Implemented",
+            "sourceRow": 6
+          },
+          "event3": {
+            "id": "event3",
+            "canonicalName": "Year Applied",
+            "friendlyName": "Year Applied (e3)",
+            "description": "Increments every time a user selects year for PDF browsing",
+            "status": "No implemented",
+            "sourceRow": 7
+          },
+          "event4": {
+            "id": "event4",
+            "canonicalName": "Topic Applied",
+            "friendlyName": "Topic Applied (e4)",
+            "description": "Increments every time a user selects topic for PDF browsing",
+            "status": "No implemented",
+            "sourceRow": 8
+          },
+          "event5": {
+            "id": "event5",
+            "canonicalName": "Scroll Reach 25%",
+            "friendlyName": "Scroll Reach 25% (e5)",
+            "description": "Increments when a user reaches 25% of the page",
+            "status": "Implemented",
+            "sourceRow": 9
+          },
+          "event6": {
+            "id": "event6",
+            "canonicalName": "Scroll Reach 50%",
+            "friendlyName": "Scroll Reach 50% (e6)",
+            "description": "Increments when a user reaches 50% of the page",
+            "status": "Implemented",
+            "sourceRow": 10
+          },
+          "event7": {
+            "id": "event7",
+            "canonicalName": "Scroll Reach 75%",
+            "friendlyName": "Scroll Reach 75% (e7)",
+            "description": "Increments when a user reaches 75% of the page",
+            "status": "Implemented",
+            "sourceRow": 11
+          },
+          "event8": {
+            "id": "event8",
+            "canonicalName": "Scroll Reach 100%",
+            "friendlyName": "Scroll Reach 100% (e8)",
+            "description": "Increments when a user reaches 100% of the page",
+            "status": "Implemented",
+            "sourceRow": 12
+          },
+          "event9": {
+            "id": "event9",
+            "canonicalName": "Null Search",
+            "friendlyName": "Null Search (e9)",
+            "description": "Increments each time a search provides no results, allowing content managers to create content for terms users are searching",
+            "status": "Implemented",
+            "sourceRow": 13
+          },
+          "event10": {
+            "id": "event10",
+            "canonicalName": "Internal Search Click-through",
+            "friendlyName": "Internal Search Click-through (e10)",
+            "description": "Increments each time the user clicks through search result pages (\"Next page\" button)",
+            "status": "Implemented",
+            "sourceRow": 14
+          },
+          "event11": {
+            "id": "event11",
+            "canonicalName": "Error",
+            "friendlyName": "Error (e11)",
+            "description": "Increments each time a validation error is presented",
+            "status": "No implemented",
+            "sourceRow": 15
+          },
+          "event12": {
+            "id": "event12",
+            "canonicalName": "Page Load Time",
+            "friendlyName": "Page Load Time (e12)",
+            "description": "Captures the amount of time it takes for a page to load in milliseconds",
+            "status": "No implemented",
+            "sourceRow": 16
+          },
+          "event13": {
+            "id": "event13",
+            "canonicalName": "Video Start",
+            "friendlyName": "Video Start (e13)",
+            "description": "Increments each time a video is started",
+            "status": "Implemented",
+            "sourceRow": 17
+          },
+          "event14": {
+            "id": "event14",
+            "canonicalName": "Video Complete",
+            "friendlyName": "Video Complete (e14)",
+            "description": "Increments each time a video is completed",
+            "status": "Implemented",
+            "sourceRow": 18
+          },
+          "event15": {
+            "id": "event15",
+            "canonicalName": "Video 25% Milestone",
+            "friendlyName": "Video 25% Milestone (e15)",
+            "description": "Increments each time a video is watched to the 25% milestone",
+            "status": "Implemented",
+            "sourceRow": 19
+          },
+          "event16": {
+            "id": "event16",
+            "canonicalName": "Video 50% Milestone",
+            "friendlyName": "Video 50% Milestone (e16)",
+            "description": "Increments each time a video is watched to the 50% milestone",
+            "status": "Implemented",
+            "sourceRow": 20
+          },
+          "event17": {
+            "id": "event17",
+            "canonicalName": "Video 75% Milestone",
+            "friendlyName": "Video 75% Milestone (e17)",
+            "description": "Increments each time a video is watched to the 75% milestone",
+            "status": "Implemented",
+            "sourceRow": 21
+          },
+          "event18": {
+            "id": "event18",
+            "canonicalName": "Internal Search",
+            "friendlyName": "Internal Search (e18)",
+            "description": "Increments every time a user does a search",
+            "status": "Implemented",
+            "sourceRow": 22
+          },
+          "event19": {
+            "id": "event19",
+            "canonicalName": "Map filter applied",
+            "friendlyName": "Map filter applied (e19)",
+            "description": "Increments each time a map filter item is selected",
+            "status": "Implemented",
+            "sourceRow": 23
+          },
+          "event20": {
+            "id": "event20",
+            "canonicalName": "MapView",
+            "friendlyName": "MapView (e20)",
+            "description": "-",
+            "status": "No implemented",
+            "sourceRow": 24
+          },
+          "event21": {
+            "id": "event21",
+            "canonicalName": "MapOutView",
+            "friendlyName": "MapOutView (e21)",
+            "description": "-",
+            "status": "No implemented",
+            "sourceRow": 25
+          },
+          "event22": {
+            "id": "event22",
+            "canonicalName": "Click",
+            "friendlyName": "Click (e20)",
+            "description": "Increments every time you click on non-account buttons or link clicks",
+            "status": "Implemented",
+            "sourceRow": 26
+          },
+          "event23": {
+            "id": "event23",
+            "canonicalName": "Scroll",
+            "friendlyName": "Scroll (e23)",
+            "description": "Increments every time a scroll is performed",
+            "status": "Implemented",
+            "sourceRow": 27
+          },
+          "event24": {
+            "id": "event24",
+            "canonicalName": "Page Views Import - 2024",
+            "friendlyName": "Page Views Import - 2024",
+            "description": "Page views import for 202",
+            "status": "",
+            "sourceRow": 28
+          },
+          "event25": {
+            "id": "event25",
+            "canonicalName": "Document Type applied",
+            "friendlyName": "Document Type applied (e25)",
+            "description": "Increments every time a user selects document type for PDF browsing",
+            "status": "",
+            "sourceRow": 29
+          },
+          "event26": {
+            "id": "event26",
+            "canonicalName": "Sort by aplied",
+            "friendlyName": "Sort by aplied (e26)",
+            "description": "Increments every time a user sorts by for PDF browsing",
+            "status": "",
+            "sourceRow": 30
+          },
+          "event27": {
+            "id": "event27",
+            "canonicalName": "Language Applied",
+            "friendlyName": "Language Applied (e27)",
+            "description": "Increments every time a user selects language for PDF browsing/downloading",
+            "status": "",
+            "sourceRow": 31
+          },
+          "event28": {
+            "id": "event28",
+            "canonicalName": "Industry Filter Applied",
+            "friendlyName": "Industry Filter Applied (e28)",
+            "description": "Increments every time a user filters by industry",
+            "status": "",
+            "sourceRow": 32
+          },
+          "event29": {
+            "id": "event29",
+            "canonicalName": "Pre prompt selected",
+            "friendlyName": "Pre prompt selected (e29)",
+            "description": "",
+            "status": "",
+            "sourceRow": 33
+          },
+          "event30": {
+            "id": "event30",
+            "canonicalName": "Query Sent",
+            "friendlyName": "Query Sent (e30)",
+            "description": "",
+            "status": "",
+            "sourceRow": 34
+          },
+          "event31": {
+            "id": "event31",
+            "canonicalName": "AI Query Response",
+            "friendlyName": "AI Query Response (e31)",
+            "description": "",
+            "status": "",
+            "sourceRow": 35
+          },
+          "event32": {
+            "id": "event32",
+            "canonicalName": "AI Query Response Load Time",
+            "friendlyName": "AI Query Response Load Time (e32)",
+            "description": "",
+            "status": "",
+            "sourceRow": 36
+          },
+          "event33": {
+            "id": "event33",
+            "canonicalName": "Copy AI Query Response",
+            "friendlyName": "Copy AI Query Response (e33)",
+            "description": "",
+            "status": "",
+            "sourceRow": 37
+          },
+          "event34": {
+            "id": "event34",
+            "canonicalName": "Positive Feedback",
+            "friendlyName": "Positive Feedback (e34)",
+            "description": "Captures Thumbs up",
+            "status": "",
+            "sourceRow": 38
+          },
+          "event35": {
+            "id": "event35",
+            "canonicalName": "Negative feedback",
+            "friendlyName": "Negative feedback (e35)",
+            "description": "Captures Thumbs down",
+            "status": "",
+            "sourceRow": 39
+          },
+          "event36": {
+            "id": "event36",
+            "canonicalName": "Query AI Reset",
+            "friendlyName": "Query AI Reset (e36)",
+            "description": "",
+            "status": "",
+            "sourceRow": 40
+          },
+          "event37": {
+            "id": "event37",
+            "canonicalName": "Status Filter Applied",
+            "friendlyName": "Status Filter Applied (e37)",
+            "description": "Increments every time a user filters by status",
+            "status": "",
+            "sourceRow": 41
+          }
+        },
+        "eVars": {
+          "eVar1": {
+            "id": "eVar1",
+            "canonicalName": "Domain",
+            "friendlyName": "Domain (v1)",
+            "description": "The website domain",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "eVar2": {
+            "id": "eVar2",
+            "canonicalName": "Previous Page",
+            "friendlyName": "Previous Page (v2)",
+            "description": "The name of the previous page viewed on the site, which can provide insight to the page from which a user initiated a success event.",
+            "status": "Implemented",
+            "sourceRow": 6
+          },
+          "eVar3": {
+            "id": "eVar3",
+            "canonicalName": "Page Name",
+            "friendlyName": "Page Name (v3)",
+            "description": "The name of the page viewed on the site.",
+            "status": "Implemented",
+            "sourceRow": 7
+          },
+          "eVar4": {
+            "id": "eVar4",
+            "canonicalName": "Site Section",
+            "friendlyName": "Site Section (v4)",
+            "description": "The name of the site section viewed",
+            "status": "Implemented",
+            "sourceRow": 8
+          },
+          "eVar5": {
+            "id": "eVar5",
+            "canonicalName": "File Name",
+            "friendlyName": "File Name (v5)",
+            "description": "The name of the file downloaded",
+            "status": "Implemented",
+            "sourceRow": 9
+          },
+          "eVar6": {
+            "id": "eVar6",
+            "canonicalName": "File Type",
+            "friendlyName": "File Type (v6)",
+            "description": "The type of file downloaded (PDF, CSV, etc.)",
+            "status": "Implemented",
+            "sourceRow": 10
+          },
+          "eVar7": {
+            "id": "eVar7",
+            "canonicalName": "Number of Search Results",
+            "friendlyName": "Number of Search Results (v7)",
+            "description": "The number of search results provided from a search.",
+            "status": "Implemented",
+            "sourceRow": 11
+          },
+          "eVar8": {
+            "id": "eVar8",
+            "canonicalName": "Module Name",
+            "friendlyName": "Module Name (v8)",
+            "description": "Captures the name of the module the user is interacting with",
+            "status": "Implemented",
+            "sourceRow": 12
+          },
+          "eVar9": {
+            "id": "eVar9",
+            "canonicalName": "Search Results Page Type",
+            "friendlyName": "Search Results Page Type (v9)",
+            "description": "Captures the different types of search results pages (successful, no result, redirect, did you mean, etc.) Pull success events or exit rate into this report to understand how effective the search results pages are in assisting with conversion.",
+            "status": "Implemented",
+            "sourceRow": 13
+          },
+          "eVar10": {
+            "id": "eVar10",
+            "canonicalName": "Page Type",
+            "friendlyName": "Page Type (v10)",
+            "description": "Ability to view the page type (Home, Approach, Progress, Impact Areas, People, Reporting & Downloads, 2022 Report) visited by the user",
+            "status": "Implemented",
+            "sourceRow": 14
+          },
+          "eVar11": {
+            "id": "eVar11",
+            "canonicalName": "Content Type",
+            "friendlyName": "Content Type (v11)",
+            "description": "Ability to track the type of content that is being viewed (Video, Article, Slide show, Navigation Page, Gallery)",
+            "status": "Implemented",
+            "sourceRow": 15
+          },
+          "eVar12": {
+            "id": "eVar12",
+            "canonicalName": "CTA Button",
+            "friendlyName": "CTA Button (v12)",
+            "description": "Captures the CTA button a user clicks on (such as arrows for galleries and modules, icon on the home page, etc.)",
+            "status": "Implemented",
+            "sourceRow": 16
+          },
+          "eVar13": {
+            "id": "eVar13",
+            "canonicalName": "Video Name",
+            "friendlyName": "Video Name (v13)",
+            "description": "Captures the name of the video viewed on the site",
+            "status": "Implemented",
+            "sourceRow": 17
+          },
+          "eVar14": {
+            "id": "eVar14",
+            "canonicalName": "Destination Link",
+            "friendlyName": "Destination Link (v14)",
+            "description": "Captures the destination link (URL) of link clicks",
+            "status": "Implemented",
+            "sourceRow": 18
+          },
+          "eVar15": {
+            "id": "eVar15",
+            "canonicalName": "Page URL",
+            "friendlyName": "Page URL (v15)",
+            "description": "Capture the page’s URL without a query string using JavaScript on every server call. Answers what are the URLs where my events are triggered? What URLs correspond to a particular page name?",
+            "status": "Implemented",
+            "sourceRow": 19
+          },
+          "eVar16": {
+            "id": "eVar16",
+            "canonicalName": "Page Query String",
+            "friendlyName": "Page Query String (v16)",
+            "description": "Capture everything in the page’s URL after the ? (including any hastags #) on every server call in a prop and an eVar.  Answers what query string parameters are being set on a particular page name or page URL? Can also be helpful for segmentation",
+            "status": "Implemented",
+            "sourceRow": 20
+          },
+          "eVar17": {
+            "id": "eVar17",
+            "canonicalName": "Link Title",
+            "friendlyName": "Link Title (v17)",
+            "description": "Captures the redirect link that a user clicks on",
+            "status": "Implemented",
+            "sourceRow": 21
+          },
+          "eVar18": {
+            "id": "eVar18",
+            "canonicalName": "ECID",
+            "friendlyName": "ECID (v18)",
+            "description": "Captures the ECID. In testing, it's helpful to segment on a particular visitor ID to understand how data appears in reporting",
+            "status": "No implemented",
+            "sourceRow": 22
+          },
+          "eVar19": {
+            "id": "eVar19",
+            "canonicalName": "Secondary Menu",
+            "friendlyName": "Secondary Menu (v19)",
+            "description": "Captures the menu item a user clicks on",
+            "status": "Implemented",
+            "sourceRow": 23
+          },
+          "eVar20": {
+            "id": "eVar20",
+            "canonicalName": "Year Selection",
+            "friendlyName": "Year Selection (v20)",
+            "description": "Captures the year a user selects when browsing PDFs",
+            "status": "Implemented",
+            "sourceRow": 24
+          },
+          "eVar21": {
+            "id": "eVar21",
+            "canonicalName": "Topic Selection",
+            "friendlyName": "Topic Selection (v21)",
+            "description": "Captures the topic a user selects when browsing PDFs",
+            "status": "Implemented",
+            "sourceRow": 25
+          },
+          "eVar22": {
+            "id": "eVar22",
+            "canonicalName": "Language Selection",
+            "friendlyName": "Language Selection (v22)",
+            "description": "Captures the language the user selects for downloading PDFs",
+            "status": "Implemented",
+            "sourceRow": 26
+          },
+          "eVar23": {
+            "id": "eVar23",
+            "canonicalName": "Scroll Depth",
+            "friendlyName": "Scroll Depth (v23)",
+            "description": "Captures a user's scroll depth",
+            "status": "Implemented",
+            "sourceRow": 27
+          },
+          "eVar24": {
+            "id": "eVar24",
+            "canonicalName": "Internal Search Term",
+            "friendlyName": "Internal Search Term (v24)",
+            "description": "Captures the term a user searches for",
+            "status": "Implemented",
+            "sourceRow": 28
+          },
+          "eVar25": {
+            "id": "eVar25",
+            "canonicalName": "Sort by",
+            "friendlyName": "Sort by (v25)",
+            "description": "Captures the sort by filter user selects",
+            "status": "Implemented",
+            "sourceRow": 29
+          },
+          "eVar26": {
+            "id": "eVar26",
+            "canonicalName": "Map Filter",
+            "friendlyName": "Map Filter (v26)",
+            "description": "Captures the selections for map filters (un-checkmarked) after user opens the filter menu",
+            "status": "Implemented",
+            "sourceRow": 30
+          },
+          "eVar27": {
+            "id": "eVar27",
+            "canonicalName": "Header Menu",
+            "friendlyName": "Header Menu (v27)",
+            "description": "Captures the menu item a user clicks on the header menu",
+            "status": "Implemented",
+            "sourceRow": 31
+          },
+          "eVar28": {
+            "id": "eVar28",
+            "canonicalName": "Page Section",
+            "friendlyName": "Page Section (v28)",
+            "description": "Captures the page section where the interaction takes place",
+            "status": "Implemented",
+            "sourceRow": 32
+          },
+          "eVar29": {
+            "id": "eVar29",
+            "canonicalName": "Generic Click Name",
+            "friendlyName": "Generic Click Name (v29)",
+            "description": "Captures the name of a click",
+            "status": "Implemented",
+            "sourceRow": 33
+          },
+          "eVar30": {
+            "id": "eVar30",
+            "canonicalName": "Search Result Type",
+            "friendlyName": "Search Result Type (v30)",
+            "description": "Captures type of result when users make a search",
+            "status": "No implemented",
+            "sourceRow": 34
+          },
+          "eVar31": {
+            "id": "eVar31",
+            "canonicalName": "Clean Page URL",
+            "friendlyName": "Clean Page URL (v31)",
+            "description": "Captures the URL up to the beginning of the utm parameters",
+            "status": "Implemented",
+            "sourceRow": 35
+          },
+          "eVar32": {
+            "id": "eVar32",
+            "canonicalName": "Document Type Selection",
+            "friendlyName": "Document Type Selection (v32)",
+            "description": "Captures the filter selected for document type",
+            "status": "No implemented",
+            "sourceRow": 36
+          },
+          "eVar33": {
+            "id": "eVar33",
+            "canonicalName": "Page Load Time",
+            "friendlyName": "Page Load Time (v33)",
+            "description": "When any page of the site is loaded",
+            "status": "No implemented",
+            "sourceRow": 37
+          },
+          "eVar34": {
+            "id": "eVar34",
+            "canonicalName": "Share Content",
+            "friendlyName": "Share Content (v34)",
+            "description": "When clicking on the social media icons to share an article",
+            "status": "",
+            "sourceRow": 38
+          },
+          "eVar35": {
+            "id": "eVar35",
+            "canonicalName": "User Agent",
+            "friendlyName": "User Agent (v35)",
+            "description": "Is added to the pageview hit and is used to identify Amazon Security test activity",
+            "status": "",
+            "sourceRow": 39
+          },
+          "eVar36": {
+            "id": "eVar36",
+            "canonicalName": "Component",
+            "friendlyName": "Component (v36)",
+            "description": "Component - frontend implementation",
+            "status": "",
+            "sourceRow": 40
+          },
+          "eVar37": {
+            "id": "eVar37",
+            "canonicalName": "Tooltip",
+            "friendlyName": "Tooltip (v37)",
+            "description": "Used to identify tooltip interactions. Boolean value for Yes or No.",
+            "status": "",
+            "sourceRow": 41
+          },
+          "eVar38": {
+            "id": "eVar38",
+            "canonicalName": "Hostname",
+            "friendlyName": "Hostname (v38)",
+            "description": "Log eVar for hostname",
+            "status": "",
+            "sourceRow": 42
+          },
+          "eVar39": {
+            "id": "eVar39",
+            "canonicalName": "Path",
+            "friendlyName": "Path (v39)",
+            "description": "Log eVar for path",
+            "status": "",
+            "sourceRow": 43
+          },
+          "eVar40": {
+            "id": "eVar40",
+            "canonicalName": "Industry Filter Selection",
+            "friendlyName": "Industry Filter Selection (v40)",
+            "description": "Captures the industry by filter user selects",
+            "status": "",
+            "sourceRow": 44
+          },
+          "eVar41": {
+            "id": "eVar41",
+            "canonicalName": "UTM Source",
+            "friendlyName": "UTM Source (v41)",
+            "description": "Captures UTM source from URL",
+            "status": "",
+            "sourceRow": 45
+          },
+          "eVar42": {
+            "id": "eVar42",
+            "canonicalName": "UTM Medium",
+            "friendlyName": "UTM Medium  (v42)",
+            "description": "Captures UTM medium from URL",
+            "status": "",
+            "sourceRow": 46
+          },
+          "eVar43": {
+            "id": "eVar43",
+            "canonicalName": "UTM Campaign",
+            "friendlyName": "UTM Campaign  (v43)",
+            "description": "Captures UTM campaign from URL",
+            "status": "",
+            "sourceRow": 47
+          },
+          "eVar44": {
+            "id": "eVar44",
+            "canonicalName": "UTM Content",
+            "friendlyName": "UTM Content  (v44)",
+            "description": "Captures UTM content from URL",
+            "status": "",
+            "sourceRow": 48
+          },
+          "eVar45": {
+            "id": "eVar45",
+            "canonicalName": "UTM Parameters",
+            "friendlyName": "UTM Parameters  (v45)",
+            "description": "Captures concatenated UTM parameters",
+            "status": "",
+            "sourceRow": 49
+          },
+          "eVar46": {
+            "id": "eVar46",
+            "canonicalName": "UTM Term",
+            "friendlyName": "UTM Term  (v46)",
+            "description": "Captures UTM term from URL",
+            "status": "",
+            "sourceRow": 50
+          },
+          "eVar47": {
+            "id": "eVar47",
+            "canonicalName": "Error Type",
+            "friendlyName": "Error Type (v47)",
+            "description": "Captures the type of error that interrumted the navigation",
+            "status": "",
+            "sourceRow": 51
+          },
+          "eVar48": {
+            "id": "eVar48",
+            "canonicalName": "AI Response Type",
+            "friendlyName": "AI Response Type (v48)",
+            "description": "Boolean variable “Regular” or “Moderated”",
+            "status": "",
+            "sourceRow": 52
+          },
+          "eVar49": {
+            "id": "eVar49",
+            "canonicalName": "Status Filter",
+            "friendlyName": "Status Filter (v49)",
+            "description": "Captures the filter selected for status type",
+            "status": "",
+            "sourceRow": 53
+          },
+          "eVar50": {
+            "id": "eVar50",
+            "canonicalName": "Prepromt text",
+            "friendlyName": "Prepromt text (v50)",
+            "description": "Captures the Prepromt text",
+            "status": "",
+            "sourceRow": 54
+          },
+          "eVar87": {
+            "id": "eVar87",
+            "canonicalName": "Web Vitals: Metric Name",
+            "friendlyName": "Web Vitals: Metric Name (v87)",
+            "description": "Web vitals metrics",
+            "status": "",
+            "sourceRow": 91
+          },
+          "eVar88": {
+            "id": "eVar88",
+            "canonicalName": "Web Vitals: Rating",
+            "friendlyName": "Web Vitals: Rating (v88)",
+            "description": "Web vitals metrics",
+            "status": "",
+            "sourceRow": 92
+          }
+        },
+        "props": {
+          "prop1": {
+            "id": "prop1",
+            "canonicalName": "Timestamp",
+            "friendlyName": "Timestamp (c1)",
+            "description": "Time stamp format is: MM/DD/YYYY HH:MM",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "prop2": {
+            "id": "prop2",
+            "canonicalName": "Page Document Title",
+            "friendlyName": "Page Document Title (c2)",
+            "description": "Capture the page's document title",
+            "status": "No implemented",
+            "sourceRow": 6
+          },
+          "prop75": {
+            "id": "prop75",
+            "canonicalName": "Web Vitals: Metric ID",
+            "friendlyName": "Web Vitals: Metric ID (c75)",
+            "description": "Web vitals: Metric ID",
+            "status": "",
+            "sourceRow": 10
+          }
+        }
+      }
+    },
+    "amznsstaging": {
+      "rsid": "amznsstaging",
+      "title": "Sustainability Staging",
+      "description": "",
+      "sourceRow": 9,
+      "dictionary": {
+        "events": {
+          "event1": {
+            "id": "event1",
+            "canonicalName": "CTA Click",
+            "friendlyName": "CTA Click (e1)",
+            "description": "Increments every time a user clicks on a CTA button",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "event2": {
+            "id": "event2",
+            "canonicalName": "Link Clicks",
+            "friendlyName": "Link Clicks (e2)",
+            "description": "Increments every time a user clicks on a link",
+            "status": "Implemented",
+            "sourceRow": 6
+          },
+          "event3": {
+            "id": "event3",
+            "canonicalName": "Year Applied",
+            "friendlyName": "Year Applied (e3)",
+            "description": "Increments every time a user selects year for PDF browsing",
+            "status": "No implemented",
+            "sourceRow": 7
+          },
+          "event4": {
+            "id": "event4",
+            "canonicalName": "Topic Applied",
+            "friendlyName": "Topic Applied (e4)",
+            "description": "Increments every time a user selects topic for PDF browsing",
+            "status": "No implemented",
+            "sourceRow": 8
+          },
+          "event5": {
+            "id": "event5",
+            "canonicalName": "Scroll Reach 25%",
+            "friendlyName": "Scroll Reach 25% (e5)",
+            "description": "Increments when a user reaches 25% of the page",
+            "status": "Implemented",
+            "sourceRow": 9
+          },
+          "event6": {
+            "id": "event6",
+            "canonicalName": "Scroll Reach 50%",
+            "friendlyName": "Scroll Reach 50% (e6)",
+            "description": "Increments when a user reaches 50% of the page",
+            "status": "Implemented",
+            "sourceRow": 10
+          },
+          "event7": {
+            "id": "event7",
+            "canonicalName": "Scroll Reach 75%",
+            "friendlyName": "Scroll Reach 75% (e7)",
+            "description": "Increments when a user reaches 75% of the page",
+            "status": "Implemented",
+            "sourceRow": 11
+          },
+          "event8": {
+            "id": "event8",
+            "canonicalName": "Scroll Reach 100%",
+            "friendlyName": "Scroll Reach 100% (e8)",
+            "description": "Increments when a user reaches 100% of the page",
+            "status": "Implemented",
+            "sourceRow": 12
+          },
+          "event9": {
+            "id": "event9",
+            "canonicalName": "Null Search",
+            "friendlyName": "Null Search (e9)",
+            "description": "Increments each time a search provides no results, allowing content managers to create content for terms users are searching",
+            "status": "Implemented",
+            "sourceRow": 13
+          },
+          "event10": {
+            "id": "event10",
+            "canonicalName": "Internal Search Click-through",
+            "friendlyName": "Internal Search Click-through (e10)",
+            "description": "Increments each time the user clicks through search result pages (\"Next page\" button)",
+            "status": "Implemented",
+            "sourceRow": 14
+          },
+          "event11": {
+            "id": "event11",
+            "canonicalName": "Error",
+            "friendlyName": "Error (e11)",
+            "description": "Increments each time a validation error is presented",
+            "status": "No implemented",
+            "sourceRow": 15
+          },
+          "event12": {
+            "id": "event12",
+            "canonicalName": "Page Load Time",
+            "friendlyName": "Page Load Time (e12)",
+            "description": "Captures the amount of time it takes for a page to load in milliseconds",
+            "status": "No implemented",
+            "sourceRow": 16
+          },
+          "event13": {
+            "id": "event13",
+            "canonicalName": "Video Start",
+            "friendlyName": "Video Start (e13)",
+            "description": "Increments each time a video is started",
+            "status": "Implemented",
+            "sourceRow": 17
+          },
+          "event14": {
+            "id": "event14",
+            "canonicalName": "Video Complete",
+            "friendlyName": "Video Complete (e14)",
+            "description": "Increments each time a video is completed",
+            "status": "Implemented",
+            "sourceRow": 18
+          },
+          "event15": {
+            "id": "event15",
+            "canonicalName": "Video 25% Milestone",
+            "friendlyName": "Video 25% Milestone (e15)",
+            "description": "Increments each time a video is watched to the 25% milestone",
+            "status": "Implemented",
+            "sourceRow": 19
+          },
+          "event16": {
+            "id": "event16",
+            "canonicalName": "Video 50% Milestone",
+            "friendlyName": "Video 50% Milestone (e16)",
+            "description": "Increments each time a video is watched to the 50% milestone",
+            "status": "Implemented",
+            "sourceRow": 20
+          },
+          "event17": {
+            "id": "event17",
+            "canonicalName": "Video 75% Milestone",
+            "friendlyName": "Video 75% Milestone (e17)",
+            "description": "Increments each time a video is watched to the 75% milestone",
+            "status": "Implemented",
+            "sourceRow": 21
+          },
+          "event18": {
+            "id": "event18",
+            "canonicalName": "Internal Search",
+            "friendlyName": "Internal Search (e18)",
+            "description": "Increments every time a user does a search",
+            "status": "Implemented",
+            "sourceRow": 22
+          },
+          "event19": {
+            "id": "event19",
+            "canonicalName": "Map filter applied",
+            "friendlyName": "Map filter applied (e19)",
+            "description": "Increments each time a map filter item is selected",
+            "status": "Implemented",
+            "sourceRow": 23
+          },
+          "event20": {
+            "id": "event20",
+            "canonicalName": "MapView",
+            "friendlyName": "MapView (e20)",
+            "description": "-",
+            "status": "No implemented",
+            "sourceRow": 24
+          },
+          "event21": {
+            "id": "event21",
+            "canonicalName": "MapOutView",
+            "friendlyName": "MapOutView (e21)",
+            "description": "-",
+            "status": "No implemented",
+            "sourceRow": 25
+          },
+          "event22": {
+            "id": "event22",
+            "canonicalName": "Click",
+            "friendlyName": "Click (e20)",
+            "description": "Increments every time you click on non-account buttons or link clicks",
+            "status": "Implemented",
+            "sourceRow": 26
+          },
+          "event23": {
+            "id": "event23",
+            "canonicalName": "Scroll",
+            "friendlyName": "Scroll (e23)",
+            "description": "Increments every time a scroll is performed",
+            "status": "Implemented",
+            "sourceRow": 27
+          },
+          "event24": {
+            "id": "event24",
+            "canonicalName": "Page Views Import - 2024",
+            "friendlyName": "Page Views Import - 2024",
+            "description": "Page views import for 202",
+            "status": "",
+            "sourceRow": 28
+          },
+          "event25": {
+            "id": "event25",
+            "canonicalName": "Document Type applied",
+            "friendlyName": "Document Type applied (e25)",
+            "description": "Increments every time a user selects document type for PDF browsing",
+            "status": "",
+            "sourceRow": 29
+          },
+          "event26": {
+            "id": "event26",
+            "canonicalName": "Sort by aplied",
+            "friendlyName": "Sort by aplied (e26)",
+            "description": "Increments every time a user sorts by for PDF browsing",
+            "status": "",
+            "sourceRow": 30
+          },
+          "event27": {
+            "id": "event27",
+            "canonicalName": "Language Applied",
+            "friendlyName": "Language Applied (e27)",
+            "description": "Increments every time a user selects language for PDF browsing/downloading",
+            "status": "",
+            "sourceRow": 31
+          },
+          "event28": {
+            "id": "event28",
+            "canonicalName": "Industry Filter Applied",
+            "friendlyName": "Industry Filter Applied (e28)",
+            "description": "Increments every time a user filters by industry",
+            "status": "",
+            "sourceRow": 32
+          },
+          "event29": {
+            "id": "event29",
+            "canonicalName": "Pre prompt selected",
+            "friendlyName": "Pre prompt selected (e29)",
+            "description": "",
+            "status": "",
+            "sourceRow": 33
+          },
+          "event30": {
+            "id": "event30",
+            "canonicalName": "Query Sent",
+            "friendlyName": "Query Sent (e30)",
+            "description": "",
+            "status": "",
+            "sourceRow": 34
+          },
+          "event31": {
+            "id": "event31",
+            "canonicalName": "AI Query Response",
+            "friendlyName": "AI Query Response (e31)",
+            "description": "",
+            "status": "",
+            "sourceRow": 35
+          },
+          "event32": {
+            "id": "event32",
+            "canonicalName": "AI Query Response Load Time",
+            "friendlyName": "AI Query Response Load Time (e32)",
+            "description": "",
+            "status": "",
+            "sourceRow": 36
+          },
+          "event33": {
+            "id": "event33",
+            "canonicalName": "Copy AI Query Response",
+            "friendlyName": "Copy AI Query Response (e33)",
+            "description": "",
+            "status": "",
+            "sourceRow": 37
+          },
+          "event34": {
+            "id": "event34",
+            "canonicalName": "Positive Feedback",
+            "friendlyName": "Positive Feedback (e34)",
+            "description": "Captures Thumbs up",
+            "status": "",
+            "sourceRow": 38
+          },
+          "event35": {
+            "id": "event35",
+            "canonicalName": "Negative feedback",
+            "friendlyName": "Negative feedback (e35)",
+            "description": "Captures Thumbs down",
+            "status": "",
+            "sourceRow": 39
+          },
+          "event36": {
+            "id": "event36",
+            "canonicalName": "Query AI Reset",
+            "friendlyName": "Query AI Reset (e36)",
+            "description": "",
+            "status": "",
+            "sourceRow": 40
+          },
+          "event37": {
+            "id": "event37",
+            "canonicalName": "Status Filter Applied",
+            "friendlyName": "Status Filter Applied (e37)",
+            "description": "Increments every time a user filters by status",
+            "status": "",
+            "sourceRow": 41
+          }
+        },
+        "eVars": {
+          "eVar1": {
+            "id": "eVar1",
+            "canonicalName": "Domain",
+            "friendlyName": "Domain (v1)",
+            "description": "The website domain",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "eVar2": {
+            "id": "eVar2",
+            "canonicalName": "Previous Page",
+            "friendlyName": "Previous Page (v2)",
+            "description": "The name of the previous page viewed on the site, which can provide insight to the page from which a user initiated a success event.",
+            "status": "Implemented",
+            "sourceRow": 6
+          },
+          "eVar3": {
+            "id": "eVar3",
+            "canonicalName": "Page Name",
+            "friendlyName": "Page Name (v3)",
+            "description": "The name of the page viewed on the site.",
+            "status": "Implemented",
+            "sourceRow": 7
+          },
+          "eVar4": {
+            "id": "eVar4",
+            "canonicalName": "Site Section",
+            "friendlyName": "Site Section (v4)",
+            "description": "The name of the site section viewed",
+            "status": "Implemented",
+            "sourceRow": 8
+          },
+          "eVar5": {
+            "id": "eVar5",
+            "canonicalName": "File Name",
+            "friendlyName": "File Name (v5)",
+            "description": "The name of the file downloaded",
+            "status": "Implemented",
+            "sourceRow": 9
+          },
+          "eVar6": {
+            "id": "eVar6",
+            "canonicalName": "File Type",
+            "friendlyName": "File Type (v6)",
+            "description": "The type of file downloaded (PDF, CSV, etc.)",
+            "status": "Implemented",
+            "sourceRow": 10
+          },
+          "eVar7": {
+            "id": "eVar7",
+            "canonicalName": "Number of Search Results",
+            "friendlyName": "Number of Search Results (v7)",
+            "description": "The number of search results provided from a search.",
+            "status": "Implemented",
+            "sourceRow": 11
+          },
+          "eVar8": {
+            "id": "eVar8",
+            "canonicalName": "Module Name",
+            "friendlyName": "Module Name (v8)",
+            "description": "Captures the name of the module the user is interacting with",
+            "status": "Implemented",
+            "sourceRow": 12
+          },
+          "eVar9": {
+            "id": "eVar9",
+            "canonicalName": "Search Results Page Type",
+            "friendlyName": "Search Results Page Type (v9)",
+            "description": "Captures the different types of search results pages (successful, no result, redirect, did you mean, etc.) Pull success events or exit rate into this report to understand how effective the search results pages are in assisting with conversion.",
+            "status": "Implemented",
+            "sourceRow": 13
+          },
+          "eVar10": {
+            "id": "eVar10",
+            "canonicalName": "Page Type",
+            "friendlyName": "Page Type (v10)",
+            "description": "Ability to view the page type (Home, Approach, Progress, Impact Areas, People, Reporting & Downloads, 2022 Report) visited by the user",
+            "status": "Implemented",
+            "sourceRow": 14
+          },
+          "eVar11": {
+            "id": "eVar11",
+            "canonicalName": "Content Type",
+            "friendlyName": "Content Type (v11)",
+            "description": "Ability to track the type of content that is being viewed (Video, Article, Slide show, Navigation Page, Gallery)",
+            "status": "Implemented",
+            "sourceRow": 15
+          },
+          "eVar12": {
+            "id": "eVar12",
+            "canonicalName": "CTA Button",
+            "friendlyName": "CTA Button (v12)",
+            "description": "Captures the CTA button a user clicks on (such as arrows for galleries and modules, icon on the home page, etc.)",
+            "status": "Implemented",
+            "sourceRow": 16
+          },
+          "eVar13": {
+            "id": "eVar13",
+            "canonicalName": "Video Name",
+            "friendlyName": "Video Name (v13)",
+            "description": "Captures the name of the video viewed on the site",
+            "status": "Implemented",
+            "sourceRow": 17
+          },
+          "eVar14": {
+            "id": "eVar14",
+            "canonicalName": "Destination Link",
+            "friendlyName": "Destination Link (v14)",
+            "description": "Captures the destination link (URL) of link clicks",
+            "status": "Implemented",
+            "sourceRow": 18
+          },
+          "eVar15": {
+            "id": "eVar15",
+            "canonicalName": "Page URL",
+            "friendlyName": "Page URL (v15)",
+            "description": "Capture the page’s URL without a query string using JavaScript on every server call. Answers what are the URLs where my events are triggered? What URLs correspond to a particular page name?",
+            "status": "Implemented",
+            "sourceRow": 19
+          },
+          "eVar16": {
+            "id": "eVar16",
+            "canonicalName": "Page Query String",
+            "friendlyName": "Page Query String (v16)",
+            "description": "Capture everything in the page’s URL after the ? (including any hastags #) on every server call in a prop and an eVar.  Answers what query string parameters are being set on a particular page name or page URL? Can also be helpful for segmentation",
+            "status": "Implemented",
+            "sourceRow": 20
+          },
+          "eVar17": {
+            "id": "eVar17",
+            "canonicalName": "Link Title",
+            "friendlyName": "Link Title (v17)",
+            "description": "Captures the redirect link that a user clicks on",
+            "status": "Implemented",
+            "sourceRow": 21
+          },
+          "eVar18": {
+            "id": "eVar18",
+            "canonicalName": "ECID",
+            "friendlyName": "ECID (v18)",
+            "description": "Captures the ECID. In testing, it's helpful to segment on a particular visitor ID to understand how data appears in reporting",
+            "status": "No implemented",
+            "sourceRow": 22
+          },
+          "eVar19": {
+            "id": "eVar19",
+            "canonicalName": "Secondary Menu",
+            "friendlyName": "Secondary Menu (v19)",
+            "description": "Captures the menu item a user clicks on",
+            "status": "Implemented",
+            "sourceRow": 23
+          },
+          "eVar20": {
+            "id": "eVar20",
+            "canonicalName": "Year Selection",
+            "friendlyName": "Year Selection (v20)",
+            "description": "Captures the year a user selects when browsing PDFs",
+            "status": "Implemented",
+            "sourceRow": 24
+          },
+          "eVar21": {
+            "id": "eVar21",
+            "canonicalName": "Topic Selection",
+            "friendlyName": "Topic Selection (v21)",
+            "description": "Captures the topic a user selects when browsing PDFs",
+            "status": "Implemented",
+            "sourceRow": 25
+          },
+          "eVar22": {
+            "id": "eVar22",
+            "canonicalName": "Language Selection",
+            "friendlyName": "Language Selection (v22)",
+            "description": "Captures the language the user selects for downloading PDFs",
+            "status": "Implemented",
+            "sourceRow": 26
+          },
+          "eVar23": {
+            "id": "eVar23",
+            "canonicalName": "Scroll Depth",
+            "friendlyName": "Scroll Depth (v23)",
+            "description": "Captures a user's scroll depth",
+            "status": "Implemented",
+            "sourceRow": 27
+          },
+          "eVar24": {
+            "id": "eVar24",
+            "canonicalName": "Internal Search Term",
+            "friendlyName": "Internal Search Term (v24)",
+            "description": "Captures the term a user searches for",
+            "status": "Implemented",
+            "sourceRow": 28
+          },
+          "eVar25": {
+            "id": "eVar25",
+            "canonicalName": "Sort by",
+            "friendlyName": "Sort by (v25)",
+            "description": "Captures the sort by filter user selects",
+            "status": "Implemented",
+            "sourceRow": 29
+          },
+          "eVar26": {
+            "id": "eVar26",
+            "canonicalName": "Map Filter",
+            "friendlyName": "Map Filter (v26)",
+            "description": "Captures the selections for map filters (un-checkmarked) after user opens the filter menu",
+            "status": "Implemented",
+            "sourceRow": 30
+          },
+          "eVar27": {
+            "id": "eVar27",
+            "canonicalName": "Header Menu",
+            "friendlyName": "Header Menu (v27)",
+            "description": "Captures the menu item a user clicks on the header menu",
+            "status": "Implemented",
+            "sourceRow": 31
+          },
+          "eVar28": {
+            "id": "eVar28",
+            "canonicalName": "Page Section",
+            "friendlyName": "Page Section (v28)",
+            "description": "Captures the page section where the interaction takes place",
+            "status": "Implemented",
+            "sourceRow": 32
+          },
+          "eVar29": {
+            "id": "eVar29",
+            "canonicalName": "Generic Click Name",
+            "friendlyName": "Generic Click Name (v29)",
+            "description": "Captures the name of a click",
+            "status": "Implemented",
+            "sourceRow": 33
+          },
+          "eVar30": {
+            "id": "eVar30",
+            "canonicalName": "Search Result Type",
+            "friendlyName": "Search Result Type (v30)",
+            "description": "Captures type of result when users make a search",
+            "status": "No implemented",
+            "sourceRow": 34
+          },
+          "eVar31": {
+            "id": "eVar31",
+            "canonicalName": "Clean Page URL",
+            "friendlyName": "Clean Page URL (v31)",
+            "description": "Captures the URL up to the beginning of the utm parameters",
+            "status": "Implemented",
+            "sourceRow": 35
+          },
+          "eVar32": {
+            "id": "eVar32",
+            "canonicalName": "Document Type Selection",
+            "friendlyName": "Document Type Selection (v32)",
+            "description": "Captures the filter selected for document type",
+            "status": "No implemented",
+            "sourceRow": 36
+          },
+          "eVar33": {
+            "id": "eVar33",
+            "canonicalName": "Page Load Time",
+            "friendlyName": "Page Load Time (v33)",
+            "description": "When any page of the site is loaded",
+            "status": "No implemented",
+            "sourceRow": 37
+          },
+          "eVar34": {
+            "id": "eVar34",
+            "canonicalName": "Share Content",
+            "friendlyName": "Share Content (v34)",
+            "description": "When clicking on the social media icons to share an article",
+            "status": "",
+            "sourceRow": 38
+          },
+          "eVar35": {
+            "id": "eVar35",
+            "canonicalName": "User Agent",
+            "friendlyName": "User Agent (v35)",
+            "description": "Is added to the pageview hit and is used to identify Amazon Security test activity",
+            "status": "",
+            "sourceRow": 39
+          },
+          "eVar36": {
+            "id": "eVar36",
+            "canonicalName": "Component",
+            "friendlyName": "Component (v36)",
+            "description": "Component - frontend implementation",
+            "status": "",
+            "sourceRow": 40
+          },
+          "eVar37": {
+            "id": "eVar37",
+            "canonicalName": "Tooltip",
+            "friendlyName": "Tooltip (v37)",
+            "description": "Used to identify tooltip interactions. Boolean value for Yes or No.",
+            "status": "",
+            "sourceRow": 41
+          },
+          "eVar38": {
+            "id": "eVar38",
+            "canonicalName": "Hostname",
+            "friendlyName": "Hostname (v38)",
+            "description": "Log eVar for hostname",
+            "status": "",
+            "sourceRow": 42
+          },
+          "eVar39": {
+            "id": "eVar39",
+            "canonicalName": "Path",
+            "friendlyName": "Path (v39)",
+            "description": "Log eVar for path",
+            "status": "",
+            "sourceRow": 43
+          },
+          "eVar40": {
+            "id": "eVar40",
+            "canonicalName": "Industry Filter Selection",
+            "friendlyName": "Industry Filter Selection (v40)",
+            "description": "Captures the industry by filter user selects",
+            "status": "",
+            "sourceRow": 44
+          },
+          "eVar41": {
+            "id": "eVar41",
+            "canonicalName": "UTM Source",
+            "friendlyName": "UTM Source (v41)",
+            "description": "Captures UTM source from URL",
+            "status": "",
+            "sourceRow": 45
+          },
+          "eVar42": {
+            "id": "eVar42",
+            "canonicalName": "UTM Medium",
+            "friendlyName": "UTM Medium  (v42)",
+            "description": "Captures UTM medium from URL",
+            "status": "",
+            "sourceRow": 46
+          },
+          "eVar43": {
+            "id": "eVar43",
+            "canonicalName": "UTM Campaign",
+            "friendlyName": "UTM Campaign  (v43)",
+            "description": "Captures UTM campaign from URL",
+            "status": "",
+            "sourceRow": 47
+          },
+          "eVar44": {
+            "id": "eVar44",
+            "canonicalName": "UTM Content",
+            "friendlyName": "UTM Content  (v44)",
+            "description": "Captures UTM content from URL",
+            "status": "",
+            "sourceRow": 48
+          },
+          "eVar45": {
+            "id": "eVar45",
+            "canonicalName": "UTM Parameters",
+            "friendlyName": "UTM Parameters  (v45)",
+            "description": "Captures concatenated UTM parameters",
+            "status": "",
+            "sourceRow": 49
+          },
+          "eVar46": {
+            "id": "eVar46",
+            "canonicalName": "UTM Term",
+            "friendlyName": "UTM Term  (v46)",
+            "description": "Captures UTM term from URL",
+            "status": "",
+            "sourceRow": 50
+          },
+          "eVar47": {
+            "id": "eVar47",
+            "canonicalName": "Error Type",
+            "friendlyName": "Error Type (v47)",
+            "description": "Captures the type of error that interrumted the navigation",
+            "status": "",
+            "sourceRow": 51
+          },
+          "eVar48": {
+            "id": "eVar48",
+            "canonicalName": "AI Response Type",
+            "friendlyName": "AI Response Type (v48)",
+            "description": "Boolean variable “Regular” or “Moderated”",
+            "status": "",
+            "sourceRow": 52
+          },
+          "eVar49": {
+            "id": "eVar49",
+            "canonicalName": "Status Filter",
+            "friendlyName": "Status Filter (v49)",
+            "description": "Captures the filter selected for status type",
+            "status": "",
+            "sourceRow": 53
+          },
+          "eVar50": {
+            "id": "eVar50",
+            "canonicalName": "Prepromt text",
+            "friendlyName": "Prepromt text (v50)",
+            "description": "Captures the Prepromt text",
+            "status": "",
+            "sourceRow": 54
+          },
+          "eVar87": {
+            "id": "eVar87",
+            "canonicalName": "Web Vitals: Metric Name",
+            "friendlyName": "Web Vitals: Metric Name (v87)",
+            "description": "Web vitals metrics",
+            "status": "",
+            "sourceRow": 91
+          },
+          "eVar88": {
+            "id": "eVar88",
+            "canonicalName": "Web Vitals: Rating",
+            "friendlyName": "Web Vitals: Rating (v88)",
+            "description": "Web vitals metrics",
+            "status": "",
+            "sourceRow": 92
+          }
+        },
+        "props": {
+          "prop1": {
+            "id": "prop1",
+            "canonicalName": "Timestamp",
+            "friendlyName": "Timestamp (c1)",
+            "description": "Time stamp format is: MM/DD/YYYY HH:MM",
+            "status": "Implemented",
+            "sourceRow": 5
+          },
+          "prop2": {
+            "id": "prop2",
+            "canonicalName": "Page Document Title",
+            "friendlyName": "Page Document Title (c2)",
+            "description": "Capture the page's document title",
+            "status": "No implemented",
+            "sourceRow": 6
+          },
+          "prop75": {
+            "id": "prop75",
+            "canonicalName": "Web Vitals: Metric ID",
+            "friendlyName": "Web Vitals: Metric ID (c75)",
+            "description": "Web vitals: Metric ID",
+            "status": "",
+            "sourceRow": 10
+          }
+        }
+      }
+    }
+  }
+}

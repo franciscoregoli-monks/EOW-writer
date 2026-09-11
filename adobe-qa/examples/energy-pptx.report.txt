@@ -1,0 +1,344 @@
+Adobe QA — energy-spotlights-measurement-plan.pptx
+Plan cases: 18 | Page-level findings: 0 | Accounted outcomes: 18
+Report suite dictionary: amznsproduction
+PASS 0 | FAIL 0 | PLAN DEFECT 2 | NOT TESTABLE 16
+Plan cases: 18 | Pushes matched: 10 | Unmatched: 8
+
+=== PLAN DEFECT (2) ===
+slide-25 — Energy Spotlight | C-38.1 — Teaser Small Cards
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (link)
+    expected event: event2 (Link Clicks)
+    plan says: Link Clicks / event2
+    reason: Component not present on page
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/11 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar14, eVar15, eVar17, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_COMPONENT_NOT_PRESENT: C38.1 is not present on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-27 — Energy Spotlight | C-38.1 — Teaser Small Cards
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Component not present on page
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_COMPONENT_NOT_PRESENT: C38.1 is not present on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+=== NOT TESTABLE (16) ===
+slide-9 — Energy Spotlight | C-40 — Fact Cards - Image Large
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-11 — Energy Spotlight | C-40 — Fact Cards - Video Large
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event13 (Video Start)
+    plan says: CTA Clicks / event1
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_INTERACTION_MISMATCH: Plan claims event1, but interaction type video maps to event13
+
+slide-13 — Energy Spotlight | C-40 — Fact Cards - Image Small
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-15 — Energy Spotlight | C-40 — Interactive Card
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-17 — Energy Spotlight | C-40 — Download
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/12 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar5, eVar6, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-19 — Energy Spotlight | C-43 — Highlight Slider
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Plan does not uniquely identify a target
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_UNDERSPECIFIED_TARGET: The plan identifies C43/CTA but does not distinguish among the 5 clickables in the component
+
+slide-21 — Energy Spotlight | C-43 — Highlight Slider
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (link)
+    expected event: event2 (Link Clicks)
+    plan says: Link Clicks / event2
+    reason: Target not resolved — nothing was measured
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/11 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar14, eVar15, eVar17, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    TARGET_NOT_RESOLVED: No element matched this component on https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+slide-23 — Energy Spotlight | C-43 — Highlight Slider
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Clicks / event1
+    reason: Plan does not uniquely identify a target
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/10 | props 0/1 | not compared: eVar1, eVar2, eVar3, eVar4, eVar10, eVar12, eVar15, eVar28, eVar31, eVar36, prop1
+
+  FINDINGS
+    PLAN_UNDERSPECIFIED_TARGET: The plan identifies C43/CTA but does not distinguish among the 5 clickables in the component
+
+slide-31 — Scroll — Scroll Reach 25%
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: scroll (scroll)
+    expected event: event5 (Scroll Reach 25%)
+    plan says: Scroll Reach 25% / event15
+    reason: Multi-step scroll sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/6 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar15, eVar28, prop1
+
+  FINDINGS
+    PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 25% with event15; SDR maps that name to event5
+    PLAN_INTERACTION_MISMATCH: Plan claims event15, but interaction type scroll maps to event5
+    UNMATCHED_PUSH_SLIDE: Slide 31 has no matching DataLayer Push slide
+
+slide-32 — Scroll — Scroll Reach 50%
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: scroll (scroll)
+    expected event: event6 (Scroll Reach 50%)
+    plan says: Scroll Reach 50% / event16
+    reason: Multi-step scroll sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/6 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar15, eVar28, prop1
+
+  FINDINGS
+    PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 50% with event16; SDR maps that name to event6
+    PLAN_INTERACTION_MISMATCH: Plan claims event16, but interaction type scroll maps to event6
+    UNMATCHED_PUSH_SLIDE: Slide 32 has no matching DataLayer Push slide
+
+slide-33 — Scroll — Scroll Reach 75%
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: scroll (scroll)
+    expected event: event7 (Scroll Reach 75%)
+    plan says: Scroll Reach 75% / event17
+    reason: Multi-step scroll sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/6 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar15, eVar28, prop1
+
+  FINDINGS
+    PLAN_EVENT_ID_NAME_MISMATCH: Plan pairs Scroll Reach 75% with event17; SDR maps that name to event7
+    PLAN_INTERACTION_MISMATCH: Plan claims event17, but interaction type scroll maps to event7
+    UNMATCHED_PUSH_SLIDE: Slide 33 has no matching DataLayer Push slide
+
+slide-34 — Scroll — Video complete
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: scroll (scroll)
+    expected event: event8 (Scroll Reach 100%)
+    plan says: Video complete / event14
+    reason: Multi-step scroll sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/6 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar15, eVar28, prop1
+
+  FINDINGS
+    PLAN_INTERACTION_MISMATCH: Plan claims event14, but interaction type scroll maps to event8
+    UNMATCHED_PUSH_SLIDE: Slide 34 has no matching DataLayer Push slide
+
+slide-36 — Video — Video Start
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event13 (Video Start)
+    plan says: Video Start / no ID
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/9 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar11, eVar13, eVar15, eVar28, eVar36, prop1
+
+  FINDINGS
+    MISSING_PLAN_EVENT_ID: Plan names "Video Start" but does not provide an Adobe event ID
+    UNMATCHED_PUSH_SLIDE: Slide 36 has no matching DataLayer Push slide
+
+slide-37 — Video — Video 50%
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event16 (Video 50% Milestone)
+    plan says: Video 50% / no ID
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/9 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar11, eVar13, eVar15, eVar28, eVar36, prop1
+
+  FINDINGS
+    UNKNOWN_PLAN_EVENT_NAME: Plan event name "Video 50%" does not resolve in SDR amznsproduction
+    MISSING_PLAN_EVENT_ID: Plan names "Video 50%" but does not provide an Adobe event ID
+    UNMATCHED_PUSH_SLIDE: Slide 37 has no matching DataLayer Push slide
+
+slide-38 — Video — Video 75%
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event17 (Video 75% Milestone)
+    plan says: Video 75% / no ID
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/9 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar11, eVar13, eVar15, eVar28, eVar36, prop1
+
+  FINDINGS
+    UNKNOWN_PLAN_EVENT_NAME: Plan event name "Video 75%" does not resolve in SDR amznsproduction
+    MISSING_PLAN_EVENT_ID: Plan names "Video 75%" but does not provide an Adobe event ID
+    UNMATCHED_PUSH_SLIDE: Slide 38 has no matching DataLayer Push slide
+
+slide-39 — Video — Video Complete
+  TEST
+    URL: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+    action: click (video)
+    expected event: event14 (Video Complete)
+    plan says: Video Complete / no ID
+    reason: Multi-step video sequences are not supported in this MVP
+
+  DATA LAYER TEST — NOT TESTABLE
+    No comparable data layer push was captured.
+
+  ADOBE DEBUGGER TEST — NOT TESTABLE
+    No comparable Adobe interaction beacon was captured.
+    plan coverage: event not compared | eVars 0/9 | props 0/1 | not compared: eVar1, eVar3, eVar4, eVar10, eVar11, eVar13, eVar15, eVar28, eVar36, prop1
+
+  FINDINGS
+    MISSING_PLAN_EVENT_ID: Plan names "Video Complete" but does not provide an Adobe event ID
+    UNMATCHED_PUSH_SLIDE: Slide 39 has no matching DataLayer Push slide

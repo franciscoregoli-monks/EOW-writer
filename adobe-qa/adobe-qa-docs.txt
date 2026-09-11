@@ -1,0 +1,554 @@
+# Adobe QA tool — rules, workflow, open bugs and next tasks
+
+Five documents in one file. Split them into separate files under adobe-qa/
+using the headings below as filenames, or keep as one file. Content is what
+matters, not the filenames.
+
+
+===============================================================
+=== FILE: AGENT-RULES.md
+===============================================================
+
+# Agent rules — Adobe QA tool
+
+These rules are always in force. They are not style preferences. Every one of them exists because the corresponding failure already happened on this project.
+
+---
+
+## 1. Three maturity states. Never blur them.
+
+Every capability is in exactly one state:
+
+| State | Means |
+|---|---|
+| `CODE` | Runs in the committed CLI. Reproducible by anyone who clones the repo and runs one command. |
+| `OBSERVED` | Was seen working live, but via a throwaway script that is not committed. Real evidence, not reproducible. |
+| `DESIGN` | Described, planned, or specified. Zero lines of code. |
+
+`STATUS.md` at the repo root holds this table. It is updated **in the same commit** as the work it describes, never afterwards.
+
+Prose like "includes SDR reader, canonicalEvent detection, value semantics" states nothing about maturity and is therefore not an acceptable status report. Name the state or do not make the claim.
+
+**This has already gone wrong here:** a handoff described the SDR reader, `canonicalEvent`, `PLAN_DEFECT` derivation and video/scroll sequences as built. `rg` returned no matches for any of them. Separately, live findings on Energy Spotlight were reported as CLI output when they came from ad-hoc scripts in `/tmp`.
+
+---
+
+## 2. Every completion claim ships with the command that proves it
+
+A claim is: any statement that something works, is built, passes, or is done.
+
+Format, no exceptions:
+
+```
+CLAIM: <what>
+STATE: CODE | OBSERVED | DESIGN
+COMMAND: <exact command>
+OUTPUT: <literal output, pasted, not summarized>
+```
+
+If there is no command that would demonstrate it, the state is `DESIGN`. Say so.
+
+Do not paraphrase output. Do not write "12/12 tests passing" without the test runner's actual output. A summary of evidence is not evidence.
+
+---
+
+## 3. Counting is not validating
+
+"18 cases accounted for, 0 lost" proves the accounting closes. It says nothing about whether each case is in the correct bucket. "19/19 tests pass" proves the assertions written so far hold. It says nothing about behaviour nobody wrote an assertion for.
+
+Never present a count as evidence of correctness. When reporting a run, state both separately:
+
+- **Accounting:** N in, N bucketed, 0 dropped.
+- **Correctness:** which specific classifications were checked, how, and against what.
+
+**This has already gone wrong here:** a run reported 18/18 accounted and 19/19 tests green while page-level plan defects were being classified as implementation FAILs, cases where nothing was captured were sitting in FAIL, and the data layer payload was never compared at all.
+
+---
+
+## 4. Inspect before you parse
+
+Before writing any parser, reader, or extractor against a file or a DOM: open it, report its real structure, and stop. Wait for confirmation. Then write.
+
+Report: exact sheet or element names, header rows as they literally read, counts, and anything structurally awkward (merged cells, multiple header rows, spacer rows, tables that do not start at A1, attributes that do not exist).
+
+**This has already gone wrong here:** a PPTX parser read shapes in XML declaration order instead of visual order. It corrupted Section and Feature on 11 of 24 components while producing output that looked entirely successful. Separately, the DOM selector candidates (`data-component`, `data-analytics-component`, `#id`, `data-testid`) were guessed rather than inspected, and every single one failed against the real page.
+
+A parser written against an assumed layout fails quietly, with plausible-looking output. That is the worst failure mode available.
+
+---
+
+## 5. Implement the whole spec or declare the part you skipped
+
+When a spec describes a structure, implement the structure, not the first field of it.
+
+**This has already gone wrong here:** the plan specifies a complete `adobeDataLayer.push({...})` per component. The implementation extracts only `component` and never compares the payload, which was layer 1 of the brief. This was reported as working.
+
+Before marking any layer done, list the fields the spec defines and mark each: implemented, or skipped and why. Skipping is fine. Silent skipping is not.
+
+---
+
+## 6. Never invent missing values
+
+A gap in the plan is a finding to surface (`MISSING_PLAN_EVENT_ID`, `UNMATCHED_PUSH_SLIDE`), never something to fill in with a plausible value.
+
+---
+
+## 7. Scope discipline
+
+- One phase per PR. Do not start the next phase because the current one finished early.
+- Do not refactor code outside the phase's scope.
+- Do not re-litigate decisions marked **DECIDED** in `DIRECTION-BRIEF.md`.
+- If a phase turns out to be blocked or wrong, stop and say so. Do not route around it.
+
+---
+
+## 8. Uncertainty is reportable
+
+"I do not know whether this works" and "this ran once but I cannot reproduce it" are acceptable, useful answers. Confident prose covering an unverified claim is not.
+
+If asked whether X is the only problem, do not answer from the summary. Go check, then answer. The data layer payload gap surfaced only because someone asked that question directly.
+
+===============================================================
+=== FILE: AGENTIC-WORKFLOW.md
+===============================================================
+
+# Agentic workflow — Adobe QA tool
+
+Companion to `AGENT-RULES.md`. The rules say how to behave; this says where the work stops and who checks what.
+
+The design principle: **making a claim is cheap, checking one is expensive.** Every gate below exists to make checking cheap enough that it actually happens.
+
+---
+
+## Task shape
+
+One task = one phase = one PR = one stop gate.
+
+A task is only well formed if it has all five:
+
+1. **Goal** in one sentence.
+2. **Input** that already exists (file, URL, artifact from a previous phase).
+3. **Output artifact** committed to the repo, not described in chat.
+4. **Verification command** that a human can run to see whether it worked.
+5. **Falsifier**: the specific check that would reveal the work is wrong. Not "run the tests". Something that would actually catch a plausible failure.
+
+If any of the five is missing, the task is not ready to start. Say so instead of starting.
+
+---
+
+## The three stops
+
+### STOP 1 — Before writing code (inspection gate)
+
+Applies to anything that reads a file, a document, or a DOM.
+
+The agent inspects the real input, reports its structure, and **halts**. No parser is written yet.
+
+Human checks: does the reported structure look like the real thing? Is anything missing or suspiciously clean?
+
+Skipping this gate is what produced the shape-ordering bug and the four dead selector candidates.
+
+### STOP 2 — After the phase, before the PR is reviewed (evidence gate)
+
+The agent posts, in this exact form:
+
+```
+PHASE: <n> <name>
+FILES ADDED/CHANGED: <paths>
+
+CLAIM: <what now works>
+STATE: CODE | OBSERVED | DESIGN
+COMMAND: <command>
+OUTPUT: <literal output>
+
+FALSIFIER RUN: <the check that would have caught this being wrong>
+RESULT: <literal output>
+
+SPEC COVERAGE: <fields/behaviours the spec defines, each marked implemented or skipped-because>
+
+NOT DONE: <what remains, explicitly>
+```
+
+Human checks the five verification commands below.
+
+### STOP 3 — Before anything leaves the team (report gate)
+
+No QA output goes to the frontend team, the client, or a stakeholder until a human has reconciled it. The Energy run is the reason: it read as "four components are broken" when most of it was a stale plan and a failing resolver.
+
+---
+
+## The five checks (run these yourself, they take two minutes)
+
+Copy-paste these. They are the cheap version of trusting the summary.
+
+**1. Does the code exist?**
+```bash
+git log --oneline -5
+git branch --show-current
+rg -l "<the feature name claimed>" adobe-qa/src/
+```
+Zero matches means the feature is `DESIGN`, whatever the prose says. Note that a feature can live under a different identifier, so if the grep is empty, ask for the file path before concluding it is missing.
+
+**2. Are dynamics behaving?**
+A `<...>` field may only fail for absence, never for value.
+```bash
+rg '\[dynamic\]' adobe-qa/examples/*.report.txt | rg 'FAIL' | rg -v 'actual: null'
+```
+Any output here is a bug. Should be empty.
+
+**3. Did anything get measured?**
+A case where every field is null was never clicked. It belongs in NOT_TESTABLE, not FAIL.
+```bash
+rg -B2 'FAIL beacon.events.*actual: null' adobe-qa/examples/*.report.txt
+```
+Any output here is a misclassification.
+
+**4. Is the same defect being counted many times?**
+```bash
+rg 'FAIL eVar' adobe-qa/examples/*.report.txt | sort | uniq -c | sort -rn | head
+```
+A count of 5 or 6 on an identical expected/actual pair means one page-level plan defect inflated into several implementation FAILs.
+
+**5. Does the accounting close?**
+Cases in must equal PASS + FAIL + PLAN_DEFECT + NOT_TESTABLE. This one the agent usually gets right; check it anyway, it is free.
+
+---
+
+## Phase order (current)
+
+| Phase | State | Gate |
+|---|---|---|
+| SDR reader | done, verify | STOP 2 passed? |
+| Value semantics (fixed/options/dynamic/removed) | done, working | check 2 |
+| canonicalEvent + PLAN_DEFECT | done, partly wrong | checks 3 and 4 |
+| **Data layer payload comparison** | **not started, was reported as done** | STOP 1 first |
+| DOM attribute inspection for C-40 / C-43 | not started | STOP 1 first |
+| Page-level vs component-level defect split | not started | |
+| Google Sheet ingestion | blocked, parser never reached the repo | |
+| Video and scroll sequences | out of MVP scope, deliberately | |
+
+The next two tasks both begin at STOP 1: inspect and report, do not write yet.
+
+---
+
+## How to run this as the human
+
+- **Do not ask "is it done?"** Ask for the STOP 2 block. "Done" is a summary and summaries are where the drift lives.
+- **Ask the falsifying question.** The data layer gap surfaced because someone asked "is that really the only thing that came back wrong?" instead of accepting the list. Ask it every phase.
+- **When a claim and the repo disagree, ask before concluding.** A cached PR view once made a complete push look like nothing had been committed. `git log --oneline -3` and the branch name settle it in seconds and cost nothing.
+- **Keep the maturity vocabulary.** Say "is that CODE or OBSERVED?" out loud. Once the words are in use, the ambiguity has nowhere to hide.
+
+===============================================================
+=== FILE: BUG-REPORT-ENERGY.md
+===============================================================
+
+# Bug report — Energy Spotlight run
+
+Source: `adobe-qa/examples/energy-pptx.report.txt` (18 specs, 4 FAIL, 2 PLAN_DEFECT, 12 NOT_TESTABLE).
+
+The run is accounted for correctly: 18 cases in, 18 cases bucketed, no silent drops. That part works. What follows is about **classification correctness**, which the case count and the passing test suite do not measure. A case can be counted and still be in the wrong bucket.
+
+Three bugs, in priority order.
+
+---
+
+## Bug 1 — Page-level plan defects are being reported as implementation FAILs (highest impact)
+
+These two lines appear **identically in all six cases that reached comparison** (slides 9, 13, 17, 21, and both C-43 cases):
+
+```
+FAIL eVar3 [fixed] | expected: "Energy Spotlight" | actual: "Spotlight: Investing in a carbon-free energy future - Amazon Sustainability"
+FAIL eVar4 [fixed] | expected: "Energy Stories"   | actual: "Spotlight On Energy"
+```
+
+Same expected value, same actual value, every time. That is not six implementation defects. It is one plan defect repeated six times: the plan states a page name and site section that do not match what the page actually is.
+
+eVar3 (Page name) and eVar4 (Site Section) are **page-level** values. They do not vary per component. When a page-level fixed value mismatches identically across every case on the page, the plan is stale, not the implementation.
+
+**Expected behaviour:** classify as `PLAN_DEFECT` with a finding along the lines of `PLAN_PAGE_METADATA_MISMATCH`, reported **once at page level**, not repeated inside every case. Individual cases should not be pushed into FAIL by it.
+
+**Why this matters more than the count:** as it stands, the report tells an analyst that four components are broken. Three of them are not. Handing this to a frontend team burns credibility on a plan problem.
+
+**Care needed:** do not generalise this to all fixed mismatches. eVar28 (Page Section) legitimately varies per component — `"Fact Card Image Large"` vs actual `"optimize"` on slide 9 is a real per-case finding and must stay as-is. The page-level rollup applies only to values that are constant across the page (eVar3, eVar4). If the SDR marks which eVars are page-scoped, use that rather than a hardcoded list.
+
+---
+
+## Bug 2 — Target resolution is failing on roughly half the cases
+
+Evidence in the report:
+
+- `Pushes matched: 10 | Unmatched: 8`
+- Slides 15, 25, 27: `target not found`
+- Slides 19 and 23: every single field returns `actual: null`, including `dataLayer.event` and `beacon.events`. That is the signature of a click that never happened, not a tracking bug. Both are currently sitting in FAIL, which is wrong — nothing was measured.
+- **Every** resolved case reports `target: secondaryLocators (low)`. No primary selector matched anywhere.
+
+The last point is the real finding: the candidate attributes (`data-component`, `data-analytics-component`, `#id`, `data-testid`) were always educated guesses and have now been shown not to exist in this DOM. That assumption is dead; stop building on it.
+
+**Asks:**
+1. Inspect the real DOM of `/stories/spotlight-on-energy` for the C-40 cards and the C-43 slider. Report what attributes actually identify these components. Do not guess a new set — look and report first, same discipline as the SDR inspection.
+2. A case where nothing was captured (all fields null, no beacon at all) must be `NOT_TESTABLE` with reason "target not resolved", never FAIL. FAIL means "we measured it and it was wrong". These were never measured.
+
+---
+
+## Bug 3 — `event89` is unexplained
+
+Every captured beacon carries it:
+
+```
+PASS beacon.events | expected: "event1" | actual: "event89,event1"
+```
+
+The PASS is correct — the expected event is present. But `event89` fires on every interaction and nothing in the plan or the report accounts for it. Look it up in the SDR dictionary and state what it is in the report, even if the answer is "global event, expected on all hits". An unexplained event on every beacon is the kind of thing that surfaces in a client review.
+
+---
+
+## What the report got right
+
+Worth stating explicitly so it does not get changed while fixing the above:
+
+- The scroll and video sections are the strongest part of the output. `PLAN_EVENT_ID_NAME_MISMATCH` correctly catches that the plan pairs Scroll Reach 25% with event15 while the SDR maps that name to event5 (same for 50/75). Slide 34, where the plan labels a scroll-100% case "Video complete / event14", is caught correctly too.
+- `MISSING_PLAN_EVENT_ID` on the video slides is a real plan gap, correctly surfa Video and scroll are correctly `NOT_TESTABLE` with an explicit stated reason, as specified.
+- Dynamic (`<>`) fields are behaving correctly where they were captured: `<Page URL>` passing against a real URL, `<C40>` passing against `c40-dashboard`. The semantics port worked.
+
+---
+
+## Definition of done for this round
+
+1. No case sits in FAIL because of a page-level plan mismatch.
+2. No case sits in FAIL when nothing was captured from the page.
+3. The real identifying attributes for C-40 and C-43 are reported, not assumed.
+4. `event89` is explained in the report.
+5. Re-run against the same page and post the new bucket counts alongside the old ones, so the change in classification is visible rather than asserted.
+
+===============================================================
+=== FILE: NEXT-TASKS.md
+===============================================================
+
+# Next two tasks — both stop at STOP 1
+
+Two independent tasks. Run them one at a time, each as its own PR. Both halt after inspection: **no implementation code in either one.**
+
+Read `AGENT-RULES.md` and `AGENTIC-WORKFLOW.md` before starting. Paste one block below into Cursor, wait for the inspection report, review it, and only then authorize the implementation as a separate task.
+
+---
+
+## Task A — Data layer payload: inspect the push blocks
+
+Paste this:
+
+```
+TASK A (STOP 1 — inspection only, write no implementation code)
+
+Context: the measurement plan specifies a complete adobeDataLayer.push({...})
+per component. The current implementation extracts only the `component` field
+and never compares the payload. That was layer 1 of the brief and it was
+reported as working. Before building the comparison, inspect what is actually
+there.
+
+Goal: report the real structure of every push block in the plan.
+
+Input: the Energy Spotlight PPTX already in the repo, plus the AI Insights
+plan if available.
+
+Do this:
+1. Extract every adobeDataLayer.push({...}) block from the plan.
+2. Report, across all of them:
+   - the full set of keys that appear, and at what nesting level
+     (top-level vs inside userInteraction vs deeper)
+   - which keys appear in every block and which are conditional
+   - for each key, whether its value is a literal (quoted), a placeholder
+     (<angle brackets>), or something else
+   - any block that is malformed, truncated on the slide, or structurally
+     different from the rest
+3. Report how many plan cases have a push block and how many do not.
+   The Energy run showed "Pushes matched: 10 | Unmatched: 8" and those 8
+   need to be named individually.
+
+Then STOP. Post the STOP 2 evidence block from AGENTIC-WORKFLOW.md and wait.
+
+Do not write the comparison logic. Do not modify compare/evaluate code.
+Do not assume the key set matches what the beacon carries; that mapping is
+a separate question for the next task.
+```
+
+**What to look for in the answer:** whether the key set is consistent across blocks. If it is, the comparison is straightforward. If half the blocks have a different shape, that changes the design and it is much better to know now.
+
+---
+
+## Task B — DOM attributes: inspect the real page
+
+Paste this:
+
+```
+TASK B (STOP 1 — inspection only, write no implementation code)
+
+Context: the selector candidates in use (data-component,
+data-analytics-component, #id, data-testid) were guesses. The Energy run
+confirmed they do not exist on this page: every resolved case fell back to
+"secondaryLocators (low)" and 5 cases failed to resolve at all
+(slides 15, 19, 23, 25, 27).
+
+Goal: report what attributes actually identify these components in the
+live DOM.
+
+Input: https://sustainability.aboutamazon.com/stories/spotlight-on-energy
+
+Do this:
+1. Load the page and inspect the real DOM for:
+   - the C-40 fact cards (image large, image small, video, interactive)
+   - the C-43 highlight slider, including its CTA and its links
+   - the C-38.1 teaser small cards
+2. For each, report the actual outer HTML of one representative element,
+   trimmed to its attributes.
+3. State which attributes are stable and unique enough to use as a primary
+   locator, and which are not.
+4. For slides 19 and 23 specifically: the run returned null for every field,
+   which means nothing was clicked. Report whether the target element exists
+   on the page at all, and if it does, why the current resolver misses it.
+
+Then STOP. Post the STOP 2 evidence block and wait.
+
+Do not invent a new set of candidate attributes to try. Report what is there.
+Do not change targetResolver.mjs in this task.
+```
+
+**What to look for in the answer:** real outer HTML, not a description of it. If the report says "the cards use a data attribute for the component name" without showing the attribute, send it back.
+
+---
+
+## After both inspections
+
+Three implementation tasks follow, in this order, each its own PR:
+
+1. **Data layer payload comparison**, designed against what Task A found.
+2. **Primary locators**, rewritten against what Task B found.
+3. **Page-level vs component-level defect split**, which is Bug 1 in
+   `BUG-REPORT-ENERGY.md` and does not depend on either inspection.
+
+Then re-run Energy and post the new bucket counts next to the old ones
+(0 PASS / 4 FAIL / 2 PLAN_DEFECT / 12 NOT_TESTABLE) so the change in
+classification is visible rather than asserted.
+
+===============================================================
+=== FILE: DIRECTION-BRIEF.md
+===============================================================
+
+# Direction brief — Adobe QA tool MVP
+
+Read `adobe-qa/HANDOFF.md` first. This document does not replace it; it sets the order of work, closes the open architectural questions, and defines what "done" means for the MVP.
+
+Analytics owner: Francisco (Vask). Anything below marked **DECIDED** is not open for re-litigation.
+
+---
+
+## Merge decision (DECIDED)
+
+Two efforts existed in parallel and never saw each other. Neither supersedes the other. The split:
+
+| Layer | Base to build on | Why |
+|---|---|---|
+| Browser capture (`capture.mjs`) | **Cursor's** | It is the only code in either effort that has driven a real browser against a live site and produced a committed report. `adobe-scraper.js` never ran against production. |
+| Value comparison semantics | **Vask's `diff-engine.js`** | Validated against all 24 real components of the AI Insights plan, including the awkward cases (multi-value, removed, dynamic placeholders). `compare.mjs` has no concept of these. |
+| Plan ingestion | **Vask's `sheet-plan-parser.js`** | Reads the two-tab Google Sheet (Events + Pushes) that is now the working plan format. |
+| SDR as canonical source | Neither — does not exist yet | Zero lines in either effort. Build it. |
+
+Do not rewrite the capture layer to match the comparison layer's style, or vice versa. Port the specific logic named below and leave the rest alone.
+
+---
+
+## The one premise both sides got wrong (DECIDED)
+
+Both `compare.mjs` and `diff-engine.js` assume **one action produces one event**. That holds for clicks. It breaks for video (Start→25→50→75→Complete) and scroll (25/50/75/100).
+
+This is a model replacement, not a new field. **It is explicitly out of scope for the MVP** (see Phase 4). Do not attempt it while building Phases 1–3.
+
+---
+
+## Order of work
+
+### Phase 1 — SDR reader
+
+The SDR (`[INT][NEW][WWS]Amazon Sustainability - SDR.xlsx`) becomes the canonical dictionary of events, eVars and props.
+
+- Parse the real sheets (Events, eVars, props, Data Layer Pushes). **Inspect the actual file structure before writing the parser** — do not assume a column layout. This is how the PPTX parser was built and it caught a silent ordering bug that would otherwise have corrupted 11 of 24 items.
+- Output a loriendly name, and eVar/prop number → canonical name, per report suite (`amznsdevelopment|staging|production`).
+- Report suites for TCP and WWS are **separate schemas**. Do not merge them into one dictionary.
+- Deliverable: a parsed JSON artifact committed to the repo, plus the count of events/eVars read, so the parse can be eyeballed for completeness.
+
+### Phase 2 — Value semantics (port from `diff-engine.js`)
+
+Without this, every dynamic field in the AI Insights plan produces a false FAIL. Most fields in that plan are dynamic, so this gates any useful run against WWS.
+
+Four value kinds, from the plan text:
+
+| Plan writes | Meaning | Check |
+|---|---|---|
+| `"AI Insights"` (quoted, single) | Fixed value | Exact match |
+| `"A", "B", "C"` (quoted, several) | Set of valid options | Must be one of them |
+| `<Page URL>` (angle brackets) | Runtime value | **Presence only** — non-empty. Never compare the value. |
+| `eVar12 (CTA Button) removed` | Not applicable here | Excluded entirely, not even presence |
+
+- Source: `evaluateEvars()` and `parseFieldValue()` in `diff-engine.js`.
+- **Props are not compared.** Only events and eVars. Props may be stored for reference; they must never affect PASS/FAIL. This is a deliberate decision by the analytics owner, not an oversight.
+
+### Phase 3 — canonicalEvent matching
+
+- Primary match key: canonical event from the SDR + interaction type.
+- Plan disagrees with SDR → `PLAN_DEFECT`, and the QA still runs against the **SDR's** canonical event, not the plan's claim.
+- Plan/SDR disagrees with the site → `PASS` / `FAIL`.
+- Target not found on the page → `NOT TESTABLE`.
+- Secondary locators, in order: component, pageSection, aria-label/text, href, card variant. Screenshot last.
+- `sheet-plan-parser.js` already extracts candidate DOM selectors automatically from the `component:` field inside each `adobeDataLayer.push` block (see `domHints`). Those candidate attribute names (`data-component`, `data-analytics-component`, `#id`, `data-testid`) are **educated guesses, never confirmed against the real DOM.** Verify which one actually matches on the live site early — if none do, that changes how targets get resolved and it is better to learn it in Phase 3 than in Phase 5.
+
+### Phase 4 — Video and scroll: OUT OF SCOPE for the MVP (DECIDED)
+
+Do not build multi-step sequences for this release.
+
+- Any plan case whose canonical event belongs to the video family (`event13/15/16/17/14`) or the scroll family (SDR `event5–8`) is classified **`NOT TESTABLE`**, with the reason stated in the report: multi-step sequences not supported in this version.
+- This must be an explicit, visible branch in the report, not a silent skip. A user reading the output has to be able to tell "not built yet" apart from "found nothing."
+- Note in the report where the plan and SDR disagree on these IDs (the Energy plan mixes scroll IDs with video ones, and labels a scroll-100% case as Video complete/event14). That disagreement is worth surfacing as a `PLAN_DEFECT` even while the case itself is not testable.
+
+### Phase 5 — Report
+
+`PdM file + URL → TESTABLE | NOT TESTABLE | PLAN DEFECTS`, each case showing event, eVars, expected vs actual. Twenty seconds of reading, not a Debugger dump. Text output first; HTML and hosting come later.
+
+---
+
+## Definition of done for the MVP
+
+1. `npm run qa` runs end to end against a real WWS URL, not only the TCP page-load case.
+2. Every plan case lands in exactly one bucket: PASS, FAIL, PLAN_DEFECT, or NOT TESTABLE. No case silently disappears.
+3. Dynamic (`<>`) fields never prismatch — only for absence.
+4. Props never affect PASS/FAIL.
+5. Video and scroll cases appear as NOT TESTABLE with a stated reason.
+6. The committed report is readable by someone who did not build the tool.
+
+---
+
+## Standing rules
+
+- **Never invent missing plan values.** A gap in the plan is a finding, not something to fill in.
+- **Do not treat the Adobe Debugger as a dependency.** Sniff the data layer plus `/b/ss/` directly.
+- **Do not merge TCP and WWS report suites into one schema.**
+- Keep the honesty discipline from the current `HANDOFF.md`: what runs in the committed CLI, what was observed with throwaway scripts, and what is design-only are three different maturity levels and must stay labeled as such.
+- Never push to production on a Friday.
+
+---
+
+## First action, before any Phase 1 code
+
+You have the SDR xlsx; the analytics owner's side does not. So the inspection is yours to do, and it happens **before** the reader is written, not as part of it.
+
+Open the file and report back:
+
+1. Exact sheet names.
+2. For each relevant sheet, the header row as it literally reads (not a cleaned-up version of it).
+3. Row counts per sheet.
+4. Anything structurally awkward: merged cells, multiple header rows, blank spacer rows, notes columns, a sheet where the real table does not start at A1.
+5. How report suites are represented — one column, separate sheets, or separate files.
+
+Report that structure first. Then write the reader against what you actually saw.
+
+This is not ceremony. The equivalent step on the plan side caught a silent bug where shapes were read in XML declaration order rather than visual order, which corrupted Section and Feature on 11 of 24 components while looking entirely successful. A parser written against an assumed layout fails the same way: quietly, with plausible-looking output.
+
+'FINDELARCHIVO'
