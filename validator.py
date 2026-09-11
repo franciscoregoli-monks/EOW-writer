@@ -10,11 +10,14 @@ HEADER_RE = re.compile(
     r"^# EOW Report - Week Ending \d{4}-\d{2}-\d{2}$", re.MULTILINE
 )
 WORKSTREAM_HEADER_RE = re.compile(r"^\*\*(?!Needs confirmation\*\*$).+\*\*$")
-ACCOUNT_HEADER_RE = re.compile(r"^(WWS|TCP|WWS / TCP):$")
+ACCOUNT_HEADER_RE = re.compile(
+    r"^(WWS|TCP|WWS / TCP|Account \[CONFIRMAR\]):$"
+)
 STATUS_RE = (
     r"(?:DONE|IN PROGRESS|BLOCKER|IN PROGRESS, continues next week)"
 )
-BULLET_RE = re.compile(rf"^- \[Analytics\] .+ - {STATUS_RE} -$")
+BULLET_RE = re.compile(rf"^- .+ - {STATUS_RE} -$")
+BULLET_PREFIX_RE = re.compile(r"^- \[(?!CONFIRMAR\])[^]]+\]\s")
 CONFIRM_SECTION_RE = re.compile(
     r"^\*\*Needs confirmation\*\*[ \t]*$", re.MULTILINE
 )
@@ -91,6 +94,11 @@ def validate_report(report: str) -> ValidationResult:
 
         if line.startswith("-"):
             bullet_count += 1
+            if BULLET_PREFIX_RE.match(line):
+                errors.append(
+                    f"Bullet on line {line_number} starts with a bracketed "
+                    "prefix; begin with the description instead."
+                )
             if not BULLET_RE.fullmatch(line):
                 errors.append(
                     f"Invalid bullet syntax or status on line {line_number}: {line}"
@@ -110,13 +118,21 @@ def validate_report(report: str) -> ValidationResult:
     if workstream_count == 0:
         errors.append("At least one bold workstream section is required.")
     if bullet_count == 0:
-        errors.append("At least one [Analytics] work bullet is required.")
+        errors.append("At least one work bullet is required.")
 
     body_confirmations = body.count("[CONFIRMAR]")
     confirmation_confirmations = confirmation_text.count("[CONFIRMAR]")
-    if body_confirmations != confirmation_confirmations:
+    # A body tag repeated across bullets, such as an unknown account, needs one
+    # confirmation entry rather than one per occurrence. Requiring an exact
+    # count made the model miscount and discarded otherwise valid reports.
+    if body_confirmations > 0 and confirmation_confirmations == 0:
         errors.append(
-            "Needs confirmation must repeat each body [CONFIRMAR] tag exactly once "
+            "Needs confirmation must list the body [CONFIRMAR] items "
+            f"(body={body_confirmations}, section=0)."
+        )
+    if confirmation_confirmations > body_confirmations:
+        errors.append(
+            "Needs confirmation lists more items than the body contains "
             f"(body={body_confirmations}, section={confirmation_confirmations})."
         )
 
