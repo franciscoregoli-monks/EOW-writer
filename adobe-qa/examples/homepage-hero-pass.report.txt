@@ -1,0 +1,34 @@
+Adobe QA — Homepage hero CTA — PASS-path proof
+Plan cases: 1 | Page-level findings: 0 | Accounted outcomes: 1
+Report suite dictionary: amznsproduction
+PASS 1 | FAIL 0 | PLAN DEFECT 0 | NOT TESTABLE 0
+
+=== RESERVED WEB VITALS EVENTS (3) ===
+event87, event88, event89 are part of the event85–event89 range reserved for the Web Vitals implementation currently in progress.
+They are global housekeeping events, not component-specific, and do not affect component QA.
+
+=== PASS (1) ===
+HOME-HERO-2025-REPORT — 2025 Amazon Sustainability Report hero CTA
+  TEST
+    URL: https://sustainability.aboutamazon.com/
+    action: click (cta)
+    expected event: event1 (CTA Click)
+    plan says: CTA Click / event1
+    target: selector (confirmed)
+    overall implementation QA: PASS
+
+  DATA LAYER TEST — PASS
+    PASS dataLayer.event | expected: "CTA Click" | actual: "CTA Clicks"
+
+  ADOBE DEBUGGER TEST — PASS
+    observed events: event1
+    PASS beacon.events | expected: "event1" | actual: "event89,event1"
+    PASS eVar1 [dynamic] | expected: "<website domain>" | actual: "sustainability.aboutamazon.com"
+    PASS eVar3 [fixed] | expected: "Amazon Sustainability: Home" | actual: "Amazon Sustainability: Home"
+    PASS eVar4 [fixed] | expected: "Homepage" | actual: "Homepage"
+    PASS eVar10 [fixed] | expected: "Full Website" | actual: "Full Website"
+    PASS eVar11 [fixed] | expected: "document" | actual: "document"
+    PASS eVar12 [fixed] | expected: "2025 Amazon Sustainability Report" | actual: "2025 Amazon Sustainability Report"
+    PASS eVar15 [dynamic] | expected: "<Page URL>" | actual: "https://sustainability.aboutamazon.com/"
+    PASS eVar31 [dynamic] | expected: "<Clean URL of the current page>" | actual: "https://sustainability.aboutamazon.com/"
+    plan coverage: event compared | eVars 8/8 | props 0/0
