@@ -2,21 +2,11 @@ name: EOW automation
 
 on:
   schedule:
-    # GitHub cron is UTC. These map to ART (UTC-3).
-    - cron: "0 23 * * 4" # Thursday 20:00 America/Argentina/Buenos_Aires
-    - cron: "0 11 * * 5" # Friday 08:00 America/Argentina/Buenos_Aires
+    # GitHub cron is UTC: Thursday 16:00 America/Argentina/Buenos_Aires.
+    - cron: "0 19 * * 4"
   repository_dispatch:
     types: [trigger_eow_generation]
-  workflow_dispatch:
-    inputs:
-      mode:
-        description: Pipeline phase
-        required: true
-        default: generate
-        type: choice
-        options:
-          - generate
-          - send-email
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -39,12 +29,12 @@ jobs:
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
           cache: pip
@@ -52,28 +42,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Select pipeline phase
-        id: phase
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          SCHEDULE: ${{ github.event.schedule }}
-          MANUAL_MODE: ${{ inputs.mode }}
-        run: |
-          if [[ "$EVENT_NAME" == "schedule" && "$SCHEDULE" == "0 11 * * 5" ]]; then
-            echo "mode=send-email" >> "$GITHUB_OUTPUT"
-          elif [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
-            echo "mode=$MANUAL_MODE" >> "$GITHUB_OUTPUT"
-          else
-            echo "mode=generate" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Run EOW phase
+      - name: Generate and email personal draft
         id: eow
-        run: python main.py --mode "${{ steps.phase.outputs.mode }}"
+        run: python main.py
 
-      - name: Commit generated state
-        if: ${{ always() && (steps.eow.outcome == 'success' || steps.phase.outputs.mode == 'send-email') }}
+      - name: Commit generated report
         shell: bash
         run: |
           if git diff --quiet -- history; then
