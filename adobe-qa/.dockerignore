@@ -1,0 +1,8 @@
+.git
+.next
+node_modules
+reports
+npm-debug.log
+*.pptx
+*.xlsx
+*.webp
