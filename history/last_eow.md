@@ -1,11 +1,14 @@
-# EOW Report - Week Ending 2026-10-09
+# EOW Report - Week Ending 2026-10-16
 
 **Unclassified workstream [CONFIRMAR]**
+WWS:
+- Picked up from To do and initiated work on RYAP - Analytics Measurement Plan [CONFIRMAR] - IN PROGRESS -
+- Initiated work on Built Together Referrals from Amazon.com [CONFIRMAR] - IN PROGRESS -
+
 Account [CONFIRMAR]:
-- Picked up, progressed, and completed AI Insights - Master Tracker / Analytics effort estimation [CONFIRMAR] - DONE -
-- Continued from in progress and completed SK13VJ-3749: [AI Insights] Analytics - Query - Additional Information Links [CONFIRMAR] - DONE -
+- Initiated work on spike in all metrics across both assets TCP and WWS [CONFIRMAR] - IN PROGRESS -
 
 **Needs confirmation**
 1. [CONFIRMAR] Workstream categorization for unclassified tasks.
-2. [CONFIRMAR] Account assignment for unclassified tasks.
+2. [CONFIRMAR] Account assignment for unclassified task.
 3. [CONFIRMAR] Notes and blockers details for tasks missing documentation.
