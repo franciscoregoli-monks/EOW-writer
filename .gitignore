@@ -3,3 +3,5 @@ __pycache__/
 .env
 .venv/
 service-account*.json
+adobe-qa/node_modules/
+adobe-qa/reports/
