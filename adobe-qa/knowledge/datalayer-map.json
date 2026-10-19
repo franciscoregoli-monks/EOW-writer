@@ -1,0 +1,30 @@
+{
+  "description": "WWS data layer keys under userInteraction and the Adobe variable Launch maps them to. Confirmed against the SDR dictionary and the Energy Spotlight implementation.",
+  "reportSuites": ["amznsdevelopment", "amznsstaging", "amznsproduction"],
+  "map": {
+    "timestamp": "prop1",
+    "domain": "eVar1",
+    "previousPage": "eVar2",
+    "pageName": "eVar3",
+    "siteSection": "eVar4",
+    "fileName": "eVar5",
+    "fileType": "eVar6",
+    "pageType": "eVar10",
+    "contentType": "eVar11",
+    "ctaButton": "eVar12",
+    "videoName": "eVar13",
+    "destinationLink": "eVar14",
+    "pageURL": "eVar15",
+    "linkTitle": "eVar17",
+    "yearSelection": "eVar20",
+    "topicSelection": "eVar21",
+    "scrollDepth": "eVar23",
+    "pageSection": "eVar28",
+    "cleanPageURL": "eVar31",
+    "shareContent": "eVar34",
+    "component": "eVar36"
+  },
+  "aliases": {
+    "destinationURL": "destinationLink"
+  }
+}
