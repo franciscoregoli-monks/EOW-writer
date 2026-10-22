@@ -1,12 +1,13 @@
-# EOW Report - Week Ending 2026-10-16
+# EOW Report - Week Ending 2026-10-23
 
 **Unclassified workstream [CONFIRMAR]**
 WWS:
-- Picked up from To do and initiated work on RYAP - Analytics Measurement Plan [CONFIRMAR] - IN PROGRESS -
-- Initiated work on Built Together Referrals from Amazon.com [CONFIRMAR] - IN PROGRESS -
+- Initiated work on 1st Month Report - Stories spotlight TCP [CONFIRMAR] - IN PROGRESS -
+- Initiated work on Dashboard < Stories spotlight TCP [CONFIRMAR] - IN PROGRESS -
+- Picked up from To do and completed work on UTM parameters not showing up - support for amazn tam [CONFIRMAR] - DONE -
 
 Account [CONFIRMAR]:
-- Initiated work on spike in all metrics across both assets TCP and WWS [CONFIRMAR] - IN PROGRESS -
+- Initiated work on data filters for new bots [CONFIRMAR] - IN PROGRESS -
 
 **Needs confirmation**
 1. [CONFIRMAR] Workstream categorization for unclassified tasks.
