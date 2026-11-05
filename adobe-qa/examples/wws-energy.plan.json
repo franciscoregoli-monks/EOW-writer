@@ -1,0 +1,140 @@
+{
+  "name": "WWS Energy Spotlight — MVP canonical event QA",
+  "adobe": {
+    "dataLayer": "adobeDataLayer",
+    "reportSuite": "amznsproduction"
+  },
+  "cases": [
+    {
+      "id": "ENERGY-C40-IMAGE-LARGE",
+      "name": "C40 Fact Card Image Large",
+      "url": "https://sustainability.aboutamazon.com/stories/spotlight-on-energy",
+      "action": "click",
+      "interactionType": "cta",
+      "planEvent": { "id": "event1", "name": "CTA Clicks" },
+      "target": {
+        "component": "c40-dashboard",
+        "pageSection": "optimize",
+        "label": "Inside Amazon's approach to data center sustainability",
+        "variant": "large"
+      },
+      "expected": {
+        "eVars": {
+          "eVar1": "<website domain>",
+          "eVar2": "<previous page>",
+          "eVar3": "\"Energy Spotlight\"",
+          "eVar4": "\"Energy Stories\"",
+          "eVar10": "\"Full Website\"",
+          "eVar12": "<CTA button name/action>",
+          "eVar15": "<Page URL>",
+          "eVar28": "\"Fact Card Image Large\"",
+          "eVar31": "<Clean URL of the current page>",
+          "eVar36": "<C40>"
+        },
+        "props": { "prop1": "<Timestamp MM/DD/YYYY format>" }
+      }
+    },
+    {
+      "id": "ENERGY-C40-VIDEO-LARGE",
+      "name": "C40 Fact Card Video Large",
+      "url": "https://sustainability.aboutamazon.com/stories/spotlight-on-energy",
+      "action": "click",
+      "interactionType": "video",
+      "planEvent": { "id": "event1", "name": "CTA Clicks" },
+      "target": {
+        "component": "c40-dashboard",
+        "pageSection": "approach",
+        "label": "Watch FAQ: Are Amazon data centers raising electricity bills?",
+        "variant": "large"
+      },
+      "expected": {
+        "eVars": {
+          "eVar1": "<website domain>",
+          "eVar3": "\"Energy Spotlight\"",
+          "eVar4": "\"Energy Stories\"",
+          "eVar10": "\"Full Website\"",
+          "eVar12": "<CTA button name/action>",
+          "eVar15": "<Page URL>",
+          "eVar28": "\"Fact Card Video Large\"",
+          "eVar31": "<Clean URL of the current page>",
+          "eVar36": "<C40>"
+        }
+      }
+    },
+    {
+      "id": "ENERGY-C40-IMAGE-SMALL",
+      "name": "C40 Fact Card Image Small",
+      "url": "https://sustainability.aboutamazon.com/stories/spotlight-on-energy",
+      "action": "click",
+      "interactionType": "cta",
+      "planEvent": { "id": "event1", "name": "CTA Clicks" },
+      "target": {
+        "component": "c40-dashboard",
+        "pageSection": "approach",
+        "label": "Optimize, generate, transform",
+        "variant": "small"
+      },
+      "expected": {
+        "eVars": {
+          "eVar1": "<website domain>",
+          "eVar2": "<previous page>",
+          "eVar3": "\"Energy Spotlight\"",
+          "eVar4": "\"Energy Stories\"",
+          "eVar10": "\"Full Website\"",
+          "eVar12": "<CTA button name/action>",
+          "eVar15": "<Page URL>",
+          "eVar28": "\"Fact Card Image Small\"",
+          "eVar31": "<Clean URL of the current page>",
+          "eVar36": "<C40>"
+        }
+      }
+    },
+    {
+      "id": "ENERGY-C43-LINK",
+      "name": "C43 Highlight Slider Link",
+      "url": "https://sustainability.aboutamazon.com/stories/spotlight-on-energy",
+      "action": "click",
+      "interactionType": "link",
+      "planEvent": { "id": "event2", "name": "Link Clicks" },
+      "target": {
+        "component": "c43-highlight-slider",
+        "label": "8M",
+        "href": "https://www.aboutamazon.eu/news/sustainability/amazon-continues-to-be-europes-largest-corporate-purchaser-of-carbon-free-energy"
+      },
+      "expected": {
+        "eVars": {
+          "eVar1": "<website domain>",
+          "eVar2": "<previous page>",
+          "eVar3": "\"Energy Spotlight\"",
+          "eVar4": "\"Energy Stories\"",
+          "eVar10": "\"Full Website\"",
+          "eVar14": "<URL of external destination>",
+          "eVar15": "<Page URL>",
+          "eVar17": "<Link title>",
+          "eVar28": "\"Highlight Slider\"",
+          "eVar31": "<Clean URL of the current page>",
+          "eVar36": "<C43>"
+        },
+        "props": { "prop1": "<Timestamp MM/DD/YYYY format>" }
+      }
+    },
+    {
+      "id": "ENERGY-SCROLL-25",
+      "name": "Scroll Reach 25%",
+      "url": "https://sustainability.aboutamazon.com/stories/spotlight-on-energy",
+      "action": "scroll",
+      "interactionType": "scroll",
+      "planEvent": { "id": "event15", "name": "Scroll Reach 25%" },
+      "expected": {
+        "eVars": {
+          "eVar1": "<website domain>",
+          "eVar3": "<page name>",
+          "eVar4": "<Section>",
+          "eVar10": "\"Full Website\"",
+          "eVar15": "<Page URL>",
+          "eVar28": "<Page section>"
+        }
+      }
+    }
+  ]
+}
